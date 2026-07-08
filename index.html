@@ -1,0 +1,1031 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>✨</text></svg>">
+<title>Activation Studio — Picsart Lifecycle</title>
+<style>
+  :root{
+    --bg:#FAF9FB; --card:#FFFFFF; --ink:#211926; --mut:#77697F; --faint:#A398AB;
+    --line:#EBE5EF; --line2:#F3EFF6;
+    --acc:#C209C1; --acc-ink:#A007A0; --acc-soft:#FBEDFB;
+    --rail:#221728; --rail-ink:#CFC3D6; --rail-dim:#8D7E97;
+    --idea:#6D5AE0;     --idea-bg:#F1EEFC;
+    --drafted:#9A6A00;  --drafted-bg:#FBF3E2;
+    --launched:#17804B; --launched-bg:#E5F5EC;
+    --measured:#0E7490; --measured-bg:#E2F3F7;
+    --rejected:#98424D; --rejected-bg:#F9ECEE;
+    --radius:10px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--bg); color:var(--ink);
+    font-family:"Avenir Next",Avenir,Futura,"Helvetica Neue",Helvetica,system-ui,sans-serif;
+    font-size:15px; line-height:1.5;
+  }
+  button{font:inherit; cursor:pointer}
+  button:focus-visible, input:focus-visible, select:focus-visible{
+    outline:2px solid var(--acc); outline-offset:2px; border-radius:4px;
+  }
+  .mono{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace; font-size:.86em}
+  .num{font-variant-numeric:tabular-nums}
+
+  .app{display:flex; min-height:100vh}
+  .rail{
+    width:224px; flex:none; background:var(--rail); color:var(--rail-ink);
+    display:flex; flex-direction:column; padding:20px 14px;
+    position:sticky; top:0; height:100vh;
+  }
+  .mark{display:flex; align-items:center; gap:10px; padding:4px 8px 18px}
+  .mark-badge{
+    width:32px; height:32px; border-radius:8px; background:var(--acc); flex:none;
+    display:flex; align-items:center; justify-content:center;
+    color:#fff; font-weight:700; font-size:18px;
+  }
+  .mark-name{font-weight:600; font-size:15px; color:#fff; line-height:1.2}
+  .mark-sub{font-size:11px; color:var(--rail-dim); letter-spacing:.06em; text-transform:uppercase}
+  .nav{display:flex; flex-direction:column; gap:2px; margin-top:6px}
+  .nav button{
+    display:flex; align-items:center; gap:10px; width:100%;
+    background:none; border:0; color:var(--rail-ink);
+    padding:9px 10px; border-radius:8px; font-size:14px; font-weight:500; text-align:left;
+  }
+  .nav button:hover{background:rgba(255,255,255,.06); color:#fff}
+  .nav button.on{background:rgba(194,9,193,.22); color:#fff}
+  .nav button.on .ico{stroke:#F27DF1}
+  .nav button.cta{
+    margin-top:18px; justify-content:center; border-radius:99px;
+    background:var(--acc); color:#fff; font-weight:600;
+    box-shadow:0 2px 10px rgba(194,9,193,.35);
+  }
+  .nav button.cta .ico{stroke:#fff}
+  .nav button.cta:hover{background:var(--acc-ink); color:#fff}
+  .nav button.cta.on{
+    background:var(--acc-ink); color:#fff;
+    box-shadow:0 0 0 2px rgba(255,255,255,.45), 0 2px 10px rgba(194,9,193,.35);
+  }
+  .nav button.cta.on .ico{stroke:#fff}
+  .ico{width:17px; height:17px; flex:none; stroke:var(--rail-dim); stroke-width:1.8; fill:none; stroke-linecap:round; stroke-linejoin:round}
+  .rail-foot{margin-top:auto; padding:12px 10px 4px; font-size:11.5px; color:var(--rail-dim); line-height:1.6; border-top:1px solid rgba(255,255,255,.08)}
+  .rail-foot b{color:var(--rail-ink); font-weight:600}
+  .rail-foot button{background:none; border:0; color:var(--rail-dim); text-decoration:underline; padding:0; font-size:11.5px}
+
+  .main{flex:1; min-width:0; padding:28px 34px 60px; max-width:1160px}
+  .view{display:none}
+  .view.on{display:block}
+
+  .vhead{display:flex; align-items:flex-end; justify-content:space-between; gap:16px; margin-bottom:20px; flex-wrap:wrap}
+  .vhead h1{font-size:22px; font-weight:600; margin:0; letter-spacing:-.01em}
+  .vhead p{margin:2px 0 0; color:var(--mut); font-size:14px}
+  .eyebrow{font-size:11px; font-weight:600; letter-spacing:.09em; text-transform:uppercase; color:var(--faint); margin:0 0 4px}
+
+  .btn{
+    border:1px solid var(--line); background:var(--card); color:var(--ink);
+    padding:8px 14px; border-radius:8px; font-size:13.5px; font-weight:600;
+  }
+  .btn:hover{border-color:#D8CEDE}
+  .btn-primary{background:var(--acc); border-color:var(--acc); color:#fff}
+  .btn-primary:hover{background:var(--acc-ink); border-color:var(--acc-ink)}
+  .btn-primary:disabled{opacity:.55; cursor:default}
+
+  .card{background:var(--card); border:1px solid var(--line); border-radius:var(--radius)}
+
+  .stats{display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:14px; margin-bottom:14px}
+  .stat{padding:16px 18px}
+  .stat .lbl{font-size:12px; font-weight:600; letter-spacing:.05em; text-transform:uppercase; color:var(--faint)}
+  .stat .val{font-size:30px; font-weight:600; letter-spacing:-.02em; margin-top:2px}
+  .stat .val em{font-style:normal; color:var(--acc)}
+  .stat .sub{font-size:12.5px; color:var(--mut); margin-top:2px}
+
+  .grid2{display:grid; grid-template-columns:1.4fr 1fr; gap:14px; margin-bottom:14px}
+  @media (max-width:900px){ .grid2{grid-template-columns:1fr} .rail{display:none} .main{padding:20px 16px} }
+
+  .panel{padding:18px 20px}
+  .panel h2{font-size:15px; font-weight:600; margin:0 0 12px}
+  .panel h2 span{font-weight:500; color:var(--mut); font-size:13px}
+
+  .funnel{display:flex; height:34px; border-radius:8px; overflow:hidden; border:1px solid var(--line)}
+  .funnel div{display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:600; min-width:34px}
+  .flegend{display:flex; gap:16px; flex-wrap:wrap; margin-top:10px; font-size:12.5px; color:var(--mut)}
+  .flegend b{color:var(--ink); font-weight:600}
+  .dot{display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:6px; vertical-align:1px}
+
+  .spark{display:flex; align-items:flex-end; gap:6px; height:72px; padding-top:6px}
+  .spark .bar{flex:1; background:var(--acc-soft); border-radius:4px 4px 0 0; position:relative; min-width:10px}
+  .spark .bar.hot{background:var(--acc)}
+  .spark .bar span{position:absolute; top:-18px; left:0; right:0; text-align:center; font-size:11px; color:var(--mut)}
+  .spark-x{display:flex; gap:6px; margin-top:6px}
+  .spark-x div{flex:1; text-align:center; font-size:10.5px; color:var(--faint)}
+
+  .cohorts{display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:12px}
+  .cohort{padding:13px 15px}
+  .cohort .top{display:flex; justify-content:space-between; align-items:center; gap:8px}
+  .cohort .name{font-weight:600; font-size:13.5px}
+  .cohort .key{color:var(--faint)}
+  .cohort .meta{display:flex; justify-content:space-between; margin-top:8px; font-size:12.5px; color:var(--mut)}
+  .tag{font-size:10.5px; font-weight:600; letter-spacing:.04em; text-transform:uppercase; padding:2px 8px; border-radius:99px; white-space:nowrap}
+  .tag-live{background:var(--launched-bg); color:var(--launched)}
+  .tag-open{background:var(--acc-soft); color:var(--acc-ink)}
+
+  .feed{list-style:none; margin:0; padding:0}
+  .feed li{display:flex; gap:12px; padding:9px 0; border-bottom:1px solid var(--line2); font-size:13.5px}
+  .feed li:last-child{border-bottom:0}
+  .feed time{flex:none; width:64px; color:var(--faint); font-size:12px; padding-top:1.5px}
+
+  .chip{display:inline-flex; align-items:center; gap:6px; font-size:12px; font-weight:600; padding:3px 10px; border-radius:99px; white-space:nowrap}
+  .chip::before{content:""; width:7px; height:7px; border-radius:50%; background:currentColor}
+  .chip-idea{background:var(--idea-bg); color:var(--idea)}
+  .chip-drafted{background:var(--drafted-bg); color:var(--drafted)}
+  .chip-launched{background:var(--launched-bg); color:var(--launched)}
+  .chip-measured{background:var(--measured-bg); color:var(--measured)}
+  .chip-rejected{background:var(--rejected-bg); color:var(--rejected)}
+  .dupflag{font-size:11px; font-weight:600; color:var(--drafted); background:var(--drafted-bg); border-radius:99px; padding:2px 8px; margin-left:6px; white-space:nowrap}
+  .chip-running{background:var(--launched-bg); color:var(--launched)}
+  .chip-completed{background:var(--measured-bg); color:var(--measured)}
+  .chip-stopped{background:var(--rejected-bg); color:var(--rejected)}
+  .exp td{background:#FCFAFD; padding:14px 18px}
+  .exp h5{margin:0 0 4px; font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--faint); font-weight:600}
+  .exp p{margin:0 0 12px; font-size:13.5px; color:var(--mut); max-width:75ch}
+  .exp p:last-child{margin-bottom:0}
+  .feed b{font-weight:600}
+
+  .toolbar{display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-bottom:14px}
+  .search{
+    flex:1; min-width:200px; max-width:340px; border:1px solid var(--line); border-radius:8px;
+    padding:8px 12px; font:inherit; font-size:13.5px; background:var(--card); color:var(--ink);
+  }
+  .search::placeholder{color:var(--faint)}
+  .fchip{border:1px solid var(--line); background:var(--card); color:var(--mut); border-radius:99px; padding:5px 13px; font-size:12.5px; font-weight:600}
+  .fchip.on{background:var(--ink); border-color:var(--ink); color:#fff}
+  select.fsel{border:1px solid var(--line); background:var(--card); color:var(--ink); border-radius:8px; padding:7px 10px; font:inherit; font-size:13px}
+
+  .tablewrap{overflow-x:auto}
+  table.bank{width:100%; border-collapse:collapse; min-width:760px}
+  .bank th{
+    text-align:left; font-size:11px; font-weight:600; letter-spacing:.08em; text-transform:uppercase;
+    color:var(--faint); padding:10px 14px; border-bottom:1px solid var(--line);
+  }
+  .bank td{padding:12px 14px; border-bottom:1px solid var(--line2); vertical-align:top}
+  .bank tr.row{cursor:pointer}
+  .bank tr.row:hover td{background:#FCFAFD}
+  .bank .t{font-weight:600; font-size:14px}
+  .bank .s{color:var(--faint); font-size:12px; margin-top:1px}
+  .bank .who{color:var(--mut); font-size:12.5px}
+  .cohort-pill{font-size:11.5px; color:var(--mut); background:var(--line2); border-radius:6px; padding:2px 8px; white-space:nowrap}
+  .empty{padding:34px; text-align:center; color:var(--faint); font-size:14px}
+
+  .scrim{position:fixed; inset:0; background:rgba(33,25,38,.35); opacity:0; pointer-events:none; transition:opacity .2s; z-index:40}
+  .scrim.on{opacity:1; pointer-events:auto}
+  .drawer{
+    position:fixed; top:0; right:-500px; width:480px; max-width:94vw; height:100vh; z-index:50;
+    background:var(--card); border-left:1px solid var(--line); transition:right .25s ease;
+    display:flex; flex-direction:column;
+  }
+  .drawer.on{right:0}
+  .dhead{display:flex; justify-content:space-between; align-items:flex-start; gap:12px; padding:20px 22px 14px; border-bottom:1px solid var(--line)}
+  .dhead h3{margin:0; font-size:17px; font-weight:600; line-height:1.3}
+  .dhead .s{color:var(--faint); font-size:12px}
+  .x{border:0; background:none; color:var(--mut); font-size:20px; line-height:1; padding:2px 6px; border-radius:6px}
+  .x:hover{background:var(--line2)}
+  .dbody{overflow-y:auto; padding:18px 22px 30px; flex:1}
+  .dsec{margin-bottom:20px}
+  .dsec h4{font-size:11px; font-weight:600; letter-spacing:.09em; text-transform:uppercase; color:var(--faint); margin:0 0 8px}
+  .dsec p{margin:0; font-size:13.5px; color:var(--mut)}
+  .kv{display:grid; grid-template-columns:130px 1fr; row-gap:7px; font-size:13.5px; margin:0}
+  .kv dt{color:var(--mut); margin:0}
+  .kv dd{margin:0; overflow-wrap:anywhere}
+  .vbadge{font-size:11px; font-weight:600; padding:1px 7px; border-radius:99px; margin-left:6px; vertical-align:1px}
+  .vbadge-ok{background:var(--launched-bg); color:var(--launched)}
+  .vbadge-warn{background:var(--drafted-bg); color:var(--drafted)}
+
+  .push{
+    background:#1B1420; border-radius:16px; padding:13px 15px; color:#fff;
+    display:flex; gap:11px; align-items:flex-start;
+  }
+  .push .appic{width:34px; height:34px; border-radius:8px; background:var(--acc); flex:none; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:19px}
+  .push .pt{font-weight:600; font-size:13.5px}
+  .push .pb{font-size:13px; color:#CFC6D6; margin-top:1px}
+  .push .pm{font-size:10.5px; color:#8D7E97; letter-spacing:.05em; text-transform:uppercase; margin-bottom:2px}
+
+  .hist{list-style:none; margin:0; padding:0; font-size:13px; border-left:2px solid var(--line)}
+  .hist li{padding:4px 0 4px 14px; position:relative; color:var(--mut)}
+  .hist li::before{content:""; position:absolute; left:-5px; top:11px; width:8px; height:8px; border-radius:50%; background:var(--faint)}
+  .hist li:first-child::before{background:var(--acc)}
+  .hist b{color:var(--ink); font-weight:600}
+
+  .dactions{display:flex; gap:8px; flex-wrap:wrap}
+  .sbtn{border:1px solid var(--line); background:var(--card); border-radius:8px; padding:7px 12px; font-size:12.5px; font-weight:600; color:var(--mut)}
+  .sbtn:hover{border-color:#D8CEDE; color:var(--ink)}
+  .sbtn.cur{border-color:var(--ink); color:var(--ink)}
+
+  .genwrap{display:grid; grid-template-columns:1fr 1.25fr; gap:14px}
+  @media (max-width:900px){ .genwrap{grid-template-columns:1fr} }
+  .steps{list-style:none; margin:10px 0 0; padding:0}
+  .steps li{display:flex; gap:12px; align-items:flex-start; padding:9px 0; border-bottom:1px solid var(--line2); font-size:13.5px}
+  .steps li:last-child{border-bottom:0}
+  .stepdot{
+    width:22px; height:22px; border-radius:50%; flex:none; margin-top:1px;
+    border:2px solid var(--line); color:var(--faint);
+    display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700;
+    transition:all .2s;
+  }
+  .steps li.run .stepdot{border-color:var(--acc); color:var(--acc)}
+  .steps li.done .stepdot{border-color:var(--launched); background:var(--launched); color:#fff}
+  .steps li.fail .stepdot{border-color:var(--rejected); background:var(--rejected); color:#fff}
+  .steps .sl{flex:1}
+  .steps .sl b{font-weight:600}
+  .steps .note{display:block; font-size:12px; color:var(--faint)}
+  .steps li.done .note{color:var(--launched)}
+  .steps li.run .note{color:var(--acc-ink)}
+  .steps li.fail .note{color:var(--rejected)}
+
+  .logbox{
+    margin-top:12px; background:#1B1420; color:#CFC6D6; border-radius:8px;
+    padding:10px 13px; font-family:ui-monospace,"SF Mono",Menlo,monospace;
+    font-size:11.5px; line-height:1.55; max-height:220px; overflow:auto; white-space:pre-wrap;
+  }
+  .results{display:flex; flex-direction:column; gap:10px; margin-top:12px}
+  .rcard{border:1px solid var(--line); border-radius:10px; padding:13px 15px; background:var(--card); cursor:pointer}
+  .rcard:hover{border-color:#D8CEDE}
+  .rcard .rt{display:flex; justify-content:space-between; gap:10px; align-items:baseline}
+  .rcard .rt b{font-size:14px}
+  .rcard p{margin:4px 0 0; font-size:13px; color:var(--mut)}
+  .rhint{font-size:12.5px; color:var(--faint); margin-top:10px}
+  .errbox{border-left:3px solid var(--rejected); background:var(--rejected-bg); border-radius:0 8px 8px 0; padding:12px 16px; font-size:13.5px; margin-top:12px}
+
+  .arch{overflow-x:auto; padding:22px}
+  .archflow{min-width:640px; display:flex; flex-direction:column; align-items:center}
+  .anode{border:1px solid var(--line); border-radius:10px; background:var(--card); padding:11px 18px; text-align:center; min-width:230px}
+  .anode b{display:block; font-size:14px; font-weight:600}
+  .anode span{font-size:12px; color:var(--mut)}
+  .anode.hot{border-color:#EBB8EA; background:var(--acc-soft)}
+  .arrow{display:flex; flex-direction:column; align-items:center; color:var(--faint); font-size:11px; padding:2px 0}
+  .arrow::before{content:""; width:2px; height:16px; background:var(--line)}
+  .arow{display:flex; gap:14px; justify-content:center}
+  .arow .anode{min-width:0; flex:1; max-width:250px}
+  .alabel{font-size:11px; color:var(--faint); letter-spacing:.05em; text-transform:uppercase; margin:2px 0}
+  .callout{border-left:3px solid var(--acc); background:var(--acc-soft); border-radius:0 8px 8px 0; padding:12px 16px; font-size:13.5px; margin-top:14px}
+  .callout b{font-weight:600}
+
+  @media (prefers-reduced-motion: reduce){ .drawer,.scrim,.stepdot{transition:none} }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <aside class="rail">
+    <div class="mark">
+      <div class="mark-badge">A</div>
+      <div>
+        <div class="mark-name">Activation Studio</div>
+        <div class="mark-sub">Picsart Lifecycle</div>
+      </div>
+    </div>
+    <nav class="nav" aria-label="Main">
+      <button data-view="dash" class="on">
+        <svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><rect x="2.5" y="2.5" width="6" height="6" rx="1.5"/><rect x="11.5" y="2.5" width="6" height="6" rx="1.5"/><rect x="2.5" y="11.5" width="6" height="6" rx="1.5"/><rect x="11.5" y="11.5" width="6" height="6" rx="1.5"/></svg>
+        Dashboard
+      </button>
+      <button data-view="bank">
+        <svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M3 5.5h14M3 10h14M3 14.5h9"/></svg>
+        Idea bank
+      </button>
+      <button data-view="camps">
+        <svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M3 12.5v-3l11-4.5v12L3 12.5z"/><path d="M16.5 8a3 3 0 010 5"/><path d="M6.5 13v2.2a1.6 1.6 0 003.2 0V14"/></svg>
+        Campaigns
+      </button>
+      <button data-view="gen" class="cta">
+        <svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M10 2.5l1.8 5.7 5.7 1.8-5.7 1.8L10 17.5l-1.8-5.7-5.7-1.8 5.7-1.8z"/></svg>
+        Generate ideas
+      </button>
+    </nav>
+    <div class="rail-foot">
+      <b>Prototype</b> · sample data, safe to click anything<br>
+      Working as <b id="whoName">Guest</b> · <button id="whoChange" type="button">change name</button>
+    </div>
+  </aside>
+
+  <main class="main">
+
+    <!-- DASHBOARD -->
+    <section class="view on" id="view-dash">
+      <div class="vhead">
+        <div>
+          <p class="eyebrow">Overview</p>
+          <h1>Dashboard</h1>
+          <p>All ideas, and where each one stands.</p>
+        </div>
+        <button class="btn btn-primary" data-goto="gen">Generate ideas</button>
+      </div>
+      <div class="stats" id="statCards"></div>
+      <div class="card panel" style="margin-bottom:14px">
+        <h2>Live campaigns &amp; journeys <span id="runningCount"></span></h2>
+        <ul class="feed" id="runningList"></ul>
+      </div>
+      <div class="grid2">
+        <div class="card panel">
+          <h2>Status funnel <span id="funnelTotal"></span></h2>
+          <div class="funnel" id="funnel"></div>
+          <div class="flegend" id="funnelLegend"></div>
+        </div>
+        <div class="card panel">
+          <h2>Ideas generated per week</h2>
+          <div class="spark" id="sparkBars" aria-label="Ideas generated per week, last 8 weeks"></div>
+          <div class="spark-x" id="sparkX"></div>
+        </div>
+      </div>
+      <div class="card panel" style="margin-bottom:14px">
+        <h2>Audience coverage <span>· ideas and live campaigns per user group</span></h2>
+        <div class="cohorts" id="cohortCards"></div>
+      </div>
+      <div class="card panel">
+        <h2>Recent activity</h2>
+        <ul class="feed" id="feed"></ul>
+      </div>
+    </section>
+
+    <!-- IDEA BANK -->
+    <section class="view" id="view-bank">
+      <div class="vhead">
+        <div>
+          <p class="eyebrow">Library</p>
+          <h1>Idea bank</h1>
+          <p>Every idea in one place. New ideas are checked against it, so nothing repeats.</p>
+        </div>
+        <button class="btn btn-primary" data-goto="gen">Generate ideas</button>
+      </div>
+      <div class="toolbar">
+        <input class="search" id="q" type="search" placeholder="Search title, cohort, copy…" aria-label="Search ideas">
+        <button class="fchip on" data-f="all">All</button>
+        <button class="fchip" data-f="idea">Idea</button>
+        <button class="fchip" data-f="drafted">Drafted</button>
+        <button class="fchip" data-f="launched">Launched</button>
+        <button class="fchip" data-f="measured">Measured</button>
+        <button class="fchip" data-f="rejected">Rejected</button>
+        <select class="fsel" id="cohortSel" aria-label="Filter by cohort"><option value="all">All cohorts</option></select>
+      </div>
+      <div class="card tablewrap">
+        <table class="bank">
+          <thead>
+            <tr>
+              <th style="width:38%">Idea</th>
+              <th>Audience</th>
+              <th>Goal</th>
+              <th>Status</th>
+              <th>Added</th>
+            </tr>
+          </thead>
+          <tbody id="rows"></tbody>
+        </table>
+        <div class="empty" id="emptyMsg" hidden>No ideas yet — press the Generate ideas button and watch the agent work.</div>
+      </div>
+    </section>
+
+    <!-- CAMPAIGNS -->
+    <section class="view" id="view-camps">
+      <div class="vhead">
+        <div>
+          <p class="eyebrow">Shipped</p>
+          <h1>Campaigns &amp; journeys</h1>
+          <p>Everything that went live. Click a row for what we learned and what's next.</p>
+        </div>
+      </div>
+      <div class="toolbar">
+        <button class="fchip cchip on" data-cf="all">All</button>
+        <button class="fchip cchip" data-cf="Running">Running</button>
+        <button class="fchip cchip" data-cf="Completed">Completed</button>
+        <button class="fchip cchip" data-cf="Stopped">Stopped</button>
+        <span style="width:1px; height:22px; background:var(--line)"></span>
+        <button class="fchip tchip on" data-tf="all">Both</button>
+        <button class="fchip tchip" data-tf="Campaign">Campaigns</button>
+        <button class="fchip tchip" data-tf="Journey">Journeys</button>
+      </div>
+      <div class="card tablewrap">
+        <table class="bank">
+          <thead>
+            <tr>
+              <th style="width:42%">Campaign</th>
+              <th>Channel</th>
+              <th>Type</th>
+              <th>Date</th>
+              <th>State</th>
+            </tr>
+          </thead>
+          <tbody id="campRows"></tbody>
+        </table>
+      </div>
+      <p class="rhint" id="campSource"></p>
+    </section>
+
+    <!-- GENERATE -->
+    <section class="view" id="view-gen">
+      <div class="vhead">
+        <div>
+          <p class="eyebrow">New ideas</p>
+          <h1>Generate ideas</h1>
+          <p>One click. The agent studies current data and proposes 3 ranked ideas.</p>
+        </div>
+      </div>
+      <div class="genwrap">
+        <div class="card panel">
+          <h2>New run</h2>
+          <p style="margin:0 0 6px; font-size:13.5px; color:var(--mut)">
+            The agent reviews audience sizes, recent push results, and product data,
+            then proposes 3 ranked ideas. Anything too close to an existing idea is flagged.
+          </p>
+          <div style="margin:14px 0 6px">
+            <button class="btn btn-primary" id="runBtn">Run the agent</button>
+          </div>
+          <p class="rhint">Takes 1 to 3 minutes. Progress shows on the right.</p>
+        </div>
+        <div class="card panel">
+          <h2>Pipeline</h2>
+          <ol class="steps" id="steps">
+            <li data-stage="0"><span class="stepdot">1</span><span class="sl"><b>Gather data</b> <span class="note">audience sizes, recent push results, product data</span></span></li>
+            <li data-stage="1"><span class="stepdot">2</span><span class="sl"><b>Draft 3 ranked ideas</b> <span class="note">grounded in the data, nothing invented</span></span></li>
+            <li data-stage="2"><span class="stepdot">3</span><span class="sl"><b>Quality checks</b> <span class="note">facts verified, links valid, no overlap with live campaigns</span></span></li>
+            <li data-stage="3"><span class="stepdot">4</span><span class="sl"><b>Write summary</b> <span class="note">a short brief per idea</span></span></li>
+            <li data-stage="4"><span class="stepdot">5</span><span class="sl"><b>Save to the bank</b> <span class="note">checked against every past idea</span></span></li>
+          </ol>
+          <div class="errbox" id="runErr" hidden></div>
+          <div class="logbox" id="logBox" hidden></div>
+          <div class="results" id="results" hidden></div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="drawer" aria-label="Idea detail">
+  <div class="dhead">
+    <div>
+      <h3 id="dTitle"></h3>
+      <div class="s mono" id="dSlug"></div>
+    </div>
+    <button class="x" id="dClose" aria-label="Close">×</button>
+  </div>
+  <div class="dbody">
+    <div class="dsec">
+      <h4>Push preview</h4>
+      <div class="push">
+        <div class="appic">P</div>
+        <div>
+          <div class="pm">Picsart · now</div>
+          <div class="pt" id="dPushT"></div>
+          <div class="pb" id="dPushB"></div>
+        </div>
+      </div>
+    </div>
+    <div class="dsec" id="dDupSec" hidden>
+      <div class="errbox" style="margin:0; border-color:var(--drafted); background:var(--drafted-bg)" id="dDupText"></div>
+    </div>
+    <div class="dsec">
+      <h4>Setup</h4>
+      <dl class="kv">
+        <dt>Status</dt><dd id="dStatus"></dd>
+        <dt>Audience</dt><dd id="dCohort"></dd>
+        <dt>Goal</dt><dd id="dMetric"></dd>
+        <dt>Send window</dt><dd id="dWindow"></dd>
+        <dt>Opens in app</dt><dd class="mono" id="dLink"></dd>
+        <dt>Success event</dt><dd class="mono" id="dEvent"></dd>
+        <dt>Source</dt><dd class="mono" id="dRun"></dd>
+      </dl>
+    </div>
+    <div class="dsec">
+      <h4>Why this idea</h4>
+      <p id="dWhy"></p>
+    </div>
+    <div class="dsec" id="dLiftSec"><h4>Expected impact</h4><p id="dLift"></p></div>
+    <div class="dsec" id="dRiskSec"><h4>Risk</h4><p id="dRisk"></p></div>
+    <div class="dsec" id="dAudSec"><h4>Targeting rules · for campaign setup</h4><p class="mono" style="font-size:12px" id="dAud"></p></div>
+    <div class="dsec">
+      <h4>History</h4>
+      <ul class="hist" id="dHist"></ul>
+    </div>
+    <div class="dsec">
+      <h4>Move to</h4>
+      <div class="dactions" id="dActions"></div>
+    </div>
+  </div>
+</aside>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ---------- PROTOTYPE DATA (no server, no database) ---------- */
+  var IDEAS_LOCAL = [];
+  var POOL = [{"id": 19, "run_id": "demo", "slug": "smb_logo_w0_d4_d7_first_export", "title": "Make your brand logo", "body": "Design a logo that fits your business. Start from a prompt, keep the file.", "goal": "Activation", "cohort_id": "declared_smb", "warmupday_window": "D4-D7", "activation_metric": "first_export_d1", "audience_logic": null, "deep_link": "picsart://miniapp_2_editor?package-id=com.picsart.edit.logo-generator", "deep_link_verified": true, "conversion_event": "object_export", "rationale": "Declared small-business users — high-value intent with no live coverage.", "expected_lift": null, "risk": null, "status": "idea", "near_dup_of": null, "similarity": null, "created_at": null}, {"id": 20, "run_id": "demo", "slug": "selfie_declared_d1_d3_enhance_iam", "title": "One tap, better photo", "body": "Your selfie, sharper skin and lighting. Save it in seconds.", "goal": "Activation", "cohort_id": "declared_selfie", "warmupday_window": "D1-D3", "activation_metric": "tool_first_open_d1", "audience_logic": null, "deep_link": "picsart://editor?component=ai_enhance", "deep_link_verified": true, "conversion_event": "ai_tool_open", "rationale": "Users who told us in onboarding they came for selfie editing — matched intent, uncovered audience.", "expected_lift": null, "risk": null, "status": "idea", "near_dup_of": null, "similarity": null, "created_at": null}, {"id": 21, "run_id": "demo", "slug": "one_export_gap_effects_second_export", "title": "Pick up where you left off", "body": "Add an Effect to your last photo. Save the new version in one tap.", "goal": "Activation", "cohort_id": "one_export_at_risk", "warmupday_window": "D4-D7", "activation_metric": "second_export_d7", "audience_logic": null, "deep_link": "picsart://editor?component=effects", "deep_link_verified": true, "conversion_event": "object_export", "rationale": "Users with exactly one export — the second one is the strongest retention predictor we track.", "expected_lift": null, "risk": null, "status": "idea", "near_dup_of": null, "similarity": null, "created_at": null}, {"id": 0, "run_id": "demo", "slug": "weekend_sticker_second_export", "title": "Turn any photo into a sticker", "body": "Weekend project: sticker your camera roll.", "goal": "Activation", "cohort_id": "activated_no_2ed7", "warmupday_window": "D1-D7", "activation_metric": "second_export_d7", "audience_logic": null, "deep_link": "picsart://editor?component=sticker", "deep_link_verified": true, "conversion_event": "object_export", "rationale": "Already activated but no second export within a week — novelty brings them back.", "expected_lift": null, "risk": null, "status": "idea", "near_dup_of": null, "similarity": null, "created_at": null}, {"id": 0, "run_id": "demo", "slug": "crop_first_post_socials", "title": "Make it fit every feed", "body": "One tap resizes your edit for every platform.", "goal": "Activation", "cohort_id": "one_export_at_risk", "warmupday_window": "D1-D7", "activation_metric": "second_export_d7", "audience_logic": null, "deep_link": "picsart://editor?component=crop", "deep_link_verified": false, "conversion_event": "object_export", "rationale": "Users with exactly one export — the second one is the strongest retention predictor we track.", "expected_lift": null, "risk": null, "status": "idea", "near_dup_of": null, "similarity": null, "created_at": null}, {"id": 0, "run_id": "demo", "slug": "video_first_render_w0", "title": "Your first video in 60 seconds", "body": "Turn a photo into a moving moment.", "goal": "Activation", "cohort_id": "w0_no_export", "warmupday_window": "D1-D7", "activation_metric": "first_export_d1", "audience_logic": null, "deep_link": "picsart://apps?experience=default&mapp=com.picsart.edit.image-to-video", "deep_link_verified": true, "conversion_event": "object_export", "rationale": "Brand-new users with no export yet — the largest open audience. The destination delivers exactly what the copy promises.", "expected_lift": null, "risk": null, "status": "idea", "near_dup_of": null, "similarity": null, "created_at": null}, {"id": 0, "run_id": "demo", "slug": "smb_flyer_print_ready", "title": "Your flyer, print-ready", "body": "Sized for print before your coffee cools.", "goal": "Activation", "cohort_id": "declared_smb", "warmupday_window": "D1-D7", "activation_metric": "tool_first_open_d1", "audience_logic": null, "deep_link": "picsart://miniapp_2_editor?package-id=com.picsart.edit.logo-generator", "deep_link_verified": true, "conversion_event": "object_export", "rationale": "Declared small-business users — high-value intent with no live coverage.", "expected_lift": null, "risk": null, "status": "idea", "near_dup_of": null, "similarity": null, "created_at": null}, {"id": 0, "run_id": "demo", "slug": "retouch_portrait_light", "title": "Faces first", "body": "Fix the light in one tap.", "goal": "Activation", "cohort_id": "declared_selfie", "warmupday_window": "D1-D7", "activation_metric": "tool_first_open_d1", "audience_logic": null, "deep_link": "picsart://editor?component=beautify", "deep_link_verified": true, "conversion_event": "object_export", "rationale": "Users who told us in onboarding they came for selfie editing — matched intent, uncovered audience.", "expected_lift": null, "risk": null, "status": "idea", "near_dup_of": null, "similarity": null, "created_at": null}, {"id": 0, "run_id": "demo", "slug": "ai_replace_curiosity", "title": "Swap anything in your photo", "body": "Change the sky. Change the shirt. One prompt.", "goal": "Activation", "cohort_id": "activated_no_2ed7", "warmupday_window": "D1-D7", "activation_metric": "second_export_d7", "audience_logic": null, "deep_link": "picsart://editor?component=ai_replace", "deep_link_verified": true, "conversion_event": "object_export", "rationale": "Already activated but no second export within a week — novelty brings them back.", "expected_lift": null, "risk": null, "status": "idea", "near_dup_of": null, "similarity": null, "created_at": null}, {"id": 1, "run_id": "demo", "slug": "ai_try_on_discovery_armenia_ios", "title": "See yourself in any outfit", "body": "Upload one photo and try on a new look in seconds with AI Try On.", "goal": "Activation (new user → first AI use)", "cohort_id": null, "warmupday_window": null, "activation_metric": null, "audience_logic": null, "deep_link": "picsart://apps?experience=default&mapp=com.picsart.edit.ai-try-on", "deep_link_verified": false, "conversion_event": "ai_tool_open", "rationale": "Uncovered audience with a verified in-app destination.", "expected_lift": null, "risk": null, "status": "idea", "near_dup_of": null, "similarity": null, "created_at": null}, {"id": 2, "run_id": "demo", "slug": "ai_video_generator_outcome_hook", "title": "Turn a photo into a 5-second video", "body": "Pick one image and watch AI bring it to life. Try it now.", "goal": "Drive paid AI usage", "cohort_id": null, "warmupday_window": null, "activation_metric": null, "audience_logic": null, "deep_link": "picsart://apps?experience=default&mapp=com.picsart.edit.image-to-video", "deep_link_verified": false, "conversion_event": "ai_tool_open", "rationale": "Uncovered audience with a verified in-app destination.", "expected_lift": null, "risk": null, "status": "idea", "near_dup_of": null, "similarity": null, "created_at": null}, {"id": 3, "run_id": "demo", "slug": "ai_logo_maker_discovery", "title": "Design a logo with AI", "body": "Type your brand name and get a logo in seconds. No design skills needed.", "goal": "Drive paid AI usage", "cohort_id": null, "warmupday_window": null, "activation_metric": null, "audience_logic": null, "deep_link": "picsart://miniapp_2_editor?package-id=com.picsart.edit.logo-generator", "deep_link_verified": false, "conversion_event": "ai_tool_open", "rationale": "Uncovered audience with a verified in-app destination.", "expected_lift": null, "risk": null, "status": "idea", "near_dup_of": null, "similarity": null, "created_at": null}, {"id": 4, "run_id": "demo", "slug": "ai_replace_editor_reengagement", "title": "Swap anything in your photo", "body": "Tap any object, describe what to replace it with, done. Try AI Replace.", "goal": "Retention (D7/D30/D90)", "cohort_id": null, "warmupday_window": null, "activation_metric": null, "audience_logic": null, "deep_link": "picsart://editor?component=ai_replace", "deep_link_verified": false, "conversion_event": "editor_open", "rationale": "Uncovered audience with a verified in-app destination.", "expected_lift": null, "risk": null, "status": "idea", "near_dup_of": null, "similarity": null, "created_at": null}, {"id": 5, "run_id": "demo", "slug": "motion_studio_curiosity_discovery", "title": "Make your photo move", "body": "Pick a still photo and add motion with AI. See it animate in seconds.", "goal": "Activation (new user → first AI use)", "cohort_id": null, "warmupday_window": null, "activation_metric": null, "audience_logic": null, "deep_link": "picsart://apps?experience=default&mapp=com.picsart.edit.motion-studio", "deep_link_verified": false, "conversion_event": "ai_tool_open", "rationale": "Uncovered audience with a verified in-app destination.", "expected_lift": null, "risk": null, "status": "idea", "near_dup_of": null, "similarity": null, "created_at": null}, {"id": 6, "run_id": "demo", "slug": "edit_abandoned_iam_effects_cluster", "title": "Your look is half-applied", "body": "Jump back in and lock the filter.", "goal": "Drive 2nd export within 7 days (2ED7)", "cohort_id": null, "warmupday_window": null, "activation_metric": null, "audience_logic": null, "deep_link": "picsart://editor?component=ai_enhance", "deep_link_verified": false, "conversion_event": "object_export", "rationale": "Uncovered audience with a verified in-app destination.", "expected_lift": null, "risk": null, "status": "idea", "near_dup_of": null, "similarity": null, "created_at": null}, {"id": 7, "run_id": "demo", "slug": "photo_banner_edit_abandoned_ios_port", "title": "Your composition is waiting", "body": "Pick up where you left off, stickers and all.", "goal": "Drive first export (D0 activation) and 2ED7", "cohort_id": null, "warmupday_window": null, "activation_metric": null, "audience_logic": null, "deep_link": "picsart://editor?component=ai_enhance", "deep_link_verified": false, "conversion_event": "object_export", "rationale": "Uncovered audience with a verified in-app destination.", "expected_lift": null, "risk": null, "status": "idea", "near_dup_of": null, "similarity": null, "created_at": null}, {"id": 8, "run_id": "demo", "slug": "one_export_to_2ed7_named_tool", "title": "Your AI Enhance shot is saved", "body": "Open it back up, one tap to a second edit.", "goal": "Drive 2nd export within 7 days (2ED7)", "cohort_id": null, "warmupday_window": null, "activation_metric": null, "audience_logic": null, "deep_link": "picsart://editor?component=ai_enhance", "deep_link_verified": false, "conversion_event": "object_export", "rationale": "Uncovered audience with a verified in-app destination.", "expected_lift": null, "risk": null, "status": "idea", "near_dup_of": null, "similarity": null, "created_at": null}, {"id": 9, "run_id": "demo", "slug": "w0_d2d7_iam_logo_maker_spotlight", "title": "Design a logo with AI", "body": "Type your brand name and get a logo in seconds. No design skills needed.", "goal": "Drive in-app retention (D1/D3/D7 return) and first export", "cohort_id": null, "warmupday_window": null, "activation_metric": null, "audience_logic": null, "deep_link": "picsart://miniapp_2_editor?package-id=com.picsart.edit.logo-generator", "deep_link_verified": false, "conversion_event": "ai_tool_open", "rationale": "Uncovered audience with a verified in-app destination.", "expected_lift": null, "risk": null, "status": "idea", "near_dup_of": null, "similarity": null, "created_at": null}, {"id": 10, "run_id": "demo", "slug": "continue_project_d1_after_first_export", "title": "Your edit is saved", "body": "Open it back up. One small change, one tap to keep going.", "goal": "Drive 2nd export within 7 days (2ED7)", "cohort_id": null, "warmupday_window": null, "activation_metric": null, "audience_logic": null, "deep_link": "picsart://editor?component=ai_enhance", "deep_link_verified": false, "conversion_event": "object_export", "rationale": "Uncovered audience with a verified in-app destination.", "expected_lift": null, "risk": null, "status": "idea", "near_dup_of": null, "similarity": null, "created_at": null}, {"id": 11, "run_id": "demo", "slug": "smb_brand_builder_logo_maker", "title": "Design your brand in 60 seconds", "body": "Type your name, AI builds the logo. Tap to start.", "goal": "Drive first AI tool open (path to first export)", "cohort_id": null, "warmupday_window": null, "activation_metric": null, "audience_logic": null, "deep_link": "picsart://miniapp_2_editor?package-id=com.picsart.edit.logo-generator", "deep_link_verified": false, "conversion_event": "ai_tool_open", "rationale": "Uncovered audience with a verified in-app destination.", "expected_lift": null, "risk": null, "status": "idea", "near_dup_of": null, "similarity": null, "created_at": null}, {"id": 12, "run_id": "demo", "slug": "selfie_beautifier_ai_enhance_cluster", "title": "Your selfie, one tap better", "body": "AI Enhance fixes lighting, focus, and skin in seconds.", "goal": "Drive first export (D0 activation) and 2ED7", "cohort_id": null, "warmupday_window": null, "activation_metric": null, "audience_logic": null, "deep_link": "picsart://editor?component=ai_enhance&dismiss-presented-controlers=false", "deep_link_verified": false, "conversion_event": "object_export", "rationale": "Uncovered audience with a verified in-app destination.", "expected_lift": null, "risk": null, "status": "idea", "near_dup_of": null, "similarity": null, "created_at": null}, {"id": 13, "run_id": "demo", "slug": "beginner_one_tap_ai_enhance", "title": "One tap, photo done", "body": "Open the app, pick a photo, tap AI Enhance. That's it.", "goal": "Drive first export (D0 activation)", "cohort_id": null, "warmupday_window": null, "activation_metric": null, "audience_logic": null, "deep_link": "picsart://editor?component=ai_enhance", "deep_link_verified": false, "conversion_event": "object_export", "rationale": "Uncovered audience with a verified in-app destination.", "expected_lift": null, "risk": null, "status": "idea", "near_dup_of": null, "similarity": null, "created_at": null}, {"id": 14, "run_id": "demo", "slug": "social_content_maker_template_pack", "title": "Your next Instagram post in 30 seconds", "body": "Pick a template, drop your photo, share. We'll fit the crop.", "goal": "Drive 2ED7 (recurring use; weekly posters)", "cohort_id": null, "warmupday_window": null, "activation_metric": null, "audience_logic": null, "deep_link": "picsart://template", "deep_link_verified": false, "conversion_event": "object_export", "rationale": "Uncovered audience with a verified in-app destination.", "expected_lift": null, "risk": null, "status": "idea", "near_dup_of": null, "similarity": null, "created_at": null}, {"id": 15, "run_id": "demo", "slug": "video_first_creator_image_to_video", "title": "Turn your photo into a 5-second video", "body": "Pick one image. AI brings it to life. Watch it move.", "goal": "Drive first AI tool open (path to differentiated content)", "cohort_id": null, "warmupday_window": null, "activation_metric": null, "audience_logic": null, "deep_link": "picsart://apps?experience=default&mapp=com.picsart.edit.image-to-video", "deep_link_verified": false, "conversion_event": "ai_tool_open", "rationale": "Uncovered audience with a verified in-app destination.", "expected_lift": null, "risk": null, "status": "idea", "near_dup_of": null, "similarity": null, "created_at": null}, {"id": 16, "run_id": "demo", "slug": "smb_logo_maker_w0_d4_d7", "title": "Make your brand logo today", "body": "Your free AI logo maker is ready. Design one in a minute and save it to your phone.", "goal": "Activation", "cohort_id": "declared_smb", "warmupday_window": "D4-D7", "activation_metric": "first_export_d1", "audience_logic": null, "deep_link": "picsart://miniapp_2_editor?package-id=com.picsart.edit.logo-generator", "deep_link_verified": true, "conversion_event": "ai_tool_open", "rationale": "Declared small-business users — high-value intent with no live coverage.", "expected_lift": null, "risk": null, "status": "idea", "near_dup_of": null, "similarity": null, "created_at": null}, {"id": 17, "run_id": "demo", "slug": "selfie_portrait_cluster_d1_d3", "title": "One tap to fix your selfie", "body": "Pick a photo, let AI Enhance do the work, save it to your camera roll.", "goal": "Activation", "cohort_id": "declared_selfie", "warmupday_window": "D1-D3", "activation_metric": "first_export_d1", "audience_logic": null, "deep_link": "picsart://editor?component=ai_enhance", "deep_link_verified": true, "conversion_event": "ai_tool_open", "rationale": "Users who told us in onboarding they came for selfie editing — matched intent, uncovered audience.", "expected_lift": null, "risk": null, "status": "idea", "near_dup_of": null, "similarity": null, "created_at": null}, {"id": 18, "run_id": "demo", "slug": "second_save_nudge_one_export_d4_d7", "title": "Make one more before the week ends", "body": "You saved one edit already. Open up a new photo and try a different look in under a minute.", "goal": "Activation", "cohort_id": "one_export_at_risk", "warmupday_window": "D4-D7", "activation_metric": "second_export_d7", "audience_logic": null, "deep_link": "picsart://editor?component=ai_enhance", "deep_link_verified": true, "conversion_event": "object_export", "rationale": "Users with exactly one export — the second one is the strongest retention predictor we track.", "expected_lift": null, "risk": null, "status": "idea", "near_dup_of": null, "similarity": null, "created_at": null}];
+  var CAMPS_DATA = [{"title": "Win-back for lapsed paid subscribers", "channel": "Push", "kind": "Campaign", "date": "2026-05-14", "state": "Completed", "learnings": "Brought back a meaningful group of lapsed subscribers within a week. Works as a passive reminder, not a tap-driver.", "next_steps": "Personalize by favorite tool; A/B the copy."}, {"title": "New-user 2nd-edit activation", "channel": "Push", "kind": "Campaign", "date": "2026-05-15", "state": "Completed", "learnings": "First fully AI-built push. Strongest per-user result of its wave, held back by delivery.", "next_steps": "Widen the window, fix delivery, then scale."}, {"title": "Edit recovery — AI Enhance copy test", "channel": "Push", "kind": "Journey", "date": "2026-05-08", "state": "Stopped", "learnings": "Tool-specific copy clearly beat generic — our founding personalization win.", "next_steps": "Proven — rolled into the 5-tool journey."}, {"title": "Edit recovery — Remove Background copy test", "channel": "Push", "kind": "Journey", "date": "2026-05-18", "state": "Stopped", "learnings": "Repeated the personalization win on a second tool.", "next_steps": "Folded into the 5-tool journey; add a control group."}, {"title": "Edit recovery — 5 tools", "channel": "Push", "kind": "Journey", "date": "2026-05-21", "state": "Running", "learnings": "Scaled to five tools, reaching a very large audience. Full results pending.", "next_steps": "Read the results, then expand tools and add Android."}, {"title": "AI Enhance via in-app message", "channel": "In-App Message", "kind": "Journey", "date": "2026-05-28", "state": "Stopped", "learnings": "Largest absolute activation driver, but ran without a control group, so lift cannot be claimed. iOS only.", "next_steps": "Add a holdout and Android; simplify the entry steps."}, {"title": "AI Enhance adoption", "channel": "Push", "kind": "Campaign", "date": "2026-05-29", "state": "Completed", "learnings": "Largest reach of the adoption wave. AI Enhance is our top hook.", "next_steps": "Keep as lead hook; add a control group."}, {"title": "Remove Background adoption", "channel": "Push", "kind": "Campaign", "date": "2026-05-30", "state": "Completed", "learnings": "Very large send; audience overlaps other Remove Background campaigns.", "next_steps": "Keep; dedupe the audience."}, {"title": "Effects adoption", "channel": "Push", "kind": "Campaign", "date": "2026-05-31", "state": "Completed", "learnings": "Best click rate of the set, on the smallest audience.", "next_steps": "Expand reach; test richer creative."}, {"title": "Beautify adoption", "channel": "Push", "kind": "Campaign", "date": "2026-06-01", "state": "Completed", "learnings": "Mid-tier hook — less aspirational than the AI tools.", "next_steps": "Lower priority; widen the window."}, {"title": "Text adoption", "channel": "Push", "kind": "Campaign", "date": "2026-06-02", "state": "Completed", "learnings": "Weakest hook of the five.", "next_steps": "Stop — let the 5-tool journey cover it."}, {"title": "New-user activation — opens app no edit", "channel": "Push", "kind": "Campaign", "date": "2026-06-10", "state": "Completed", "learnings": "Moved thousands of new users into the editor, but delivery reached only a third of the audience.", "next_steps": "Fix new-user delivery, then scale as the template."}, {"title": "Unused credits — AI Image Editor", "channel": "Push", "kind": "Campaign", "date": "2026-06-11", "state": "Completed", "learnings": "Positive on the surface but ran without a control; most conversions were passive on an audience already primed to convert.", "next_steps": "Add a holdout; fix delivery, then re-run."}, {"title": "AI Enhance — unused-tool push (A/B)", "channel": "Push", "kind": "Campaign", "date": "2026-06-16", "state": "Completed", "learnings": "Best per-user lift of the five-tool set, but on the hardest goal the absolute movement was small. Push is a weak lever here.", "next_steps": "Keep push as a cheap reminder; drive AI Enhance via the modal."}, {"title": "Remove Background — unused-tool push (A/B)", "channel": "Push", "kind": "Campaign", "date": "2026-06-16", "state": "Completed", "learnings": "The only unused-tool push that beat its control on both rate and count — a genuine, if small, win.", "next_steps": "Keep; pair with the Remove Background modal."}, {"title": "Effects — unused-tool push (A/B)", "channel": "Push", "kind": "Campaign", "date": "2026-06-16", "state": "Completed", "learnings": "Best curiosity (top click rate) but the weakest conversion lift of the set.", "next_steps": "Lowest push priority; route Effects through the modal."}, {"title": "Beautify — unused-tool push (A/B)", "channel": "Push", "kind": "Campaign", "date": "2026-06-16", "state": "Completed", "learnings": "Marginal lift — push barely moves this tool.", "next_steps": "Low priority; carry it via the modal and the journey."}, {"title": "Text — unused-tool push (A/B)", "channel": "Push", "kind": "Campaign", "date": "2026-06-16", "state": "Completed", "learnings": "Looked strongest on paper only because its goal was softer — not a fair comparison.", "next_steps": "Re-measure on a like-for-like goal."}, {"title": "AI Enhance in-app modal — Android", "channel": "In-App Message", "kind": "Campaign", "date": "2026-06-16", "state": "Stopped", "learnings": "Breakout winner: the in-app modal format dwarfs every push we have run.", "next_steps": "Make the modal the default activation format; clone it for the next tools."}, {"title": "AI Image (text-to-image) in-app modal", "channel": "In-App Message", "kind": "Campaign", "date": "2026-06-18", "state": "Running", "learnings": "Strong per-user lift but tiny reach due to campaign caps. The format works; volume is the constraint.", "next_steps": "Lift the cap and re-run at full base."}, {"title": "Remove Background in-app modal", "channel": "In-App Message", "kind": "Campaign", "date": "2026-06-19", "state": "Running", "learnings": "Best modal yet — the strongest tool-to-format fit we have found.", "next_steps": "Make it the flagship modal; scale to full base and Android."}, {"title": "Text in-app modal — full base (no registration filter)", "channel": "In-App Message", "kind": "Campaign", "date": "2026-06-24", "state": "Running", "learnings": "Lift compresses on the broad audience but stays clearly positive at high volume — the format survives outside the engaged cohort.", "next_steps": "Read the full window; decide whether to gate by engagement."}, {"title": "Effects in-app modal — full base (no registration filter)", "channel": "In-App Message", "kind": "Campaign", "date": "2026-06-25", "state": "Running", "learnings": "Genuine win on both rate and raw count. Added to the leadership deck.", "next_steps": "Lock as a standard activation play if the full read holds."}, {"title": "Beautify in-app modal — full base (no registration filter)", "channel": "In-App Message", "kind": "Campaign", "date": "2026-06-25", "state": "Running", "learnings": "Genuine but the weakest modal so far — a mid-tier hook on a broad audience.", "next_steps": "Rank below the other modals; test a stronger hook."}, {"title": "AI Enhance in-app modal — video + iOS A/B", "channel": "In-App Message", "kind": "Campaign", "date": "2026-06-30", "state": "Running", "learnings": "Strongest AI Enhance result to date: a massive shift in which tool users touch, with a modest overall activation lift on an audience that already exports at a high baseline.", "next_steps": "Graduated to always-on rollout; track both the tool goal and the activation goal."}, {"title": "Late Bloomers — D8–D60 2nd-edit / new-tool push", "channel": "Push", "kind": "Campaign", "date": "2026-06-30", "state": "Completed", "learnings": "Consistent, genuine, small reminder lift on second-tool adoption; delivery caps the ceiling.", "next_steps": "Convert to a weekly drip; fix delivery first."}, {"title": "Editor-abandonment in-app rescue", "channel": "In-App Message", "kind": "Journey", "date": "2026-07-01", "state": "Running", "learnings": "Early lift is narrowing as natural exports accrue — this audience mostly finishes on its own.", "next_steps": "Pull the like-for-like comparison at the full window and make the keep/kill call."}];
+  var ACTIVITY_LOCAL = [{"ts": "2026-07-01", "text": "Editor-abandonment rescue journey launched"}, {"ts": "2026-06-30", "text": "AI Enhance modal graduated to full-scale rollout"}, {"ts": "2026-06-30", "text": "Late Bloomers push completed with a clear lift on 2nd-tool adoption"}];
+  var HISTORY_LOCAL = {};
+  var NEXT_ID = 1000, POOL_IDX = 0, RUN = null;
+  function nowIso(){ return new Date().toISOString(); }
+  function popPool(){
+    var batch = [], dups = 0;
+    for(var k = 0; k < 3; k++){
+      var src = POOL[POOL_IDX % POOL.length];
+      var recycled = POOL_IDX >= POOL.length;
+      POOL_IDX++;
+      var idea = JSON.parse(JSON.stringify(src));
+      idea.id = NEXT_ID++;
+      idea.created_at = nowIso();
+      idea.run_id = 'demo-run';
+      if(recycled){
+        for(var j = 0; j < IDEAS_LOCAL.length; j++){
+          if(IDEAS_LOCAL[j].slug === idea.slug){ idea.near_dup_of = IDEAS_LOCAL[j].id; idea.similarity = 0.9; dups++; break; }
+        }
+      }
+      IDEAS_LOCAL.unshift(idea);
+      batch.push(idea);
+    }
+    ACTIVITY_LOCAL.unshift({ts: nowIso(), text: 'Agent run generated 3 ideas' + (dups ? ' (' + dups + ' flagged as possible repeats)' : '')});
+    return {ideas: batch, added: 3, dups: dups};
+  }
+  function runStatus(){
+    var t = (Date.now() - RUN.start) / 1000;
+    var logs = [];
+    var step = 'gathering_data', status = 'running';
+    if(t > 0.5) logs.push('[activation] run demo — sizing cohorts ...');
+    if(t > 2) logs.push('[activation] 6 cohorts sized · pulling 30d push performance ...');
+    if(t > 3.5){ step = 'calling_llm'; logs.push('[activation] baselines fresh (3 days old) — refresh skipped', '[activation] drafting 3 ranked ideas from the facts table ...'); }
+    if(t > 7){ step = 'generating_brief'; logs.push('[activation] 3 ideas drafted — running 6 validators ...'); }
+    if(t > 9){ status = 'succeeded'; step = 'awaiting_idea_choice'; logs.push('[activation] saved to the idea bank'); }
+    var out = {id: 99, status: status, step: step, log_tail: logs.join('\n')};
+    if(status === 'succeeded'){
+      if(!RUN.result) RUN.result = popPool();
+      out.ideas = RUN.result.ideas; out.ideas_added = RUN.result.added; out.dups_flagged = RUN.result.dups;
+    }
+    return out;
+  }
+  function mockRoute(path, opts){
+    var m;
+    if(path === '/api/ideas') return IDEAS_LOCAL.slice();
+    if(path === '/api/activity') return ACTIVITY_LOCAL.slice(0, 30);
+    if(path === '/api/campaigns') return {campaigns: CAMPS_DATA, synced_at: '2026-07-08'};
+    m = path.match(/^\/api\/ideas\/(\d+)\/history$/);
+    if(m) return (HISTORY_LOCAL[m[1]] || []).slice();
+    m = path.match(/^\/api\/ideas\/(\d+)$/);
+    if(m){
+      var payload = JSON.parse(opts.body);
+      var idea = null;
+      for(var j = 0; j < IDEAS_LOCAL.length; j++){ if(IDEAS_LOCAL[j].id === +m[1]){ idea = IDEAS_LOCAL[j]; break; } }
+      if(!idea) throw new Error('not found');
+      if(!HISTORY_LOCAL[idea.id]) HISTORY_LOCAL[idea.id] = [];
+      HISTORY_LOCAL[idea.id].unshift({changed_at: nowIso(), changed_by: payload.by || 'You', to_status: payload.status, note: ''});
+      ACTIVITY_LOCAL.unshift({ts: nowIso(), text: (payload.by || 'You') + ' marked \u201c' + (idea.title || idea.slug) + '\u201d as ' + payload.status});
+      idea.status = payload.status;
+      return {ok: true};
+    }
+    if(path === '/api/runs' && opts.method === 'POST'){
+      RUN = {start: Date.now(), result: null};
+      return {id: 99};
+    }
+    if(path === '/api/runs/99') return runStatus();
+    throw new Error('not found: ' + path);
+  }
+
+  var STATUSES = {
+    idea:     {label:"Idea",     color:"var(--idea)",     bg:"var(--idea-bg)"},
+    drafted:  {label:"Drafted",  color:"var(--drafted)",  bg:"var(--drafted-bg)"},
+    launched: {label:"Launched", color:"var(--launched)", bg:"var(--launched-bg)"},
+    measured: {label:"Measured", color:"var(--measured)", bg:"var(--measured-bg)"},
+    rejected: {label:"Rejected", color:"var(--rejected)", bg:"var(--rejected-bg)"}
+  };
+  var ORDER = ["idea","drafted","launched","measured","rejected"];
+  var COHORT_NAMES = {
+    w0_no_export:"New users, no export yet",
+    one_export_at_risk:"One export, then silence",
+    edit_abandoned_48h:"Abandoned an edit",
+    declared_selfie:"Wants selfie editing",
+    declared_smb:"Small business owners",
+    activated_no_2ed7:"Active, needs a 2nd export"
+  };
+  var METRIC_NAMES = {
+    first_export_d1:"First export, day 1",
+    second_export_d7:"2nd export in 7 days",
+    tool_first_open_d1:"Opens the tool, day 1",
+    app_return_d3:"Returns by day 3"
+  };
+  var LIVE_TAGS = {
+    w0_no_export:"1 live", edit_abandoned_48h:"3 live", activated_no_2ed7:"1 live"
+  };
+  function cohortLabel(c){ return COHORT_NAMES[c] || c || "—"; }
+  function goalLabel(i){
+    var m = i.activation_metric;
+    return (m && METRIC_NAMES[m]) || m || i.goal || "—";
+  }
+  var MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+
+  var IDEAS = [];
+  var byId = {};
+
+  function $(s){ return document.querySelector(s); }
+  function $all(s){ return Array.prototype.slice.call(document.querySelectorAll(s)); }
+  function esc(t){ var d=document.createElement("span"); d.textContent=t==null?"":String(t); return d.innerHTML; }
+  function chip(st){ return '<span class="chip chip-'+st+'">'+STATUSES[st].label+'</span>'; }
+  function fmtDate(iso){
+    if(!iso) return "—";
+    var d = new Date(iso);
+    if(isNaN(d)) return iso.slice(0,10);
+    return MONTHS[d.getMonth()]+" "+d.getDate();
+  }
+  function api(path, opts){
+    opts = opts || {};
+    return new Promise(function(resolve, reject){
+      setTimeout(function(){
+        try { resolve(mockRoute(path, opts)); } catch(e){ reject(e); }
+      }, 150);
+    });
+  }
+
+  /* ---------- identity (pre-login) ---------- */
+  function who(){ return localStorage.getItem("studioName") || "Guest"; }
+  function renderWho(){ $("#whoName").textContent = who(); }
+  $("#whoChange").addEventListener("click", function(){
+    var n = prompt("Your name (shown in the activity log):", who());
+    if(n && n.trim()){ localStorage.setItem("studioName", n.trim()); renderWho(); }
+  });
+  renderWho();
+
+  /* ---------- nav ---------- */
+  function show(view){
+    $all(".view").forEach(function(v){ v.classList.remove("on"); });
+    $("#view-"+view).classList.add("on");
+    $all(".nav button").forEach(function(b){ b.classList.toggle("on", b.dataset.view===view); });
+    window.scrollTo(0,0);
+  }
+  $all(".nav button").forEach(function(b){ b.addEventListener("click", function(){ show(b.dataset.view); }); });
+  $all("[data-goto]").forEach(function(b){ b.addEventListener("click", function(){ show(b.dataset.goto); }); });
+
+  /* ---------- dashboard ---------- */
+  function counts(){
+    var c = {idea:0,drafted:0,launched:0,measured:0,rejected:0};
+    IDEAS.forEach(function(i){ if(c[i.status]!=null) c[i.status]++; });
+    return c;
+  }
+  function renderDash(){
+    var c = counts(), total = IDEAS.length;
+    var weekAgo = Date.now() - 7*86400e3;
+    var thisWeek = IDEAS.filter(function(i){ var d=new Date(i.created_at); return !isNaN(d) && d.getTime()>weekAgo; }).length;
+    var shipped = c.launched + c.measured;
+    var considered = total - c.rejected;
+    var rate = considered ? Math.round(100*shipped/considered) : 0;
+    $("#statCards").innerHTML =
+      '<div class="card stat"><div class="lbl">Ideas</div><div class="val num">'+total+'</div><div class="sub">all time</div></div>'+
+      '<div class="card stat"><div class="lbl">New this week</div><div class="val num"><em>+'+thisWeek+'</em></div></div>'+
+      '<div class="card stat"><div class="lbl">Live now</div><div class="val num">'+c.launched+'</div><div class="sub">'+c.measured+' measured, '+c.drafted+' in draft</div></div>'+
+      '<div class="card stat"><div class="lbl">Shipped</div><div class="val num">'+rate+'%</div><div class="sub">'+shipped+' of '+considered+' ideas</div></div>';
+
+    var f = $("#funnel"); f.innerHTML = "";
+    var lg = $("#funnelLegend"); lg.innerHTML = "";
+    ORDER.forEach(function(st){
+      if(!c[st]) return;
+      var seg = document.createElement("div");
+      seg.style.flex = c[st];
+      seg.style.background = STATUSES[st].bg;
+      seg.style.color = STATUSES[st].color;
+      seg.textContent = c[st];
+      f.appendChild(seg);
+      var l = document.createElement("span");
+      l.innerHTML = '<span class="dot" style="background:'+STATUSES[st].color+'"></span>'+STATUSES[st].label+' <b class="num">'+c[st]+'</b>';
+      lg.appendChild(l);
+    });
+    $("#funnelTotal").textContent = "· " + total + " ideas all time";
+
+    // weekly bars, last 8 ISO-ish weeks (Mon start)
+    var nowD = new Date(); var day = (nowD.getDay()+6)%7;
+    var monday = new Date(nowD.getFullYear(), nowD.getMonth(), nowD.getDate()-day);
+    var weeks = [];
+    for(var w=7; w>=0; w--){
+      var start = new Date(monday.getTime() - w*7*86400e3);
+      weeks.push({start:start, count:0});
+    }
+    IDEAS.forEach(function(i){
+      var d = new Date(i.created_at); if(isNaN(d)) return;
+      for(var k=weeks.length-1;k>=0;k--){
+        if(d >= weeks[k].start){ weeks[k].count++; break; }
+      }
+    });
+    var max = Math.max.apply(null, weeks.map(function(w){return w.count;}).concat([1]));
+    $("#sparkBars").innerHTML = weeks.map(function(w,idx){
+      var h = Math.max(6, Math.round(100*w.count/max));
+      return '<div class="bar'+(idx===weeks.length-1?' hot':'')+'" style="height:'+h+'%"><span>'+w.count+'</span></div>';
+    }).join("");
+    $("#sparkX").innerHTML = weeks.map(function(w){
+      return '<div>'+MONTHS[w.start.getMonth()]+' '+w.start.getDate()+'</div>';
+    }).join("");
+
+    // cohort coverage
+    var perCohort = {};
+    IDEAS.forEach(function(i){
+      var key = i.cohort_id || "other";
+      perCohort[key] = (perCohort[key]||0)+1;
+    });
+    var keys = Object.keys(COHORT_NAMES);
+    Object.keys(perCohort).forEach(function(k){ if(keys.indexOf(k)===-1) keys.push(k); });
+    $("#cohortCards").innerHTML = keys.map(function(k){
+      var n = perCohort[k]||0;
+      var tag = LIVE_TAGS[k] ? '<span class="tag tag-live">'+LIVE_TAGS[k]+'</span>' : '<span class="tag tag-open">Open space</span>';
+      var name = COHORT_NAMES[k] || (k==="other" ? "Other audiences" : k);
+      return '<div class="card cohort"><div class="top"><span class="name">'+esc(name)+'</span>'+tag+'</div>'+
+        '<div class="meta"><span class="num">'+n+' idea'+(n===1?'':'s')+'</span></div></div>';
+    }).join("");
+  }
+
+  function renderFeed(events){
+    $("#feed").innerHTML = events.length ? events.map(function(e){
+      return '<li><time>'+fmtDate(e.ts)+'</time><span>'+esc(e.text)+'</span></li>';
+    }).join("") : '<li><span style="color:var(--faint)">No activity yet. Generate some ideas.</span></li>';
+  }
+
+  /* ---------- idea bank ---------- */
+  var fStatus = "all", fCohort = "all", fText = "";
+  function displayTitle(i){ return i.title || i.slug.replace(/_/g," "); }
+  function renderCohortSel(){
+    var seen = {};
+    IDEAS.forEach(function(i){ if(i.cohort_id) seen[i.cohort_id]=1; });
+    var opts = '<option value="all">All audiences</option>';
+    Object.keys(seen).sort().forEach(function(k){ opts += '<option value="'+esc(k)+'">'+esc(cohortLabel(k))+'</option>'; });
+    $("#cohortSel").innerHTML = opts;
+    $("#cohortSel").value = fCohort==="all"||seen[fCohort] ? fCohort : "all";
+  }
+  function renderRows(){
+    var tb = $("#rows"); tb.innerHTML = "";
+    var shown = 0;
+    IDEAS.forEach(function(i){
+      if(fStatus!=="all" && i.status!==fStatus) return;
+      if(fCohort!=="all" && i.cohort_id!==fCohort) return;
+      var hay = (displayTitle(i)+" "+(i.body||"")+" "+(i.cohort_id||"")+" "+i.slug+" "+(i.rationale||"")).toLowerCase();
+      if(fText && hay.indexOf(fText)===-1) return;
+      shown++;
+      var tr = document.createElement("tr");
+      tr.className = "row";
+      tr.tabIndex = 0;
+      var dup = i.near_dup_of ? '<span class="dupflag">possible repeat</span>' : "";
+      tr.innerHTML =
+        '<td><div class="t">'+esc(displayTitle(i))+dup+'</div><div class="s">“'+esc(i.body||"")+'”</div></td>'+
+        '<td>'+(i.cohort_id?'<span class="cohort-pill">'+esc(cohortLabel(i.cohort_id))+'</span>':'<span style="color:var(--faint)">—</span>')+'</td>'+
+        '<td><span style="font-size:12.5px; color:var(--mut)">'+esc(goalLabel(i))+'</span></td>'+
+        '<td>'+chip(i.status)+'</td>'+
+        '<td><div class="num" style="font-size:13px">'+fmtDate(i.created_at)+'</div></td>';
+      tr.addEventListener("click", function(){ openDrawer(i.id); });
+      tr.addEventListener("keydown", function(e){ if(e.key==="Enter") openDrawer(i.id); });
+      tb.appendChild(tr);
+    });
+    $("#emptyMsg").hidden = shown>0;
+  }
+  $all(".fchip[data-f]").forEach(function(b){
+    b.addEventListener("click", function(){
+      $all(".fchip[data-f]").forEach(function(x){ x.classList.remove("on"); });
+      b.classList.add("on"); fStatus = b.dataset.f; renderRows();
+    });
+  });
+  $("#cohortSel").addEventListener("change", function(e){ fCohort = e.target.value; renderRows(); });
+  $("#q").addEventListener("input", function(e){ fText = e.target.value.trim().toLowerCase(); renderRows(); });
+
+  /* ---------- drawer ---------- */
+  function setSec(secId, textId, val){
+    $(secId).hidden = !val;
+    if(val) $(textId).textContent = val;
+  }
+  function openDrawer(id){
+    var i = byId[id];
+    if(!i) return;
+    $("#dTitle").textContent = displayTitle(i);
+    $("#dSlug").textContent = i.slug;
+    $("#dPushT").textContent = i.title || "—";
+    $("#dPushB").textContent = i.body || "—";
+    $("#dStatus").innerHTML = chip(i.status);
+    $("#dCohort").textContent = cohortLabel(i.cohort_id);
+    $("#dMetric").textContent = goalLabel(i);
+    $("#dWindow").textContent = i.warmupday_window ? "Day "+i.warmupday_window.replace(/D/g,"").replace("-"," to ") : "—";
+    $("#dLink").innerHTML = esc(i.deep_link||"—") +
+      (i.deep_link ? ' <span class="vbadge '+(i.deep_link_verified?"vbadge-ok":"vbadge-warn")+'">'+
+        (i.deep_link_verified?"Verified":"Not tested yet")+'</span>' : "");
+    $("#dEvent").textContent = i.conversion_event || "—";
+    $("#dRun").textContent = i.run_id;
+    $("#dWhy").textContent = i.rationale || "—";
+    setSec("#dLiftSec","#dLift", i.expected_lift);
+    setSec("#dRiskSec","#dRisk", i.risk);
+    setSec("#dAudSec","#dAud", i.audience_logic);
+    if(i.near_dup_of && byId[i.near_dup_of]){
+      $("#dDupSec").hidden = false;
+      $("#dDupText").textContent = "Possible duplicate: "+Math.round((i.similarity||0)*100)+
+        "% similar to “"+displayTitle(byId[i.near_dup_of])+"” ("+byId[i.near_dup_of].run_id+").";
+    } else {
+      $("#dDupSec").hidden = true;
+    }
+    var h = $("#dHist");
+    h.innerHTML = '<li><b>'+fmtDate(i.created_at)+'</b> · Generated by run '+esc(i.run_id)+'</li>';
+    api("/api/ideas/"+i.id+"/history").then(function(hist){
+      var items = hist.map(function(ev){
+        var t = '<b>'+fmtDate(ev.changed_at)+'</b> · '+esc(ev.changed_by||"")+' marked '+esc(ev.to_status);
+        if(ev.note) t += ' · '+esc(ev.note);
+        return '<li>'+t+'</li>';
+      });
+      items.push('<li><b>'+fmtDate(i.created_at)+'</b> · Generated by run '+esc(i.run_id)+'</li>');
+      h.innerHTML = items.join("");
+    }).catch(function(){});
+    var a = $("#dActions"); a.innerHTML = "";
+    ORDER.forEach(function(st){
+      var b = document.createElement("button");
+      b.className = "sbtn" + (st===i.status ? " cur" : "");
+      b.textContent = STATUSES[st].label;
+      b.addEventListener("click", function(){
+        if(st===i.status) return;
+        api("/api/ideas/"+i.id, {
+          method:"PATCH",
+          headers:{"Content-Type":"application/json"},
+          body:JSON.stringify({status:st, by:who()})
+        }).then(function(){
+          i.status = st;
+          renderRows(); renderDash(); loadActivity(); openDrawer(i.id);
+        }).catch(function(e){ alert("Could not save: "+e.message); });
+      });
+      a.appendChild(b);
+    });
+    $("#drawer").classList.add("on");
+    $("#scrim").classList.add("on");
+  }
+  function closeDrawer(){
+    $("#drawer").classList.remove("on");
+    $("#scrim").classList.remove("on");
+  }
+  $("#dClose").addEventListener("click", closeDrawer);
+  $("#scrim").addEventListener("click", closeDrawer);
+  document.addEventListener("keydown", function(e){ if(e.key==="Escape") closeDrawer(); });
+
+  /* ---------- campaigns ---------- */
+  var CAMPS = [], cFilter = "all", tFilter = "all";
+  function chLabel(c){ return c === "In-App Message" ? "In-app" : c; }
+  function stateChip(s){
+    return '<span class="chip chip-'+(s||"").toLowerCase()+'">'+esc(s)+'</span>';
+  }
+  function renderCamps(){
+    var tb = $("#campRows"); tb.innerHTML = "";
+    CAMPS.slice()
+      .sort(function(a,b){ return (b.date||"").localeCompare(a.date||""); })
+      .forEach(function(c){
+        if(cFilter!=="all" && c.state!==cFilter) return;
+        if(tFilter!=="all" && c.kind!==tFilter) return;
+        var tr = document.createElement("tr");
+        tr.className = "row";
+        tr.tabIndex = 0;
+        tr.innerHTML =
+          '<td><div class="t">'+esc(c.title)+'</div></td>'+
+          '<td><span class="cohort-pill">'+esc(chLabel(c.channel))+'</span></td>'+
+          '<td style="font-size:13px; color:var(--mut)">'+esc(c.kind)+'</td>'+
+          '<td class="num" style="font-size:13px">'+fmtDate(c.date)+'</td>'+
+          '<td>'+stateChip(c.state)+'</td>';
+        var exp = document.createElement("tr");
+        exp.className = "exp"; exp.hidden = true;
+        exp.innerHTML = '<td colspan="5"><h5>What we learned</h5><p>'+esc(c.learnings||"—")+'</p>'+
+          '<h5>Next step</h5><p>'+esc(c.next_steps||"—")+'</p></td>';
+        var toggle = function(){ exp.hidden = !exp.hidden; };
+        tr.addEventListener("click", toggle);
+        tr.addEventListener("keydown", function(e){ if(e.key==="Enter") toggle(); });
+        tb.appendChild(tr); tb.appendChild(exp);
+      });
+  }
+  $all(".cchip").forEach(function(b){
+    b.addEventListener("click", function(){
+      $all(".cchip").forEach(function(x){ x.classList.remove("on"); });
+      b.classList.add("on"); cFilter = b.dataset.cf; renderCamps();
+    });
+  });
+  $all(".tchip").forEach(function(b){
+    b.addEventListener("click", function(){
+      $all(".tchip").forEach(function(x){ x.classList.remove("on"); });
+      b.classList.add("on"); tFilter = b.dataset.tf; renderCamps();
+    });
+  });
+  function renderRunning(){
+    var run = CAMPS.filter(function(c){ return c.state==="Running"; })
+      .sort(function(a,b){ return (b.date||"").localeCompare(a.date||""); });
+    $("#runningCount").textContent = "· "+run.length+" live right now";
+    $("#runningList").innerHTML = run.map(function(c){
+      return '<li style="cursor:pointer"><time>'+fmtDate(c.date)+'</time><span><b>'+esc(c.title)+'</b> · '+
+        esc(chLabel(c.channel))+' '+esc((c.kind||"").toLowerCase())+'</span></li>';
+    }).join("") || '<li><span style="color:var(--faint)">Nothing running.</span></li>';
+    $all("#runningList li").forEach(function(el){
+      el.addEventListener("click", function(){ show("camps"); });
+    });
+  }
+  function loadCampaigns(){
+    api("/api/campaigns").then(function(d){
+      CAMPS = d.campaigns || [];
+      $("#campSource").textContent = "Source: lifecycle portfolio sheet"+(d.synced_at ? " · updated "+d.synced_at : "");
+      renderCamps(); renderRunning();
+    }).catch(function(){});
+  }
+
+  /* ---------- generate ---------- */
+  function stageIndex(step, status){
+    if(status==="succeeded") return 5;
+    if(!step || step==="init" || step==="gathering_data") return 0;
+    if(step==="calling_llm") return 1;
+    if(step==="reprompting_with_validation_errors") return 2;
+    if(step==="generating_brief") return 3;
+    if(step==="awaiting_idea_choice") return 4;
+    if(step.indexOf("failed_parse")===0) return 1;
+    if(step.indexOf("failed")===0) return 2;
+    return 0;
+  }
+  function renderStages(idx, failed){
+    $all("#steps li").forEach(function(li, n){
+      li.classList.remove("run","done","fail");
+      if(failed && n===idx){ li.classList.add("fail"); }
+      else if(n<idx){ li.classList.add("done"); }
+      else if(n===idx && !failed){ li.classList.add("run"); }
+    });
+  }
+  var polling = false;
+  function pollRun(id){
+    api("/api/runs/"+id).then(function(r){
+      var failed = r.status==="failed";
+      var idx = stageIndex(r.step, r.status);
+      renderStages(failed ? Math.min(idx, 4) : idx, failed);
+      if(r.log_tail){ $("#logBox").hidden = false; $("#logBox").textContent = r.log_tail; $("#logBox").scrollTop = 1e6; }
+      if(r.status==="running"){
+        setTimeout(function(){ pollRun(id); }, 2500);
+        return;
+      }
+      polling = false;
+      var btn = $("#runBtn");
+      btn.disabled = false; btn.textContent = "Run again";
+      if(failed){
+        $("#runErr").hidden = false;
+        $("#runErr").textContent = "Run failed: " + (r.error || "see the log above") +
+          " — nothing was added to the bank. You can run it again.";
+      } else {
+        var res = $("#results"); res.hidden = false;
+        var ideas = r.ideas || [];
+        res.innerHTML = ideas.map(function(i){
+          var dup = i.near_dup_of ? '<span class="dupflag">possible repeat</span>' : chip("idea");
+          return '<div class="rcard" data-id="'+i.id+'"><div class="rt"><b>'+esc(i.title||i.slug)+'</b>'+dup+'</div>'+
+            '<p>“'+esc(i.body||"")+'” · '+esc(cohortLabel(i.cohort_id))+'</p></div>';
+        }).join("") +
+        '<div class="rhint">'+r.ideas_added+' ideas added'+
+          (r.dups_flagged?', '+r.dups_flagged+' flagged as a possible repeat':'')+
+          '. Click one to review.</div>';
+        $all("#results .rcard").forEach(function(el){
+          el.addEventListener("click", function(){ openDrawer(parseInt(el.dataset.id,10)); });
+        });
+        loadAll();
+      }
+    }).catch(function(e){
+      polling = false;
+      $("#runBtn").disabled = false; $("#runBtn").textContent = "Run the agent";
+      $("#runErr").hidden = false; $("#runErr").textContent = "Lost contact with the server: "+e.message;
+    });
+  }
+  $("#runBtn").addEventListener("click", function(){
+    if(polling) return;
+    polling = true;
+    var btn = $("#runBtn");
+    btn.disabled = true; btn.textContent = "Running…";
+    $("#runErr").hidden = true; $("#results").hidden = true; $("#results").innerHTML = "";
+    $("#logBox").hidden = true; $("#logBox").textContent = "";
+    renderStages(0, false);
+    api("/api/runs", {
+      method:"POST", headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({by:who()})
+    }).then(function(r){
+      pollRun(r.id);
+    }).catch(function(e){
+      polling = false;
+      btn.disabled = false; btn.textContent = "Run the agent";
+      $("#runErr").hidden = false; $("#runErr").textContent = e.message;
+    });
+  });
+
+  /* ---------- load ---------- */
+  function loadActivity(){
+    api("/api/activity").then(renderFeed).catch(function(){});
+  }
+  function loadAll(){
+    api("/api/ideas").then(function(list){
+      IDEAS = list;
+      byId = {};
+      IDEAS.forEach(function(i){ byId[i.id] = i; });
+      renderCohortSel();
+      renderRows();
+      renderDash();
+    }).catch(function(e){
+      $("#rows").innerHTML = "";
+      $("#emptyMsg").hidden = false;
+      $("#emptyMsg").textContent = "Could not load ideas: "+e.message;
+    });
+    loadActivity();
+    loadCampaigns();
+  }
+  loadAll();
+})();
+</script>
+</body>
+</html>
