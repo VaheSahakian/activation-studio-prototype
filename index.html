@@ -1,1045 +1,436 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>✨</text></svg>">
-<title>Activation Studio — Picsart Lifecycle</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Activation Studio — Experiment Backlog</title>
 <style>
   :root{
-    --bg:#FAF9FB; --card:#FFFFFF; --ink:#211926; --mut:#77697F; --faint:#A398AB;
-    --line:#EBE5EF; --line2:#F3EFF6;
-    --acc:#C209C1; --acc-ink:#A007A0; --acc-soft:#FBEDFB;
-    --rail:#221728; --rail-ink:#CFC3D6; --rail-dim:#8D7E97;
-    --idea:#6D5AE0;     --idea-bg:#F1EEFC;
-    --drafted:#9A6A00;  --drafted-bg:#FBF3E2;
-    --launched:#17804B; --launched-bg:#E5F5EC;
-    --measured:#0E7490; --measured-bg:#E2F3F7;
-    --rejected:#98424D; --rejected-bg:#F9ECEE;
-    --radius:10px;
+    --bg:#f4f5f7; --grid:#d7dbe0; --gridStrong:#b9bec7; --head:#f2f4f8; --text:#1f2430; --muted:#6b7280;
+    --accent:#2f6fed; --sel:#e8f0ff;
+    --backlog:#eceef1; --backlogT:#4b5563;
+    --picked:#e1ebff;  --pickedT:#1d4ed8;
+    --running:#fff2d6;  --runningT:#b45309;
+    --stopped:#eceef1;  --stoppedT:#6b7280;
+    --analysis:#f0e6ff; --analysisT:#7c3aed;
+    --winner:#dcf6e3;   --winnerT:#15803d;
+    --lost:#fde3e3;     --lostT:#b91c1c;
+    /* audience tags */
+    --th-New-users:#dcecff;     --th-New-usersT:#1e4fa3;
+    --th-One-export:#e6f7f7;    --th-One-exportT:#0f6d6d;
+    --th-Edit-abandoned:#fdecc8;--th-Edit-abandonedT:#92600a;
+    --th-Selfie:#ffe6ec;        --th-SelfieT:#a3123f;
+    --th-Business:#e3f7ec;      --th-BusinessT:#17663b;
+    --th-Video:#f3e6ff;         --th-VideoT:#6b21a8;
+    --th-Tool-adoption:#e9e9f9; --th-Tool-adoptionT:#4338ca;
   }
   *{box-sizing:border-box}
-  html,body{margin:0;padding:0}
-  body{
-    background:var(--bg); color:var(--ink);
-    font-family:"Avenir Next",Avenir,Futura,"Helvetica Neue",Helvetica,system-ui,sans-serif;
-    font-size:15px; line-height:1.5;
-  }
-  button{font:inherit; cursor:pointer}
-  button:focus-visible, input:focus-visible, select:focus-visible{
-    outline:2px solid var(--acc); outline-offset:2px; border-radius:4px;
-  }
-  .mono{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace; font-size:.86em}
-  .num{font-variant-numeric:tabular-nums}
-
-  .app{display:flex; min-height:100vh}
-  .rail{
-    width:224px; flex:none; background:var(--rail); color:var(--rail-ink);
-    display:flex; flex-direction:column; padding:20px 14px;
-    position:sticky; top:0; height:100vh;
-  }
-  .mark{display:flex; align-items:center; gap:10px; padding:4px 8px 18px}
-  .mark-badge{
-    width:32px; height:32px; border-radius:8px; background:var(--acc); flex:none;
-    display:flex; align-items:center; justify-content:center;
-    color:#fff; font-weight:700; font-size:18px;
-  }
-  .mark-name{font-weight:600; font-size:15px; color:#fff; line-height:1.2}
-  .mark-sub{font-size:11px; color:var(--rail-dim); letter-spacing:.06em; text-transform:uppercase}
-  .nav{display:flex; flex-direction:column; gap:2px; margin-top:6px}
-  .nav button{
-    display:flex; align-items:center; gap:10px; width:100%;
-    background:none; border:0; color:var(--rail-ink);
-    padding:9px 10px; border-radius:8px; font-size:14px; font-weight:500; text-align:left;
-  }
-  .nav button:hover{background:rgba(255,255,255,.06); color:#fff}
-  .nav button.on{background:rgba(194,9,193,.22); color:#fff}
-  .nav button.on .ico{stroke:#F27DF1}
-  .nav button.cta{
-    margin-top:18px; justify-content:center; border-radius:99px;
-    background:var(--acc); color:#fff; font-weight:600;
-    box-shadow:0 2px 10px rgba(194,9,193,.35);
-  }
-  .nav button.cta .ico{stroke:#fff}
-  .nav button.cta:hover{background:var(--acc-ink); color:#fff}
-  .nav button.cta.on{
-    background:var(--acc-ink); color:#fff;
-    box-shadow:0 0 0 2px rgba(255,255,255,.45), 0 2px 10px rgba(194,9,193,.35);
-  }
-  .nav button.cta.on .ico{stroke:#fff}
-  .ico{width:17px; height:17px; flex:none; stroke:var(--rail-dim); stroke-width:1.8; fill:none; stroke-linecap:round; stroke-linejoin:round}
-  .rail-foot{margin-top:auto; padding:12px 10px 4px; font-size:11.5px; color:var(--rail-dim); line-height:1.6; border-top:1px solid rgba(255,255,255,.08)}
-  .rail-foot b{color:var(--rail-ink); font-weight:600}
-  .rail-foot button{background:none; border:0; color:var(--rail-dim); text-decoration:underline; padding:0; font-size:11.5px}
-
-  .main{flex:1; min-width:0; padding:28px 34px 60px; max-width:1160px}
-  .view{display:none}
-  .view.on{display:block}
-
-  .vhead{display:flex; align-items:flex-end; justify-content:space-between; gap:16px; margin-bottom:20px; flex-wrap:wrap}
-  .vhead h1{font-size:22px; font-weight:600; margin:0; letter-spacing:-.01em}
-  .vhead p{margin:2px 0 0; color:var(--mut); font-size:14px}
-  .eyebrow{font-size:11px; font-weight:600; letter-spacing:.09em; text-transform:uppercase; color:var(--faint); margin:0 0 4px}
-
-  .btn{
-    border:1px solid var(--line); background:var(--card); color:var(--ink);
-    padding:8px 14px; border-radius:8px; font-size:13.5px; font-weight:600;
-  }
-  .btn:hover{border-color:#D8CEDE}
-  .btn-primary{background:var(--acc); border-color:var(--acc); color:#fff}
-  .btn-primary:hover{background:var(--acc-ink); border-color:var(--acc-ink)}
-  .btn-primary:disabled{opacity:.55; cursor:default}
-
-  .card{background:var(--card); border:1px solid var(--line); border-radius:var(--radius)}
-
-  .stats{display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:14px; margin-bottom:14px}
-  .stat{padding:16px 18px}
-  .stat .lbl{font-size:12px; font-weight:600; letter-spacing:.05em; text-transform:uppercase; color:var(--faint)}
-  .stat .val{font-size:30px; font-weight:600; letter-spacing:-.02em; margin-top:2px}
-  .stat .val em{font-style:normal; color:var(--acc)}
-  .stat .sub{font-size:12.5px; color:var(--mut); margin-top:2px}
-
-  .grid2{display:grid; grid-template-columns:1.4fr 1fr; gap:14px; margin-bottom:14px}
-  @media (max-width:900px){ .grid2{grid-template-columns:1fr} .rail{display:none} .main{padding:20px 16px} }
-
-  .panel{padding:18px 20px}
-  .panel h2{font-size:15px; font-weight:600; margin:0 0 12px}
-  .panel h2 span{font-weight:500; color:var(--mut); font-size:13px}
-
-  .funnel{display:flex; height:34px; border-radius:8px; overflow:hidden; border:1px solid var(--line)}
-  .funnel div{display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:600; min-width:34px}
-  .flegend{display:flex; gap:16px; flex-wrap:wrap; margin-top:10px; font-size:12.5px; color:var(--mut)}
-  .flegend b{color:var(--ink); font-weight:600}
-  .dot{display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:6px; vertical-align:1px}
-
-  .spark{display:flex; align-items:flex-end; gap:6px; height:72px; padding-top:6px}
-  .spark .bar{flex:1; background:var(--acc-soft); border-radius:4px 4px 0 0; position:relative; min-width:10px}
-  .spark .bar.hot{background:var(--acc)}
-  .spark .bar span{position:absolute; top:-18px; left:0; right:0; text-align:center; font-size:11px; color:var(--mut)}
-  .spark-x{display:flex; gap:6px; margin-top:6px}
-  .spark-x div{flex:1; text-align:center; font-size:10.5px; color:var(--faint)}
-
-  .cohorts{display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:12px}
-  .cohort{padding:13px 15px}
-  .cohort .top{display:flex; justify-content:space-between; align-items:center; gap:8px}
-  .cohort .name{font-weight:600; font-size:13.5px}
-  .cohort .key{color:var(--faint)}
-  .cohort .meta{display:flex; justify-content:space-between; margin-top:8px; font-size:12.5px; color:var(--mut)}
-  .tag{font-size:10.5px; font-weight:600; letter-spacing:.04em; text-transform:uppercase; padding:2px 8px; border-radius:99px; white-space:nowrap}
-  .tag-live{background:var(--launched-bg); color:var(--launched)}
-  .tag-open{background:var(--acc-soft); color:var(--acc-ink)}
-
-  .feed{list-style:none; margin:0; padding:0}
-  .feed li{display:flex; gap:12px; padding:9px 0; border-bottom:1px solid var(--line2); font-size:13.5px}
-  .feed li:last-child{border-bottom:0}
-  .feed time{flex:none; width:64px; color:var(--faint); font-size:12px; padding-top:1.5px}
-
-  .chip{display:inline-flex; align-items:center; gap:6px; font-size:12px; font-weight:600; padding:3px 10px; border-radius:99px; white-space:nowrap}
-  .chip::before{content:""; width:7px; height:7px; border-radius:50%; background:currentColor}
-  .chip-idea{background:var(--idea-bg); color:var(--idea)}
-  .chip-drafted{background:var(--drafted-bg); color:var(--drafted)}
-  .chip-launched{background:var(--launched-bg); color:var(--launched)}
-  .chip-measured{background:var(--measured-bg); color:var(--measured)}
-  .chip-rejected{background:var(--rejected-bg); color:var(--rejected)}
-  .dupflag{font-size:11px; font-weight:600; color:var(--drafted); background:var(--drafted-bg); border-radius:99px; padding:2px 8px; margin-left:6px; white-space:nowrap}
-  .chip-running{background:var(--launched-bg); color:var(--launched)}
-  .chip-completed{background:var(--measured-bg); color:var(--measured)}
-  .chip-stopped{background:var(--rejected-bg); color:var(--rejected)}
-  .chip-scheduled{background:var(--drafted-bg); color:var(--drafted)}
-  .exp td{background:#FCFAFD; padding:14px 18px}
-  .exp h5{margin:0 0 4px; font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--faint); font-weight:600}
-  .exp p{margin:0 0 12px; font-size:13.5px; color:var(--mut); max-width:75ch}
-  .exp p:last-child{margin-bottom:0}
-  .feed b{font-weight:600}
-
-  .toolbar{display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-bottom:14px}
-  .search{
-    flex:1; min-width:200px; max-width:340px; border:1px solid var(--line); border-radius:8px;
-    padding:8px 12px; font:inherit; font-size:13.5px; background:var(--card); color:var(--ink);
-  }
-  .search::placeholder{color:var(--faint)}
-  .fchip{border:1px solid var(--line); background:var(--card); color:var(--mut); border-radius:99px; padding:5px 13px; font-size:12.5px; font-weight:600}
-  .fchip.on{background:var(--ink); border-color:var(--ink); color:#fff}
-  select.fsel{border:1px solid var(--line); background:var(--card); color:var(--ink); border-radius:8px; padding:7px 10px; font:inherit; font-size:13px}
-
-  .tablewrap{overflow-x:auto}
-  table.bank{width:100%; border-collapse:collapse; min-width:760px}
-  .bank th{
-    text-align:left; font-size:11px; font-weight:600; letter-spacing:.08em; text-transform:uppercase;
-    color:var(--faint); padding:10px 14px; border-bottom:1px solid var(--line);
-  }
-  .bank td{padding:12px 14px; border-bottom:1px solid var(--line2); vertical-align:top}
-  .bank tr.row{cursor:pointer}
-  .bank tr.row:hover td{background:#FCFAFD}
-  .bank .t{font-weight:600; font-size:14px}
-  .bank .s{color:var(--faint); font-size:12px; margin-top:1px}
-  .bank .outcome{color:var(--mut); font-size:12.5px}
-  .bank .outcome b{color:var(--ink); font-weight:600}
-  .bank .who{color:var(--mut); font-size:12.5px}
-  .cohort-pill{font-size:11.5px; color:var(--mut); background:var(--line2); border-radius:6px; padding:2px 8px; white-space:nowrap}
-  .empty{padding:34px; text-align:center; color:var(--faint); font-size:14px}
-
-  .scrim{position:fixed; inset:0; background:rgba(33,25,38,.35); opacity:0; pointer-events:none; transition:opacity .2s; z-index:40}
-  .scrim.on{opacity:1; pointer-events:auto}
-  .drawer{
-    position:fixed; top:0; right:-500px; width:480px; max-width:94vw; height:100vh; z-index:50;
-    background:var(--card); border-left:1px solid var(--line); transition:right .25s ease;
-    display:flex; flex-direction:column;
-  }
-  .drawer.on{right:0}
-  .dhead{display:flex; justify-content:space-between; align-items:flex-start; gap:12px; padding:20px 22px 14px; border-bottom:1px solid var(--line)}
-  .dhead h3{margin:0; font-size:17px; font-weight:600; line-height:1.3}
-  .dhead .s{color:var(--faint); font-size:12px}
-  .x{border:0; background:none; color:var(--mut); font-size:20px; line-height:1; padding:2px 6px; border-radius:6px}
-  .x:hover{background:var(--line2)}
-  .dbody{overflow-y:auto; padding:18px 22px 30px; flex:1}
-  .dsec{margin-bottom:20px}
-  .dsec h4{font-size:11px; font-weight:600; letter-spacing:.09em; text-transform:uppercase; color:var(--faint); margin:0 0 8px}
-  .dsec p{margin:0; font-size:13.5px; color:var(--mut)}
-  .kv{display:grid; grid-template-columns:130px 1fr; row-gap:7px; font-size:13.5px; margin:0}
-  .kv dt{color:var(--mut); margin:0}
-  .kv dd{margin:0; overflow-wrap:anywhere}
-  .vbadge{font-size:11px; font-weight:600; padding:1px 7px; border-radius:99px; margin-left:6px; vertical-align:1px}
-  .vbadge-ok{background:var(--launched-bg); color:var(--launched)}
-  .vbadge-warn{background:var(--drafted-bg); color:var(--drafted)}
-
-  .push{
-    background:#1B1420; border-radius:16px; padding:13px 15px; color:#fff;
-    display:flex; gap:11px; align-items:flex-start;
-  }
-  .push .appic{width:34px; height:34px; border-radius:8px; background:var(--acc); flex:none; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:19px}
-  .push .pt{font-weight:600; font-size:13.5px}
-  .push .pb{font-size:13px; color:#CFC6D6; margin-top:1px}
-  .push .pm{font-size:10.5px; color:#8D7E97; letter-spacing:.05em; text-transform:uppercase; margin-bottom:2px}
-
-  .hist{list-style:none; margin:0; padding:0; font-size:13px; border-left:2px solid var(--line)}
-  .hist li{padding:4px 0 4px 14px; position:relative; color:var(--mut)}
-  .hist li::before{content:""; position:absolute; left:-5px; top:11px; width:8px; height:8px; border-radius:50%; background:var(--faint)}
-  .hist li:first-child::before{background:var(--acc)}
-  .hist b{color:var(--ink); font-weight:600}
-
-  .dactions{display:flex; gap:8px; flex-wrap:wrap}
-  .sbtn{border:1px solid var(--line); background:var(--card); border-radius:8px; padding:7px 12px; font-size:12.5px; font-weight:600; color:var(--mut)}
-  .sbtn:hover{border-color:#D8CEDE; color:var(--ink)}
-  .sbtn.cur{border-color:var(--ink); color:var(--ink)}
-
-  .genwrap{display:grid; grid-template-columns:1fr 1.25fr; gap:14px}
-  @media (max-width:900px){ .genwrap{grid-template-columns:1fr} }
-  .steps{list-style:none; margin:10px 0 0; padding:0}
-  .steps li{display:flex; gap:12px; align-items:flex-start; padding:9px 0; border-bottom:1px solid var(--line2); font-size:13.5px}
-  .steps li:last-child{border-bottom:0}
-  .stepdot{
-    width:22px; height:22px; border-radius:50%; flex:none; margin-top:1px;
-    border:2px solid var(--line); color:var(--faint);
-    display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700;
-    transition:all .2s;
-  }
-  .steps li.run .stepdot{border-color:var(--acc); color:var(--acc)}
-  .steps li.done .stepdot{border-color:var(--launched); background:var(--launched); color:#fff}
-  .steps li.fail .stepdot{border-color:var(--rejected); background:var(--rejected); color:#fff}
-  .steps .sl{flex:1}
-  .steps .sl b{font-weight:600}
-  .steps .note{display:block; font-size:12px; color:var(--faint)}
-  .steps li.done .note{color:var(--launched)}
-  .steps li.run .note{color:var(--acc-ink)}
-  .steps li.fail .note{color:var(--rejected)}
-
-  .logbox{
-    margin-top:12px; background:#1B1420; color:#CFC6D6; border-radius:8px;
-    padding:10px 13px; font-family:ui-monospace,"SF Mono",Menlo,monospace;
-    font-size:11.5px; line-height:1.55; max-height:220px; overflow:auto; white-space:pre-wrap;
-  }
-  .results{display:flex; flex-direction:column; gap:10px; margin-top:12px}
-  .rcard{border:1px solid var(--line); border-radius:10px; padding:13px 15px; background:var(--card); cursor:pointer}
-  .rcard:hover{border-color:#D8CEDE}
-  .rcard .rt{display:flex; justify-content:space-between; gap:10px; align-items:baseline}
-  .rcard .rt b{font-size:14px}
-  .rcard p{margin:4px 0 0; font-size:13px; color:var(--mut)}
-  .rhint{font-size:12.5px; color:var(--faint); margin-top:10px}
-  .errbox{border-left:3px solid var(--rejected); background:var(--rejected-bg); border-radius:0 8px 8px 0; padding:12px 16px; font-size:13.5px; margin-top:12px}
-
-  .arch{overflow-x:auto; padding:22px}
-  .archflow{min-width:640px; display:flex; flex-direction:column; align-items:center}
-  .anode{border:1px solid var(--line); border-radius:10px; background:var(--card); padding:11px 18px; text-align:center; min-width:230px}
-  .anode b{display:block; font-size:14px; font-weight:600}
-  .anode span{font-size:12px; color:var(--mut)}
-  .anode.hot{border-color:#EBB8EA; background:var(--acc-soft)}
-  .arrow{display:flex; flex-direction:column; align-items:center; color:var(--faint); font-size:11px; padding:2px 0}
-  .arrow::before{content:""; width:2px; height:16px; background:var(--line)}
-  .arow{display:flex; gap:14px; justify-content:center}
-  .arow .anode{min-width:0; flex:1; max-width:250px}
-  .alabel{font-size:11px; color:var(--faint); letter-spacing:.05em; text-transform:uppercase; margin:2px 0}
-  .callout{border-left:3px solid var(--acc); background:var(--acc-soft); border-radius:0 8px 8px 0; padding:12px 16px; font-size:13.5px; margin-top:14px}
-  .callout b{font-weight:600}
-
-  @media (prefers-reduced-motion: reduce){ .drawer,.scrim,.stepdot{transition:none} }
+  body{margin:0;background:var(--bg);color:var(--text);font:13px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif}
+  header.top{display:flex;align-items:center;gap:12px;padding:10px 18px;background:#fff;border-bottom:1px solid var(--grid)}
+  .logo{width:26px;height:26px;border-radius:6px;background:#C209C1;color:#fff;display:grid;place-items:center;font-weight:700;font-size:14px}
+  header .t h1{font-size:14px;margin:0}
+  header .t p{margin:0;color:var(--muted);font-size:11px}
+  .tag{margin-left:auto;font-size:11px;color:var(--muted);border:1px solid var(--grid);padding:3px 9px;border-radius:6px}
+  .tabs{display:flex;gap:2px;padding:0 18px;background:#fff;border-bottom:1px solid var(--grid)}
+  .tabs button{border:1px solid var(--grid);border-bottom:0;background:#eef0f3;color:var(--muted);
+    padding:8px 16px;border-radius:8px 8px 0 0;font:inherit;font-weight:600;cursor:pointer;margin-bottom:-1px}
+  .tabs button.active{background:#fff;color:var(--text);border-bottom:1px solid #fff}
+  .tabs button .n{margin-left:7px;font-size:11px;color:var(--muted);background:#e2e6ec;border-radius:999px;padding:1px 7px}
+  .tabs button.active .n{background:#fbe1fb;color:#a007a0}
+  .toolbar{display:flex;align-items:center;gap:8px;padding:9px 18px;background:#fff;border-bottom:1px solid var(--grid);flex-wrap:wrap}
+  button{font:inherit;cursor:pointer;border-radius:6px;border:1px solid var(--grid);background:#fff;color:var(--text);padding:6px 11px}
+  button:hover{background:#f0f2f5}
+  button.primary{background:#C209C1;border-color:#C209C1;color:#fff;font-weight:600}
+  button.primary:hover{filter:brightness(1.06)}
+  select.filt{border:1px solid var(--grid);border-radius:6px;padding:6px 9px;background:#fff;color:var(--text)}
+  .sep{width:1px;height:22px;background:var(--grid);margin:0 4px}
+  .summary{margin-left:auto;color:var(--muted);font-size:12px}
+  .summary b{color:var(--text)}
+  .sheetwrap{overflow:auto;height:calc(100vh - 128px)}
+  table{border-collapse:collapse;background:#fff;font-size:13px;width:max-content;min-width:100%}
+  th,td{border:1px solid var(--grid);padding:0;vertical-align:middle}
+  thead th{position:sticky;top:0;z-index:5;background:var(--head);color:var(--text);font-weight:600;padding:7px 10px;text-align:left;white-space:nowrap;cursor:pointer;user-select:none;border-bottom:2px solid var(--gridStrong)}
+  thead th:hover{background:#e9edf3}
+  thead th .ar{color:var(--muted);font-size:10px;margin-left:4px}
+  th.rownum,td.rownum{position:sticky;left:0;z-index:4;background:var(--head);color:var(--muted);text-align:center;width:76px;min-width:76px;font-variant-numeric:tabular-nums;cursor:default}
+  td.rownum{background:#fafbfc;font-weight:500;cursor:grab}
+  td.rownum:active{cursor:grabbing}
+  .grip{display:none;color:var(--gridStrong);font-size:12px;line-height:1;letter-spacing:1px}
+  tr:hover .grip{display:block}
+  .rowtools{display:none;gap:3px;justify-content:center;margin-top:3px}
+  tr:hover .rowtools{display:flex}
+  .rowtools button{padding:0 6px;font-size:11px;line-height:18px;border:1px solid var(--grid);background:#fff;border-radius:4px;cursor:pointer;color:var(--muted)}
+  .rowtools button[data-act="del"]:hover{background:#fde3e3;border-color:#f0a3a3;color:#b91c1c}
+  tr.dragging td{opacity:.45}
+  tr.dropbefore td{box-shadow:inset 0 2px 0 0 var(--accent)}
+  tr.dropafter td{box-shadow:inset 0 -2px 0 0 var(--accent)}
+  tbody tr:hover td{background:#fbfcfe}
+  tbody tr:hover td.rownum{background:#f0f2f5}
+  td .cell{width:100%;border:0;background:transparent;font:inherit;color:inherit;padding:6px 9px;outline:none;resize:none}
+  td .cell:focus{background:var(--sel);box-shadow:inset 0 0 0 2px var(--accent)}
+  td.num .cell{text-align:right;font-variant-numeric:tabular-nums}
+  td.hyp{min-width:380px;max-width:480px}
+  td.hyp .cell{white-space:normal;line-height:1.35;min-height:44px}
+  td.metric{min-width:150px}
+  td.theme{padding:0;min-width:130px}
+  select.tm{width:100%;border:0;padding:7px 9px;font:inherit;font-weight:600;cursor:pointer;appearance:none;-webkit-appearance:none;background-repeat:no-repeat;background-position:right 8px center;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='3'><path d='M6 9l6 6 6-6'/></svg>")}
+  td.status{padding:0;min-width:130px}
+  select.st{width:100%;border:0;padding:7px 9px;font:inherit;font-weight:600;cursor:pointer;appearance:none;-webkit-appearance:none;background-repeat:no-repeat;background-position:right 8px center;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='3'><path d='M6 9l6 6 6-6'/></svg>")}
+  select.conf{width:100%;border:0;padding:6px 9px;font:inherit;background:transparent;cursor:pointer}
+  .empty{padding:40px;text-align:center;color:var(--muted)}
+  .hint{padding:8px 18px;color:var(--muted);font-size:11px;background:#fff;border-top:1px solid var(--grid)}
+  .scrim{position:fixed;inset:0;background:rgba(0,0,0,.4);display:none;place-items:center;z-index:50}
+  .scrim.open{display:grid}
+  .modal{background:#fff;border-radius:12px;padding:22px;width:460px;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+  .modal h3{margin:0 0 4px;font-size:15px}
+  .modal p{margin:0 0 14px;color:var(--muted);font-size:12px}
+  .genlog{list-style:none;padding:0;margin:0}
+  .genlog li{padding:6px 0;color:var(--muted);display:flex;gap:9px;align-items:center;font-size:13px}
+  .genlog li.done{color:var(--text)}
+  .genlog li .tick{width:16px;display:inline-block;color:#15803d}
+  .metricgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px}
+  .mchip{border:1px solid var(--grid);border-radius:9px;padding:10px 12px;cursor:pointer;background:#fff;text-align:left}
+  .mchip:hover{background:#f5f7fa}
+  .mchip.sel{border-color:#C209C1;background:#fdf0fd;box-shadow:inset 0 0 0 1px #C209C1}
+  .mchip .mn{font-weight:600;font-size:13px}
+  .mchip .mb{color:var(--muted);font-size:11px;margin-top:2px}
+  .modal-actions{display:flex;justify-content:flex-end;gap:8px}
+  button.primary:disabled{opacity:.5;cursor:not-allowed}
+  .genmetric{display:inline-block;background:#fdf0fd;color:#a007a0;border:1px solid #eec4ee;border-radius:6px;padding:1px 8px;font-weight:600}
 </style>
 </head>
 <body>
+<header class="top">
+  <div class="logo">A</div>
+  <div class="t"><h1>Activation Studio — Experiment Backlog</h1><p>Activation · generated from internal data</p></div>
+  <div class="tag">Prototype · sample data · cells are editable</div>
+</header>
 
-<div class="app">
-  <aside class="rail">
-    <div class="mark">
-      <div class="mark-badge">A</div>
-      <div>
-        <div class="mark-name">Activation Studio</div>
-        <div class="mark-sub">Picsart Lifecycle</div>
-      </div>
-    </div>
-    <nav class="nav" aria-label="Main">
-      <button data-view="dash" class="on">
-        <svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><rect x="2.5" y="2.5" width="6" height="6" rx="1.5"/><rect x="11.5" y="2.5" width="6" height="6" rx="1.5"/><rect x="2.5" y="11.5" width="6" height="6" rx="1.5"/><rect x="11.5" y="11.5" width="6" height="6" rx="1.5"/></svg>
-        Dashboard
-      </button>
-      <button data-view="bank">
-        <svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M3 5.5h14M3 10h14M3 14.5h9"/></svg>
-        Idea bank
-      </button>
-      <button data-view="camps">
-        <svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M3 12.5v-3l11-4.5v12L3 12.5z"/><path d="M16.5 8a3 3 0 010 5"/><path d="M6.5 13v2.2a1.6 1.6 0 003.2 0V14"/></svg>
-        Campaigns
-      </button>
-      <button data-view="gen" class="cta">
-        <svg class="ico" viewBox="0 0 20 20" aria-hidden="true"><path d="M10 2.5l1.8 5.7 5.7 1.8-5.7 1.8L10 17.5l-1.8-5.7-5.7-1.8 5.7-1.8z"/></svg>
-        Generate ideas
-      </button>
-    </nav>
-    <div class="rail-foot">
-      <b>Prototype</b> · sample data, safe to click anything<br>
-      Working as <b id="whoName">Guest</b> · <button id="whoChange" type="button">change name</button>
-    </div>
-  </aside>
-
-  <main class="main">
-
-    <!-- DASHBOARD -->
-    <section class="view on" id="view-dash">
-      <div class="vhead">
-        <div>
-          <p class="eyebrow">Overview</p>
-          <h1>Dashboard</h1>
-          <p>All ideas, and where each one stands.</p>
-        </div>
-        <button class="btn btn-primary" data-goto="gen">Generate ideas</button>
-      </div>
-      <div class="stats" id="statCards"></div>
-      <div class="card panel" style="margin-bottom:14px">
-        <h2>Live campaigns &amp; journeys <span id="runningCount"></span></h2>
-        <ul class="feed" id="runningList"></ul>
-      </div>
-      <div class="grid2">
-        <div class="card panel">
-          <h2>Status funnel <span id="funnelTotal"></span></h2>
-          <div class="funnel" id="funnel"></div>
-          <div class="flegend" id="funnelLegend"></div>
-        </div>
-        <div class="card panel">
-          <h2>Ideas generated per week</h2>
-          <div class="spark" id="sparkBars" aria-label="Ideas generated per week, last 8 weeks"></div>
-          <div class="spark-x" id="sparkX"></div>
-        </div>
-      </div>
-      <div class="card panel" style="margin-bottom:14px">
-        <h2>Audience coverage <span>· ideas and live campaigns per user group</span></h2>
-        <div class="cohorts" id="cohortCards"></div>
-      </div>
-      <div class="card panel">
-        <h2>Recent activity</h2>
-        <ul class="feed" id="feed"></ul>
-      </div>
-    </section>
-
-    <!-- IDEA BANK -->
-    <section class="view" id="view-bank">
-      <div class="vhead">
-        <div>
-          <p class="eyebrow">Library</p>
-          <h1>Idea bank</h1>
-          <p>Every idea in one place. New ideas are checked against it, so nothing repeats.</p>
-        </div>
-        <button class="btn btn-primary" data-goto="gen">Generate ideas</button>
-      </div>
-      <div class="toolbar">
-        <input class="search" id="q" type="search" placeholder="Search title, cohort, copy…" aria-label="Search ideas">
-        <button class="fchip on" data-f="all">All</button>
-        <button class="fchip" data-f="idea">Idea</button>
-        <button class="fchip" data-f="drafted">Drafted</button>
-        <button class="fchip" data-f="launched">Launched</button>
-        <button class="fchip" data-f="measured">Measured</button>
-        <button class="fchip" data-f="rejected">Rejected</button>
-        <select class="fsel" id="cohortSel" aria-label="Filter by cohort"><option value="all">All cohorts</option></select>
-      </div>
-      <div class="card tablewrap">
-        <table class="bank">
-          <thead>
-            <tr>
-              <th style="width:38%">Idea</th>
-              <th>Audience</th>
-              <th>Goal</th>
-              <th>Status</th>
-              <th>Added</th>
-            </tr>
-          </thead>
-          <tbody id="rows"></tbody>
-        </table>
-        <div class="empty" id="emptyMsg" hidden>No ideas yet — press the Generate ideas button and watch the agent work.</div>
-      </div>
-    </section>
-
-    <!-- CAMPAIGNS -->
-    <section class="view" id="view-camps">
-      <div class="vhead">
-        <div>
-          <p class="eyebrow">Shipped</p>
-          <h1>Campaigns &amp; journeys</h1>
-          <p>Everything that went live. Click a row for what we learned and what's next.</p>
-        </div>
-      </div>
-      <div class="toolbar">
-        <button class="fchip cchip on" data-cf="all">All</button>
-        <button class="fchip cchip" data-cf="Running">Running</button>
-        <button class="fchip cchip" data-cf="Scheduled">Scheduled</button>
-        <button class="fchip cchip" data-cf="Completed">Completed</button>
-        <button class="fchip cchip" data-cf="Stopped">Stopped</button>
-        <span style="width:1px; height:22px; background:var(--line)"></span>
-        <button class="fchip tchip on" data-tf="all">Both</button>
-        <button class="fchip tchip" data-tf="Campaign">Campaigns</button>
-        <button class="fchip tchip" data-tf="Journey">Journeys</button>
-      </div>
-      <div class="card tablewrap">
-        <table class="bank">
-          <thead>
-            <tr>
-              <th style="width:42%">Campaign</th>
-              <th>Channel</th>
-              <th>Type</th>
-              <th>Date</th>
-              <th>State</th>
-            </tr>
-          </thead>
-          <tbody id="campRows"></tbody>
-        </table>
-      </div>
-      <p class="rhint" id="campSource"></p>
-    </section>
-
-    <!-- GENERATE -->
-    <section class="view" id="view-gen">
-      <div class="vhead">
-        <div>
-          <p class="eyebrow">New ideas</p>
-          <h1>Generate ideas</h1>
-          <p>One click. The agent studies current data and proposes 3 ranked ideas.</p>
-        </div>
-      </div>
-      <div class="genwrap">
-        <div class="card panel">
-          <h2>New run</h2>
-          <p style="margin:0 0 6px; font-size:13.5px; color:var(--mut)">
-            The agent reviews audience sizes, recent push results, and product data,
-            then proposes 3 ranked ideas. Anything too close to an existing idea is flagged.
-          </p>
-          <div style="margin:14px 0 6px">
-            <button class="btn btn-primary" id="runBtn">Run the agent</button>
-          </div>
-          <p class="rhint">Takes 1 to 3 minutes. Progress shows on the right.</p>
-        </div>
-        <div class="card panel">
-          <h2>Pipeline</h2>
-          <ol class="steps" id="steps">
-            <li data-stage="0"><span class="stepdot">1</span><span class="sl"><b>Gather data</b> <span class="note">audience sizes, recent push results, product data</span></span></li>
-            <li data-stage="1"><span class="stepdot">2</span><span class="sl"><b>Draft 3 ranked ideas</b> <span class="note">grounded in the data, nothing invented</span></span></li>
-            <li data-stage="2"><span class="stepdot">3</span><span class="sl"><b>Quality checks</b> <span class="note">facts verified, links valid, no overlap with live campaigns</span></span></li>
-            <li data-stage="3"><span class="stepdot">4</span><span class="sl"><b>Write summary</b> <span class="note">a short brief per idea</span></span></li>
-            <li data-stage="4"><span class="stepdot">5</span><span class="sl"><b>Save to the bank</b> <span class="note">checked against every past idea</span></span></li>
-          </ol>
-          <div class="errbox" id="runErr" hidden></div>
-          <div class="logbox" id="logBox" hidden></div>
-          <div class="results" id="results" hidden></div>
-        </div>
-      </div>
-    </section>
-
-  </main>
+<div class="tabs">
+  <button id="tabBacklog" class="active">Ideas / Backlog <span class="n" id="cntBacklog">0</span></button>
+  <button id="tabPipeline">Pipeline <span class="n" id="cntPipeline">0</span></button>
 </div>
 
-<div class="scrim" id="scrim"></div>
-<aside class="drawer" id="drawer" aria-label="Idea detail">
-  <div class="dhead">
-    <div>
-      <h3 id="dTitle"></h3>
-      <div class="s mono" id="dSlug"></div>
-    </div>
-    <button class="x" id="dClose" aria-label="Close">×</button>
-  </div>
-  <div class="dbody">
-    <div class="dsec">
-      <h4>Push preview</h4>
-      <div class="push">
-        <div class="appic">P</div>
-        <div>
-          <div class="pm">Picsart · now</div>
-          <div class="pt" id="dPushT"></div>
-          <div class="pb" id="dPushB"></div>
-        </div>
+<div class="toolbar">
+  <button class="primary" id="genBtn">✨ Generate ideas for a metric</button>
+  <button id="addBtn">+ Add idea</button>
+  <div class="sep"></div>
+  <select class="filt" id="statusFilter"></select>
+  <select class="filt" id="metricFilter"></select>
+  <select class="filt" id="themeFilter"></select>
+  <div class="summary" id="summary"></div>
+</div>
+
+<div class="sheetwrap">
+  <table id="sheet"></table>
+  <div class="empty" id="empty" style="display:none"></div>
+</div>
+<div class="hint" id="hint"></div>
+
+<div class="scrim" id="scrim">
+  <div class="modal">
+    <div id="genPick">
+      <h3>Which metric should we improve?</h3>
+      <p>Pick one target metric. The agent studies internal data <em>for that metric</em> and proposes hypotheses to move it.</p>
+      <div class="metricgrid" id="metricGrid"></div>
+      <div class="modal-actions">
+        <button id="genCancel">Cancel</button>
+        <button class="primary" id="genGo" disabled>Generate ideas</button>
       </div>
     </div>
-    <div class="dsec" id="dDupSec" hidden>
-      <div class="errbox" style="margin:0; border-color:var(--drafted); background:var(--drafted-bg)" id="dDupText"></div>
-    </div>
-    <div class="dsec">
-      <h4>Setup</h4>
-      <dl class="kv">
-        <dt>Status</dt><dd id="dStatus"></dd>
-        <dt>Audience</dt><dd id="dCohort"></dd>
-        <dt>Goal</dt><dd id="dMetric"></dd>
-        <dt>Send window</dt><dd id="dWindow"></dd>
-        <dt>Opens in app</dt><dd class="mono" id="dLink"></dd>
-        <dt>Success event</dt><dd class="mono" id="dEvent"></dd>
-        <dt>Source</dt><dd class="mono" id="dRun"></dd>
-      </dl>
-    </div>
-    <div class="dsec">
-      <h4>Why this idea</h4>
-      <p id="dWhy"></p>
-    </div>
-    <div class="dsec" id="dLiftSec"><h4>Expected impact</h4><p id="dLift"></p></div>
-    <div class="dsec" id="dRiskSec"><h4>Risk</h4><p id="dRisk"></p></div>
-    <div class="dsec" id="dAudSec"><h4>Targeting rules · for campaign setup</h4><p class="mono" style="font-size:12px" id="dAud"></p></div>
-    <div class="dsec">
-      <h4>History</h4>
-      <ul class="hist" id="dHist"></ul>
-    </div>
-    <div class="dsec">
-      <h4>Move to</h4>
-      <div class="dactions" id="dActions"></div>
+    <div id="genRun" style="display:none">
+      <h3 id="genRunTitle">Generating ideas</h3>
+      <p id="genRunSub">Reading internal data, then proposing hypotheses grounded in it.</p>
+      <ul class="genlog" id="genlog"></ul>
     </div>
   </div>
-</aside>
+</div>
 
 <script>
-(function(){
-  "use strict";
+const STATUSES=["Backlog","Picked","Running","Stopped","Analysis","Winner","Lost"];
+const PIPELINE_STATUSES=STATUSES.filter(s=>s!=="Backlog");
+const STYLE={Backlog:["--backlog","--backlogT"],Picked:["--picked","--pickedT"],Running:["--running","--runningT"],
+  Stopped:["--stopped","--stoppedT"],Analysis:["--analysis","--analysisT"],Winner:["--winner","--winnerT"],Lost:["--lost","--lostT"]};
+const THEMES=["New users","One export","Edit abandoned","Selfie","Business","Video","Tool adoption"];
+const thKey=t=>"--th-"+t.replace(/\s+/g,"-");
 
-  /* ---------- PROTOTYPE DATA (no server, no database) ---------- */
-  var IDEAS_LOCAL = [];
-  var POOL = [{"id": 19, "run_id": "demo", "slug": "smb_logo_w0_d4_d7_first_export", "title": "Make your brand logo", "body": "Design a logo that fits your business. Start from a prompt, keep the file.", "goal": "Activation", "cohort_id": "declared_smb", "warmupday_window": "D4-D7", "activation_metric": "first_export_d1", "audience_logic": null, "deep_link": "picsart://miniapp_2_editor?package-id=com.picsart.edit.logo-generator", "deep_link_verified": true, "conversion_event": "object_export", "rationale": "Declared small-business users — high-value intent with no live coverage.", "expected_lift": null, "risk": null, "status": "idea", "near_dup_of": null, "similarity": null, "created_at": null}, {"id": 20, "run_id": "demo", "slug": "selfie_declared_d1_d3_enhance_iam", "title": "One tap, better photo", "body": "Your selfie, sharper skin and lighting. Save it in seconds.", "goal": "Activation", "cohort_id": "declared_selfie", "warmupday_window": "D1-D3", "activation_metric": "tool_first_open_d1", "audience_logic": null, "deep_link": "picsart://editor?component=ai_enhance", "deep_link_verified": true, "conversion_event": "ai_tool_open", "rationale": "Users who told us in onboarding they came for selfie editing — matched intent, uncovered audience.", "expected_lift": null, "risk": null, "status": "idea", "near_dup_of": null, "similarity": null, "created_at": null}, {"id": 21, "run_id": "demo", "slug": "one_export_gap_effects_second_export", "title": "Pick up where you left off", "body": "Add an Effect to your last photo. Save the new version in one tap.", "goal": "Activation", "cohort_id": "one_export_at_risk", "warmupday_window": "D4-D7", "activation_metric": "second_export_d7", "audience_logic": null, "deep_link": "picsart://editor?component=effects", "deep_link_verified": true, "conversion_event": "object_export", "rationale": "Users with exactly one export — the second one is the strongest retention predictor we track.", "expected_lift": null, "risk": null, "status": "idea", "near_dup_of": null, "similarity": null, "created_at": null}, {"id": 0, "run_id": "demo", "slug": "weekend_sticker_second_export", "title": "Turn any photo into a sticker", "body": "Weekend project: sticker your camera roll.", "goal": "Activation", "cohort_id": "activated_no_2ed7", "warmupday_window": "D1-D7", "activation_metric": "second_export_d7", "audience_logic": null, "deep_link": "picsart://editor?component=sticker", "deep_link_verified": true, "conversion_event": "object_export", "rationale": "Already activated but no second export within a week — novelty brings them back.", "expected_lift": null, "risk": null, "status": "idea", "near_dup_of": null, "similarity": null, "created_at": null}, {"id": 0, "run_id": "demo", "slug": "crop_first_post_socials", "title": "Make it fit every feed", "body": "One tap resizes your edit for every platform.", "goal": "Activation", "cohort_id": "one_export_at_risk", "warmupday_window": "D1-D7", "activation_metric": "second_export_d7", "audience_logic": null, "deep_link": "picsart://editor?component=crop", "deep_link_verified": false, "conversion_event": "object_export", "rationale": "Users with exactly one export — the second one is the strongest retention predictor we track.", "expected_lift": null, "risk": null, "status": "idea", "near_dup_of": null, "similarity": null, "created_at": null}, {"id": 0, "run_id": "demo", "slug": "video_first_render_w0", "title": "Your first video in 60 seconds", "body": "Turn a photo into a moving moment.", "goal": "Activation", "cohort_id": "w0_no_export", "warmupday_window": "D1-D7", "activation_metric": "first_export_d1", "audience_logic": null, "deep_link": "picsart://apps?experience=default&mapp=com.picsart.edit.image-to-video", "deep_link_verified": true, "conversion_event": "object_export", "rationale": "Brand-new users with no export yet — the largest open audience. The destination delivers exactly what the copy promises.", "expected_lift": null, "risk": null, "status": "idea", "near_dup_of": null, "similarity": null, "created_at": null}, {"id": 0, "run_id": "demo", "slug": "smb_flyer_print_ready", "title": "Your flyer, print-ready", "body": "Sized for print before your coffee cools.", "goal": "Activation", "cohort_id": "declared_smb", "warmupday_window": "D1-D7", "activation_metric": "tool_first_open_d1", "audience_logic": null, "deep_link": "picsart://miniapp_2_editor?package-id=com.picsart.edit.logo-generator", "deep_link_verified": true, "conversion_event": "object_export", "rationale": "Declared small-business users — high-value intent with no live coverage.", "expected_lift": null, "risk": null, "status": "idea", "near_dup_of": null, "similarity": null, "created_at": null}, {"id": 0, "run_id": "demo", "slug": "retouch_portrait_light", "title": "Faces first", "body": "Fix the light in one tap.", "goal": "Activation", "cohort_id": "declared_selfie", "warmupday_window": "D1-D7", "activation_metric": "tool_first_open_d1", "audience_logic": null, "deep_link": "picsart://editor?component=beautify", "deep_link_verified": true, "conversion_event": "object_export", "rationale": "Users who told us in onboarding they came for selfie editing — matched intent, uncovered audience.", "expected_lift": null, "risk": null, "status": "idea", "near_dup_of": null, "similarity": null, "created_at": null}, {"id": 0, "run_id": "demo", "slug": "ai_replace_curiosity", "title": "Swap anything in your photo", "body": "Change the sky. Change the shirt. One prompt.", "goal": "Activation", "cohort_id": "activated_no_2ed7", "warmupday_window": "D1-D7", "activation_metric": "second_export_d7", "audience_logic": null, "deep_link": "picsart://editor?component=ai_replace", "deep_link_verified": true, "conversion_event": "object_export", "rationale": "Already activated but no second export within a week — novelty brings them back.", "expected_lift": null, "risk": null, "status": "idea", "near_dup_of": null, "similarity": null, "created_at": null}, {"id": 1, "run_id": "demo", "slug": "ai_try_on_discovery_armenia_ios", "title": "See yourself in any outfit", "body": "Upload one photo and try on a new look in seconds with AI Try On.", "goal": "Activation (new user → first AI use)", "cohort_id": null, "warmupday_window": null, "activation_metric": null, "audience_logic": null, "deep_link": "picsart://apps?experience=default&mapp=com.picsart.edit.ai-try-on", "deep_link_verified": false, "conversion_event": "ai_tool_open", "rationale": "Uncovered audience with a verified in-app destination.", "expected_lift": null, "risk": null, "status": "idea", "near_dup_of": null, "similarity": null, "created_at": null}, {"id": 2, "run_id": "demo", "slug": "ai_video_generator_outcome_hook", "title": "Turn a photo into a 5-second video", "body": "Pick one image and watch AI bring it to life. Try it now.", "goal": "Drive paid AI usage", "cohort_id": null, "warmupday_window": null, "activation_metric": null, "audience_logic": null, "deep_link": "picsart://apps?experience=default&mapp=com.picsart.edit.image-to-video", "deep_link_verified": false, "conversion_event": "ai_tool_open", "rationale": "Uncovered audience with a verified in-app destination.", "expected_lift": null, "risk": null, "status": "idea", "near_dup_of": null, "similarity": null, "created_at": null}, {"id": 3, "run_id": "demo", "slug": "ai_logo_maker_discovery", "title": "Design a logo with AI", "body": "Type your brand name and get a logo in seconds. No design skills needed.", "goal": "Drive paid AI usage", "cohort_id": null, "warmupday_window": null, "activation_metric": null, "audience_logic": null, "deep_link": "picsart://miniapp_2_editor?package-id=com.picsart.edit.logo-generator", "deep_link_verified": false, "conversion_event": "ai_tool_open", "rationale": "Uncovered audience with a verified in-app destination.", "expected_lift": null, "risk": null, "status": "idea", "near_dup_of": null, "similarity": null, "created_at": null}, {"id": 4, "run_id": "demo", "slug": "ai_replace_editor_reengagement", "title": "Swap anything in your photo", "body": "Tap any object, describe what to replace it with, done. Try AI Replace.", "goal": "Retention (D7/D30/D90)", "cohort_id": null, "warmupday_window": null, "activation_metric": null, "audience_logic": null, "deep_link": "picsart://editor?component=ai_replace", "deep_link_verified": false, "conversion_event": "editor_open", "rationale": "Uncovered audience with a verified in-app destination.", "expected_lift": null, "risk": null, "status": "idea", "near_dup_of": null, "similarity": null, "created_at": null}, {"id": 5, "run_id": "demo", "slug": "motion_studio_curiosity_discovery", "title": "Make your photo move", "body": "Pick a still photo and add motion with AI. See it animate in seconds.", "goal": "Activation (new user → first AI use)", "cohort_id": null, "warmupday_window": null, "activation_metric": null, "audience_logic": null, "deep_link": "picsart://apps?experience=default&mapp=com.picsart.edit.motion-studio", "deep_link_verified": false, "conversion_event": "ai_tool_open", "rationale": "Uncovered audience with a verified in-app destination.", "expected_lift": null, "risk": null, "status": "idea", "near_dup_of": null, "similarity": null, "created_at": null}, {"id": 6, "run_id": "demo", "slug": "edit_abandoned_iam_effects_cluster", "title": "Your look is half-applied", "body": "Jump back in and lock the filter.", "goal": "Drive 2nd export within 7 days (2ED7)", "cohort_id": null, "warmupday_window": null, "activation_metric": null, "audience_logic": null, "deep_link": "picsart://editor?component=ai_enhance", "deep_link_verified": false, "conversion_event": "object_export", "rationale": "Uncovered audience with a verified in-app destination.", "expected_lift": null, "risk": null, "status": "idea", "near_dup_of": null, "similarity": null, "created_at": null}, {"id": 7, "run_id": "demo", "slug": "photo_banner_edit_abandoned_ios_port", "title": "Your composition is waiting", "body": "Pick up where you left off, stickers and all.", "goal": "Drive first export (D0 activation) and 2ED7", "cohort_id": null, "warmupday_window": null, "activation_metric": null, "audience_logic": null, "deep_link": "picsart://editor?component=ai_enhance", "deep_link_verified": false, "conversion_event": "object_export", "rationale": "Uncovered audience with a verified in-app destination.", "expected_lift": null, "risk": null, "status": "idea", "near_dup_of": null, "similarity": null, "created_at": null}, {"id": 8, "run_id": "demo", "slug": "one_export_to_2ed7_named_tool", "title": "Your AI Enhance shot is saved", "body": "Open it back up, one tap to a second edit.", "goal": "Drive 2nd export within 7 days (2ED7)", "cohort_id": null, "warmupday_window": null, "activation_metric": null, "audience_logic": null, "deep_link": "picsart://editor?component=ai_enhance", "deep_link_verified": false, "conversion_event": "object_export", "rationale": "Uncovered audience with a verified in-app destination.", "expected_lift": null, "risk": null, "status": "idea", "near_dup_of": null, "similarity": null, "created_at": null}, {"id": 9, "run_id": "demo", "slug": "w0_d2d7_iam_logo_maker_spotlight", "title": "Design a logo with AI", "body": "Type your brand name and get a logo in seconds. No design skills needed.", "goal": "Drive in-app retention (D1/D3/D7 return) and first export", "cohort_id": null, "warmupday_window": null, "activation_metric": null, "audience_logic": null, "deep_link": "picsart://miniapp_2_editor?package-id=com.picsart.edit.logo-generator", "deep_link_verified": false, "conversion_event": "ai_tool_open", "rationale": "Uncovered audience with a verified in-app destination.", "expected_lift": null, "risk": null, "status": "idea", "near_dup_of": null, "similarity": null, "created_at": null}, {"id": 10, "run_id": "demo", "slug": "continue_project_d1_after_first_export", "title": "Your edit is saved", "body": "Open it back up. One small change, one tap to keep going.", "goal": "Drive 2nd export within 7 days (2ED7)", "cohort_id": null, "warmupday_window": null, "activation_metric": null, "audience_logic": null, "deep_link": "picsart://editor?component=ai_enhance", "deep_link_verified": false, "conversion_event": "object_export", "rationale": "Uncovered audience with a verified in-app destination.", "expected_lift": null, "risk": null, "status": "idea", "near_dup_of": null, "similarity": null, "created_at": null}, {"id": 11, "run_id": "demo", "slug": "smb_brand_builder_logo_maker", "title": "Design your brand in 60 seconds", "body": "Type your name, AI builds the logo. Tap to start.", "goal": "Drive first AI tool open (path to first export)", "cohort_id": null, "warmupday_window": null, "activation_metric": null, "audience_logic": null, "deep_link": "picsart://miniapp_2_editor?package-id=com.picsart.edit.logo-generator", "deep_link_verified": false, "conversion_event": "ai_tool_open", "rationale": "Uncovered audience with a verified in-app destination.", "expected_lift": null, "risk": null, "status": "idea", "near_dup_of": null, "similarity": null, "created_at": null}, {"id": 12, "run_id": "demo", "slug": "selfie_beautifier_ai_enhance_cluster", "title": "Your selfie, one tap better", "body": "AI Enhance fixes lighting, focus, and skin in seconds.", "goal": "Drive first export (D0 activation) and 2ED7", "cohort_id": null, "warmupday_window": null, "activation_metric": null, "audience_logic": null, "deep_link": "picsart://editor?component=ai_enhance&dismiss-presented-controlers=false", "deep_link_verified": false, "conversion_event": "object_export", "rationale": "Uncovered audience with a verified in-app destination.", "expected_lift": null, "risk": null, "status": "idea", "near_dup_of": null, "similarity": null, "created_at": null}, {"id": 13, "run_id": "demo", "slug": "beginner_one_tap_ai_enhance", "title": "One tap, photo done", "body": "Open the app, pick a photo, tap AI Enhance. That's it.", "goal": "Drive first export (D0 activation)", "cohort_id": null, "warmupday_window": null, "activation_metric": null, "audience_logic": null, "deep_link": "picsart://editor?component=ai_enhance", "deep_link_verified": false, "conversion_event": "object_export", "rationale": "Uncovered audience with a verified in-app destination.", "expected_lift": null, "risk": null, "status": "idea", "near_dup_of": null, "similarity": null, "created_at": null}, {"id": 14, "run_id": "demo", "slug": "social_content_maker_template_pack", "title": "Your next Instagram post in 30 seconds", "body": "Pick a template, drop your photo, share. We'll fit the crop.", "goal": "Drive 2ED7 (recurring use; weekly posters)", "cohort_id": null, "warmupday_window": null, "activation_metric": null, "audience_logic": null, "deep_link": "picsart://template", "deep_link_verified": false, "conversion_event": "object_export", "rationale": "Uncovered audience with a verified in-app destination.", "expected_lift": null, "risk": null, "status": "idea", "near_dup_of": null, "similarity": null, "created_at": null}, {"id": 15, "run_id": "demo", "slug": "video_first_creator_image_to_video", "title": "Turn your photo into a 5-second video", "body": "Pick one image. AI brings it to life. Watch it move.", "goal": "Drive first AI tool open (path to differentiated content)", "cohort_id": null, "warmupday_window": null, "activation_metric": null, "audience_logic": null, "deep_link": "picsart://apps?experience=default&mapp=com.picsart.edit.image-to-video", "deep_link_verified": false, "conversion_event": "ai_tool_open", "rationale": "Uncovered audience with a verified in-app destination.", "expected_lift": null, "risk": null, "status": "idea", "near_dup_of": null, "similarity": null, "created_at": null}, {"id": 16, "run_id": "demo", "slug": "smb_logo_maker_w0_d4_d7", "title": "Make your brand logo today", "body": "Your free AI logo maker is ready. Design one in a minute and save it to your phone.", "goal": "Activation", "cohort_id": "declared_smb", "warmupday_window": "D4-D7", "activation_metric": "first_export_d1", "audience_logic": null, "deep_link": "picsart://miniapp_2_editor?package-id=com.picsart.edit.logo-generator", "deep_link_verified": true, "conversion_event": "ai_tool_open", "rationale": "Declared small-business users — high-value intent with no live coverage.", "expected_lift": null, "risk": null, "status": "idea", "near_dup_of": null, "similarity": null, "created_at": null}, {"id": 17, "run_id": "demo", "slug": "selfie_portrait_cluster_d1_d3", "title": "One tap to fix your selfie", "body": "Pick a photo, let AI Enhance do the work, save it to your camera roll.", "goal": "Activation", "cohort_id": "declared_selfie", "warmupday_window": "D1-D3", "activation_metric": "first_export_d1", "audience_logic": null, "deep_link": "picsart://editor?component=ai_enhance", "deep_link_verified": true, "conversion_event": "ai_tool_open", "rationale": "Users who told us in onboarding they came for selfie editing — matched intent, uncovered audience.", "expected_lift": null, "risk": null, "status": "idea", "near_dup_of": null, "similarity": null, "created_at": null}, {"id": 18, "run_id": "demo", "slug": "second_save_nudge_one_export_d4_d7", "title": "Make one more before the week ends", "body": "You saved one edit already. Open up a new photo and try a different look in under a minute.", "goal": "Activation", "cohort_id": "one_export_at_risk", "warmupday_window": "D4-D7", "activation_metric": "second_export_d7", "audience_logic": null, "deep_link": "picsart://editor?component=ai_enhance", "deep_link_verified": true, "conversion_event": "object_export", "rationale": "Users with exactly one export — the second one is the strongest retention predictor we track.", "expected_lift": null, "risk": null, "status": "idea", "near_dup_of": null, "similarity": null, "created_at": null}];
-  var CAMPS_DATA = [{"title": "Win-back for lapsed paid subscribers", "channel": "Push", "kind": "Campaign", "date": "2026-05-14", "state": "Completed", "next_steps": "Personalize by favorite tool; A/B the copy.", "metrics": "15,161 subscribers back in 7 days", "summary": "Works as a passive reminder, not a tap-driver.", "outcome": "15,161 subscribers back in 7 days → next version personalizes by favorite tool"}, {"title": "New-user 2nd-edit activation", "channel": "Push", "kind": "Campaign", "date": "2026-05-15", "state": "Completed", "next_steps": "Widen to a 7-day window; fix delivery; scale.", "metrics": "strongest per-user lift · 60% delivered", "summary": "First fully AI-built push; delivery capped it.", "outcome": "Strongest per-user lift of its wave, 60% delivered → fix delivery, then scale"}, {"title": "Edit recovery — AI Enhance copy test", "channel": "Push", "kind": "Journey", "date": "2026-05-08", "state": "Stopped", "next_steps": "Proven — rolled into the 5-tool journey.", "metrics": "+68% taps vs generic copy", "summary": "Tool-specific copy beats generic — our founding personalization win.", "outcome": "+68% taps vs generic copy → tool-specific copy became the standard"}, {"title": "Edit recovery — Remove Background copy test", "channel": "Push", "kind": "Journey", "date": "2026-05-18", "state": "Stopped", "next_steps": "Folded into the 5-tool journey; add a control group.", "metrics": "+42% taps vs generic copy", "summary": "Repeated the personalization win on a second tool.", "outcome": "+42% taps vs generic copy → folded into the 5-tool journey"}, {"title": "Edit recovery — 5 tools", "channel": "Push", "kind": "Journey", "date": "2026-05-21", "state": "Running", "next_steps": "Read the 7-day results, then expand tools and add Android.", "metrics": "reaching millions · 7-day read pending", "summary": "The copy-test wins, scaled to five tools.", "outcome": "The +68% copy win scaled to 5 tools, reaching millions → 7-day read decides expansion"}, {"title": "AI Enhance via in-app message", "channel": "In-App Message", "kind": "Journey", "date": "2026-05-28", "state": "Stopped", "next_steps": "Add a holdout control + Android; simplify the entry steps. Highest-volume modal but uncontrolled and iOS-only.", "metrics": "2.72M viewed · 12.02% CTR · 159K tool completions · no A/B", "summary": "Largest absolute driver, but no control group — lift cannot be claimed.", "outcome": "159K tool completions but NO control group → rebuilt properly as the A/B modal program"}, {"title": "AI Enhance adoption", "channel": "Push", "kind": "Campaign", "date": "2026-05-29", "state": "Completed", "next_steps": "Keep as lead hook; measure tool use; add a control group.", "metrics": "1.28M sent", "summary": "AI Enhance is our top hook.", "outcome": "1.28M sent, largest reach → AI Enhance confirmed as our top hook"}, {"title": "Remove Background adoption", "channel": "Push", "kind": "Campaign", "date": "2026-05-30", "state": "Completed", "next_steps": "Keep; dedupe the audience; measure tool use.", "metrics": "1.24M sent", "summary": "Audience overlaps other Remove Background sends.", "outcome": "1.24M sent, overlapping audiences → keep, but dedupe the audience"}, {"title": "Effects adoption", "channel": "Push", "kind": "Campaign", "date": "2026-05-31", "state": "Completed", "next_steps": "Expand reach; test richer creative.", "metrics": "692K sent · 0.55% CTR (best of set)", "summary": "Best click rate of the adoption set.", "outcome": "0.55% CTR, best of the adoption set → expand reach with richer creative"}, {"title": "Beautify adoption", "channel": "Push", "kind": "Campaign", "date": "2026-06-01", "state": "Completed", "next_steps": "Lower priority; widen to a 7-day window.", "metrics": "1.00M sent", "summary": "Mid-tier hook, less aspirational than the AI tools.", "outcome": "1.0M sent, mid-tier response → deprioritized"}, {"title": "Text adoption", "channel": "Push", "kind": "Campaign", "date": "2026-06-02", "state": "Completed", "next_steps": "Stop — let the 5-tool journey cover it.", "metrics": "1.00M sent · weakest hook", "summary": "Weakest hook of the five.", "outcome": "Weakest return of the five → stopped, the 5-tool journey covers it"}, {"title": "New-user activation — opens app no edit", "channel": "Push", "kind": "Campaign", "date": "2026-06-10", "state": "Completed", "next_steps": "Fix new-user delivery, then scale as the template.", "metrics": "3,280 editor opens (2.42%) · 32% delivered", "summary": "Template works; new-user delivery is the blocker.", "outcome": "2.42% opened the editor but only 32% delivered → fix new-user delivery, then scale"}, {"title": "Unused credits — AI Image Editor", "channel": "Push", "kind": "Campaign", "date": "2026-06-11", "state": "Completed", "next_steps": "Add a holdout to measure real incremental (this audience already has credits, so baseline conversion is high). Fix the 47% non-delivery + 2,117 errors, then re-run.", "metrics": "162K sent · 9,093 conversions (5.61%) · no A/B", "summary": "Looks positive but uncontrolled; audience was already primed.", "outcome": "9,093 conversions but no control group → add a holdout before re-running"}, {"title": "AI Enhance — unused-tool push (A/B)", "channel": "Push", "kind": "Campaign", "date": "2026-06-16", "state": "Completed", "next_steps": "Keep push as a cheap reminder only; drive AI Enhance via the modal. Standardize the conversion window across the set for clean comparison.", "metrics": "+12.5% · 7.54M sent · 0.55% CTR", "summary": "Best rate lift of the set, tiny absolute movement — push is a weak lever here.", "outcome": "+12.5% lift but near-zero absolute gain → AI Enhance moved to the modal, push kept as cheap reminder"}, {"title": "Remove Background — unused-tool push (A/B)", "channel": "Push", "kind": "Campaign", "date": "2026-06-16", "state": "Completed", "next_steps": "Keep; pair with the Remove BG modal. Standardize window.", "metrics": "+11.11% · 6.01M sent · wins on rate AND count", "summary": "Only push to beat control on both rate and count.", "outcome": "+11.11% lift, beat control on rate AND count → kept, paired with the Remove BG modal"}, {"title": "Effects — unused-tool push (A/B)", "channel": "Push", "kind": "Campaign", "date": "2026-06-16", "state": "Completed", "next_steps": "Lowest push priority; route Effects activation through the modal/IAM. Standardize window.", "metrics": "+3.45% · 4.46M sent · 0.64% CTR", "summary": "Top curiosity, weakest conversion.", "outcome": "Only +3.45% lift → Effects activation routed through the modal instead"}, {"title": "Beautify — unused-tool push (A/B)", "channel": "Push", "kind": "Campaign", "date": "2026-06-16", "state": "Completed", "next_steps": "Low push priority; carry Beautify via the modal / 5-tool journey.", "metrics": "+5.88% · 5.80M sent", "summary": "Push barely moves Beautify.", "outcome": "Only +5.88% lift → dropped to lowest push priority"}, {"title": "Text — unused-tool push (A/B)", "channel": "Push", "kind": "Campaign", "date": "2026-06-16", "state": "Completed", "next_steps": "Re-measure on text_insert_apply to compare fairly; don't rank against apply/complete goals.", "metrics": "+6.82% · 6.40M sent · softer goal, not comparable", "summary": "Softer goal inflates it — not comparable to the others.", "outcome": "+6.82% on a softer goal, not comparable → re-measure like-for-like before any call"}, {"title": "AI Enhance in-app modal — Android", "channel": "In-App Message", "kind": "Campaign", "date": "2026-06-16", "state": "Stopped", "next_steps": "Make the in-app modal the default activation format; clone it for Remove BG.", "metrics": "+313% · 305K viewed · 85.53% CTR", "summary": "Breakout winner — the modal format dwarfs every push.", "outcome": "+313% conversion lift → the in-app modal became our default activation format"}, {"title": "AI Image (text-to-image) in-app modal", "channel": "In-App Message", "kind": "Campaign", "date": "2026-06-18", "state": "Running", "next_steps": "Lift the campaign cap and re-run at full base — the modal converts, it just isn't reaching anyone yet.", "metrics": "+129.61% · 1,509 viewed (capped)", "summary": "Format works; campaign cap is the constraint.", "outcome": "+129.61% lift on only 1,509 viewers → lift the campaign cap and re-run"}, {"title": "Remove Background in-app modal", "channel": "In-App Message", "kind": "Campaign", "date": "2026-06-19", "state": "Running", "next_steps": "Make Remove BG the flagship modal; scale to full base + Android; clone its structure to the next tools.", "metrics": "+472.4% · 14.31% vs 2.5% · 52.8K viewed", "summary": "Best modal yet — strongest tool-to-format fit.", "outcome": "+472% lift, our best result to date → flagship modal, scaling to full base + Android"}, {"title": "Text in-app modal — full base (no registration filter)", "channel": "In-App Message", "kind": "Campaign", "date": "2026-06-24", "state": "Running", "next_steps": "Read 7-day. Compare full-base lift vs registration-filtered modals; decide whether to gate by engagement before locking the modal as default.", "metrics": "+43.84% · 143K viewed · 46.48% CTR", "summary": "Lift compresses on the broad base but stays positive at volume.", "outcome": "+43.84% lift at full-base volume → the modal format survives broad audiences"}, {"title": "Effects in-app modal — full base (no registration filter)", "channel": "In-App Message", "kind": "Campaign", "date": "2026-06-25", "state": "Running", "next_steps": "Read at 7 days; if it holds, lock the Effects modal as a standard activation play. Compare against the Beautify full-base modal.", "metrics": "+86.67% · 2,120 vs 1,782 conversions", "summary": "Genuine win on both rate and raw count.", "outcome": "+86.67% lift, wins on raw count too → locked in as a standard activation play"}, {"title": "Beautify in-app modal — full base (no registration filter)", "channel": "In-App Message", "kind": "Campaign", "date": "2026-06-25", "state": "Running", "next_steps": "Rank Beautify BELOW the Remove BG / AI Enhance / Effects modals. Lift the campaign cap and re-read for raw-count parity. Test a stronger hook than 'Flawless selfie'.", "metrics": "+35.09% · 790K viewed · 51.89% CTR", "summary": "Weakest modal — mid-tier hook on a broad audience.", "outcome": "+35.09% lift, weakest modal → ranked below the others, testing a stronger hook"}, {"title": "AI Enhance in-app modal — video + iOS A/B", "channel": "In-App Message", "kind": "Campaign", "date": "2026-06-30", "state": "Running", "next_steps": "7-day gate passed — graduate to the always-on full-scale rollout on the video creative. Track BOTH goals going forward. Lift the campaign cap, confirm the include segment isn't pinning delivery to iOS, and wire up revenue tracking.", "metrics": "+1388% tool · +9.14% activation · 2.46M viewed", "summary": "Huge tool shift, modest activation lift — audience already exports at ~71%.", "outcome": "+1388% tool lift, +9.14% activation lift → graduated to always-on rollout"}, {"title": "Late Bloomers — D8–D60 2nd-edit / new-tool push", "channel": "Push", "kind": "Campaign", "date": "2026-06-30", "state": "Completed", "next_steps": "Convert to the planned recurring weekly drip on the rolling 8–60d install window. Fix delivery FIRST (74K errors / 15% impressions ≈ 6× reachable headroom). Read object_export / 2ED7 as the real outcome. Uncheck TV under Devices.", "metrics": "+39.22% · 186K sent · 15% delivery caps it", "summary": "Small genuine reminder lift; delivery caps the ceiling.", "outcome": "+39.22% lift with only 15% delivery → weekly drip once delivery is fixed"}, {"title": "Editor-abandonment IAM rescue — attack the 47.8% cliff", "channel": "In-App Message", "kind": "Journey", "date": "2026-07-01", "state": "Running", "next_steps": "Decision point now: pull the intent-to-treat comparison at the 7-day mark and make the keep/kill call. If ~flat: retarget to only the highest-abandonment sessions, or test a lighter reminder / different deep-link destination. Confirm arm balance and segment iOS vs Android.", "metrics": "78.93% vs 74.76% export · +5.6% and narrowing", "summary": "Lift narrowing as natural exports accrue — keep/kill call at day 7.", "outcome": "+5.6% and narrowing every day → keep/kill decision at day 7"}, {"title": "Declared-intent activation — Video (onboarding answer)", "channel": "Push", "kind": "Campaign", "date": "2026-07-08", "state": "Running", "next_steps": "Read 7 days vs holdout (watch the iOS skew). If positive, roll the declared-intent playbook to business, selfie, photo touch-ups.", "metrics": "186K est. reach · 81% iOS · 7d goal + holdout", "summary": "First campaign to target an onboarding answer — declared video intent, video editor never opened.", "outcome": "First-ever onboarding-answer targeting, 186K reach → 7-day read decides the intent playbook"}, {"title": "Declared-intent activation — Video in-app modal", "channel": "In-App Message", "kind": "Campaign", "date": "2026-07-09", "state": "Scheduled", "next_steps": "Tap-test both deep links, then launch. Compare modal vs push on the same cohort at 7 days.", "metrics": "183K est. reach · 76% Android · dual goals + holdout", "summary": "Modal sibling of the video push — same cohort, same message; a clean push-vs-modal format read.", "outcome": "Same cohort and message as the push → clean push-vs-modal comparison, launching today"}];
-  var ACTIVITY_LOCAL = [{"ts": "2026-07-01", "text": "Editor-abandonment rescue journey launched"}, {"ts": "2026-06-30", "text": "AI Enhance modal graduated to full-scale rollout"}, {"ts": "2026-06-30", "text": "Late Bloomers push completed with a clear lift on 2nd-tool adoption"}];
-  var HISTORY_LOCAL = {};
-  var NEXT_ID = 1000, POOL_IDX = 0, RUN = null;
-  function nowIso(){ return new Date().toISOString(); }
-  function popPool(){
-    var batch = [], dups = 0;
-    for(var k = 0; k < 3; k++){
-      var src = POOL[POOL_IDX % POOL.length];
-      var recycled = POOL_IDX >= POOL.length;
-      POOL_IDX++;
-      var idea = JSON.parse(JSON.stringify(src));
-      idea.id = NEXT_ID++;
-      idea.created_at = nowIso();
-      idea.run_id = 'demo-run';
-      if(recycled){
-        for(var j = 0; j < IDEAS_LOCAL.length; j++){
-          if(IDEAS_LOCAL[j].slug === idea.slug){ idea.near_dup_of = IDEAS_LOCAL[j].id; idea.similarity = 0.9; dups++; break; }
+const COLS=[
+  {key:"hypothesis",label:"Hypothesis / outcome",cls:"hyp",type:"textarea"},
+  {key:"theme",label:"Audience",cls:"theme",type:"theme"},
+  {key:"metric",label:"Target metric",cls:"metric",type:"text"},
+  {key:"baseline",label:"Baseline",cls:"num",type:"text"},
+  {key:"lift",label:"Lift / result",cls:"num",type:"text"},
+  {key:"reach",label:"Reach",cls:"num",type:"text"},
+  {key:"conf",label:"Confidence",cls:"conf",type:"select",opts:["High","Med","Low"]},
+  {key:"effort",label:"Effort (1-5)",cls:"num",type:"number"},
+  {key:"status",label:"Status",cls:"status",type:"status"},
+];
+
+// Pipeline = real shipped campaigns & journeys. Backlog starts EMPTY — generate to fill it.
+let DATA=[
+  {id:1,theme:"Tool adoption",metric:"Tool conversion",hypothesis:"Remove Background in-app modal: +472% lift, our best result to date → flagship modal, scaling to full base + Android.",baseline:"2.5% control",lift:"+472%",reach:"52.8K viewed",conf:"High",effort:1,status:"Winner"},
+  {id:2,theme:"Tool adoption",metric:"Tool conversion",hypothesis:"AI Enhance modal (video creative): +1388% tool lift, +9.14% activation lift → graduated to always-on rollout.",baseline:"0.51% control",lift:"+1388% / +9.14%",reach:"2.46M viewed",conf:"High",effort:1,status:"Winner"},
+  {id:3,theme:"Tool adoption",metric:"Tool conversion",hypothesis:"AI Enhance modal (Android): +313% lift → the in-app modal became our default activation format.",baseline:"0.45% control",lift:"+313%",reach:"305K viewed",conf:"High",effort:1,status:"Winner"},
+  {id:4,theme:"Tool adoption",metric:"Tool conversion",hypothesis:"Effects modal at full base: +86.67% lift, beats control on raw count too → locked in as a standard activation play.",baseline:"5.1% control",lift:"+86.67%",reach:"34.6K viewed",conf:"High",effort:1,status:"Winner"},
+  {id:5,theme:"Tool adoption",metric:"Tool conversion",hypothesis:"Text modal at full base: lift compresses on the broad audience but stays clearly positive → reading the 7-day.",baseline:"3.65% control",lift:"+43.84% (1d)",reach:"143K viewed",conf:"Med",effort:1,status:"Running"},
+  {id:6,theme:"Tool adoption",metric:"Tool conversion",hypothesis:"Beautify modal at full base: weakest modal so far → ranked below the others, testing a stronger hook than 'flawless selfie'.",baseline:"2.65% control",lift:"+35.09%",reach:"790K viewed",conf:"Med",effort:1,status:"Analysis"},
+  {id:7,theme:"Edit abandoned",metric:"Editor → export",hypothesis:"Editor-abandonment rescue modal: +5.6% relative and narrowing every day (cohort already exports at ~75%) → keep/kill call at day 7.",baseline:"74.8% no modal",lift:"+5.6% rel",reach:"308K routed",conf:"Med",effort:2,status:"Analysis"},
+  {id:8,theme:"Edit abandoned",metric:"First export, day 1",hypothesis:"5-tool edit recovery journey: the +68% tool-specific copy win, scaled to 5 tools → expansion decision after the 7-day read.",baseline:"generic copy",lift:"7d pending",reach:"millions",conf:"High",effort:2,status:"Running"},
+  {id:9,theme:"Video",metric:"Video activation",hypothesis:"Declared-intent video push: first campaign ever to target an onboarding answer → 7-day read decides the intent playbook rollout.",baseline:"39.4% video d1",lift:"7d pending",reach:"186K est.",conf:"Med",effort:1,status:"Running"},
+  {id:10,theme:"Video",metric:"Video activation",hypothesis:"Declared-intent video modal: same cohort and message as the push → clean push-vs-modal format comparison.",baseline:"39.4% video d1",lift:"—",reach:"183K est.",conf:"Med",effort:1,status:"Picked"},
+  {id:11,theme:"One export",metric:"Second export in 7 days",hypothesis:"Late Bloomers push (D8–D60, one tool): +39.22% lift with only 15% delivery → weekly drip once delivery is fixed.",baseline:"0.51% control",lift:"+39.22%",reach:"186K sent",conf:"High",effort:1,status:"Winner"},
+  {id:12,theme:"Tool adoption",metric:"Tool conversion",hypothesis:"Remove Background unused-tool push: the only push to beat control on BOTH rate and count → kept, paired with the modal.",baseline:"0.18% control",lift:"+11.11%",reach:"6.0M sent",conf:"High",effort:1,status:"Winner"},
+  {id:13,theme:"Tool adoption",metric:"Tool conversion",hypothesis:"Effects unused-tool push: +3.45% only and control won on raw count → Effects activation routed through the modal instead.",baseline:"0.29% control",lift:"+3.45%",reach:"4.5M sent",conf:"High",effort:1,status:"Lost"},
+  {id:14,theme:"Tool adoption",metric:"Tool conversion",hypothesis:"AI Enhance unused-tool push: +12.5% rate lift but near-zero absolute gain → AI Enhance belongs in the modal, push kept as cheap reminder.",baseline:"0.08% control",lift:"+12.5%",reach:"7.5M sent",conf:"High",effort:1,status:"Lost"},
+  {id:15,theme:"Tool adoption",metric:"Tool conversion",hypothesis:"AI Enhance journey via in-app message: 159K completions but NO control group → stopped and rebuilt properly as the A/B modal program.",baseline:"no control",lift:"n/a — no A/B",reach:"2.72M viewed",conf:"Low",effort:2,status:"Stopped"},
+  {id:16,theme:"",metric:"Winback",hypothesis:"Win-back push for lapsed paid subscribers: 15,161 subscribers back in 7 days → next version personalizes by favorite tool.",baseline:"—",lift:"15.2K back",reach:"—",conf:"High",effort:1,status:"Winner"},
+];
+let nextId=100;
+let tab="backlog";
+let sortKey=null,sortDir=1;
+let statusFilter="",metricFilter="",themeFilter="";
+
+const cssv=v=>getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const inTab=d=> tab==="backlog" ? d.status==="Backlog" : d.status!=="Backlog";
+const matches=d=>inTab(d)&&(!statusFilter||d.status===statusFilter)&&(!metricFilter||d.metric===metricFilter)&&(!themeFilter||d.theme===themeFilter);
+
+function reorder(dragId,targetId,after){
+  if(dragId===targetId)return;
+  sortKey=null;
+  const vis=DATA.filter(matches);
+  const from=vis.findIndex(d=>d.id===dragId);
+  if(from<0)return;
+  const [item]=vis.splice(from,1);
+  let to=vis.findIndex(d=>d.id===targetId);
+  if(to<0)return;
+  vis.splice(after?to+1:to,0,item);
+  const slots=[]; DATA.forEach((d,i)=>{ if(matches(d)) slots.push(i); });
+  slots.forEach((slotIdx,k)=>{ DATA[slotIdx]=vis[k]; });
+  render();
+}
+function delRow(id){ DATA=DATA.filter(d=>d.id!==id); render(); }
+
+function rows(){
+  let r=DATA.filter(matches);
+  if(sortKey){
+    r=r.slice().sort((a,b)=>{
+      let x=a[sortKey], y=b[sortKey];
+      const nx=parseFloat(x), ny=parseFloat(y);
+      if(!isNaN(nx)&&!isNaN(ny)) return (nx-ny)*sortDir;
+      x=(""+x).toLowerCase(); y=(""+y).toLowerCase();
+      return (x<y?-1:x>y?1:0)*sortDir;
+    });
+  }
+  return r;
+}
+
+function render(){
+  document.getElementById("cntBacklog").textContent=DATA.filter(d=>d.status==="Backlog").length;
+  document.getElementById("cntPipeline").textContent=DATA.filter(d=>d.status!=="Backlog").length;
+  document.getElementById("tabBacklog").classList.toggle("active",tab==="backlog");
+  document.getElementById("tabPipeline").classList.toggle("active",tab==="pipeline");
+
+  const data=rows();
+  const t=document.getElementById("sheet"), empty=document.getElementById("empty");
+  if(!data.length){
+    t.innerHTML=""; empty.style.display="";
+    empty.textContent= tab==="backlog"
+      ? "No ideas yet. Press “✨ Generate ideas for a metric” and pick the metric you want to move — the agent does the rest."
+      : "Nothing in the pipeline yet. Move a backlog idea to Picked to start.";
+  } else {
+    empty.style.display="none";
+    let html="<thead><tr><th class='rownum'>#</th>"+COLS.map(c=>
+      `<th data-k="${c.key}">${c.label}${sortKey===c.key?`<span class='ar'>${sortDir>0?"▲":"▼"}</span>`:""}</th>`).join("")+"</tr></thead><tbody>";
+    data.forEach((d,i)=>{
+      html+=`<tr data-id="${d.id}"><td class="rownum"><span class="grip">⠿</span><div>${i+1}</div><div class="rowtools"><button data-act="del" title="Delete row">✕</button></div></td>`+COLS.map(c=>{
+        if(c.type==="status"){
+          const bg=cssv(STYLE[d.status][0]),fg=cssv(STYLE[d.status][1]);
+          return `<td class="status" style="background:${bg}"><select class="st" data-k="status" style="color:${fg};background-color:${bg}">${STATUSES.map(s=>`<option ${s===d.status?"selected":""}>${s}</option>`).join("")}</select></td>`;
         }
-      }
-      IDEAS_LOCAL.unshift(idea);
-      batch.push(idea);
-    }
-    ACTIVITY_LOCAL.unshift({ts: nowIso(), text: 'Agent run generated 3 ideas' + (dups ? ' (' + dups + ' flagged as possible repeats)' : '')});
-    return {ideas: batch, added: 3, dups: dups};
-  }
-  function runStatus(){
-    var t = (Date.now() - RUN.start) / 1000;
-    var logs = [];
-    var step = 'gathering_data', status = 'running';
-    if(t > 0.5) logs.push('[activation] run demo — sizing cohorts ...');
-    if(t > 2) logs.push('[activation] 6 cohorts sized · pulling 30d push performance ...');
-    if(t > 3.5){ step = 'calling_llm'; logs.push('[activation] baselines fresh (3 days old) — refresh skipped', '[activation] drafting 3 ranked ideas from the facts table ...'); }
-    if(t > 7){ step = 'generating_brief'; logs.push('[activation] 3 ideas drafted — running 6 validators ...'); }
-    if(t > 9){ status = 'succeeded'; step = 'awaiting_idea_choice'; logs.push('[activation] saved to the idea bank'); }
-    var out = {id: 99, status: status, step: step, log_tail: logs.join('\n')};
-    if(status === 'succeeded'){
-      if(!RUN.result) RUN.result = popPool();
-      out.ideas = RUN.result.ideas; out.ideas_added = RUN.result.added; out.dups_flagged = RUN.result.dups;
-    }
-    return out;
-  }
-  function mockRoute(path, opts){
-    var m;
-    if(path === '/api/ideas') return IDEAS_LOCAL.slice();
-    if(path === '/api/activity') return ACTIVITY_LOCAL.slice(0, 30);
-    if(path === '/api/campaigns') return {campaigns: CAMPS_DATA, synced_at: '2026-07-08'};
-    m = path.match(/^\/api\/ideas\/(\d+)\/history$/);
-    if(m) return (HISTORY_LOCAL[m[1]] || []).slice();
-    m = path.match(/^\/api\/ideas\/(\d+)$/);
-    if(m){
-      var payload = JSON.parse(opts.body);
-      var idea = null;
-      for(var j = 0; j < IDEAS_LOCAL.length; j++){ if(IDEAS_LOCAL[j].id === +m[1]){ idea = IDEAS_LOCAL[j]; break; } }
-      if(!idea) throw new Error('not found');
-      if(!HISTORY_LOCAL[idea.id]) HISTORY_LOCAL[idea.id] = [];
-      HISTORY_LOCAL[idea.id].unshift({changed_at: nowIso(), changed_by: payload.by || 'You', to_status: payload.status, note: ''});
-      ACTIVITY_LOCAL.unshift({ts: nowIso(), text: (payload.by || 'You') + ' marked \u201c' + (idea.title || idea.slug) + '\u201d as ' + payload.status});
-      idea.status = payload.status;
-      return {ok: true};
-    }
-    if(path === '/api/runs' && opts.method === 'POST'){
-      RUN = {start: Date.now(), result: null};
-      return {id: 99};
-    }
-    if(path === '/api/runs/99') return runStatus();
-    throw new Error('not found: ' + path);
-  }
-
-  var STATUSES = {
-    idea:     {label:"Idea",     color:"var(--idea)",     bg:"var(--idea-bg)"},
-    drafted:  {label:"Drafted",  color:"var(--drafted)",  bg:"var(--drafted-bg)"},
-    launched: {label:"Launched", color:"var(--launched)", bg:"var(--launched-bg)"},
-    measured: {label:"Measured", color:"var(--measured)", bg:"var(--measured-bg)"},
-    rejected: {label:"Rejected", color:"var(--rejected)", bg:"var(--rejected-bg)"}
-  };
-  var ORDER = ["idea","drafted","launched","measured","rejected"];
-  var COHORT_NAMES = {
-    w0_no_export:"New users, no export yet",
-    one_export_at_risk:"One export, then silence",
-    edit_abandoned_48h:"Abandoned an edit",
-    declared_selfie:"Wants selfie editing",
-    declared_smb:"Small business owners",
-    activated_no_2ed7:"Active, needs a 2nd export"
-  };
-  var METRIC_NAMES = {
-    first_export_d1:"First export, day 1",
-    second_export_d7:"2nd export in 7 days",
-    tool_first_open_d1:"Opens the tool, day 1",
-    app_return_d3:"Returns by day 3"
-  };
-  var LIVE_TAGS = {
-    w0_no_export:"1 live", edit_abandoned_48h:"3 live", activated_no_2ed7:"1 live"
-  };
-  function cohortLabel(c){ return COHORT_NAMES[c] || c || "—"; }
-  function goalLabel(i){
-    var m = i.activation_metric;
-    return (m && METRIC_NAMES[m]) || m || i.goal || "—";
-  }
-  var MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-
-  var IDEAS = [];
-  var byId = {};
-
-  function $(s){ return document.querySelector(s); }
-  function $all(s){ return Array.prototype.slice.call(document.querySelectorAll(s)); }
-  function esc(t){ var d=document.createElement("span"); d.textContent=t==null?"":String(t); return d.innerHTML; }
-  function chip(st){ return '<span class="chip chip-'+st+'">'+STATUSES[st].label+'</span>'; }
-  function fmtDate(iso){
-    if(!iso) return "—";
-    var d = new Date(iso);
-    if(isNaN(d)) return iso.slice(0,10);
-    return MONTHS[d.getMonth()]+" "+d.getDate();
-  }
-  function api(path, opts){
-    opts = opts || {};
-    return new Promise(function(resolve, reject){
-      setTimeout(function(){
-        try { resolve(mockRoute(path, opts)); } catch(e){ reject(e); }
-      }, 150);
-    });
-  }
-
-  /* ---------- identity (pre-login) ---------- */
-  function who(){ return localStorage.getItem("studioName") || "Guest"; }
-  function renderWho(){ $("#whoName").textContent = who(); }
-  $("#whoChange").addEventListener("click", function(){
-    var n = prompt("Your name (shown in the activity log):", who());
-    if(n && n.trim()){ localStorage.setItem("studioName", n.trim()); renderWho(); }
-  });
-  renderWho();
-
-  /* ---------- nav ---------- */
-  function show(view){
-    $all(".view").forEach(function(v){ v.classList.remove("on"); });
-    $("#view-"+view).classList.add("on");
-    $all(".nav button").forEach(function(b){ b.classList.toggle("on", b.dataset.view===view); });
-    window.scrollTo(0,0);
-  }
-  $all(".nav button").forEach(function(b){ b.addEventListener("click", function(){ show(b.dataset.view); }); });
-  $all("[data-goto]").forEach(function(b){ b.addEventListener("click", function(){ show(b.dataset.goto); }); });
-
-  /* ---------- dashboard ---------- */
-  function counts(){
-    var c = {idea:0,drafted:0,launched:0,measured:0,rejected:0};
-    IDEAS.forEach(function(i){ if(c[i.status]!=null) c[i.status]++; });
-    return c;
-  }
-  function renderDash(){
-    var c = counts(), total = IDEAS.length;
-    var weekAgo = Date.now() - 7*86400e3;
-    var thisWeek = IDEAS.filter(function(i){ var d=new Date(i.created_at); return !isNaN(d) && d.getTime()>weekAgo; }).length;
-    var shipped = c.launched + c.measured;
-    var considered = total - c.rejected;
-    var rate = considered ? Math.round(100*shipped/considered) : 0;
-    $("#statCards").innerHTML =
-      '<div class="card stat"><div class="lbl">Ideas</div><div class="val num">'+total+'</div><div class="sub">all time</div></div>'+
-      '<div class="card stat"><div class="lbl">New this week</div><div class="val num"><em>+'+thisWeek+'</em></div></div>'+
-      '<div class="card stat"><div class="lbl">Live now</div><div class="val num">'+c.launched+'</div><div class="sub">'+c.measured+' measured, '+c.drafted+' in draft</div></div>'+
-      '<div class="card stat"><div class="lbl">Shipped</div><div class="val num">'+rate+'%</div><div class="sub">'+shipped+' of '+considered+' ideas</div></div>';
-
-    var f = $("#funnel"); f.innerHTML = "";
-    var lg = $("#funnelLegend"); lg.innerHTML = "";
-    ORDER.forEach(function(st){
-      if(!c[st]) return;
-      var seg = document.createElement("div");
-      seg.style.flex = c[st];
-      seg.style.background = STATUSES[st].bg;
-      seg.style.color = STATUSES[st].color;
-      seg.textContent = c[st];
-      f.appendChild(seg);
-      var l = document.createElement("span");
-      l.innerHTML = '<span class="dot" style="background:'+STATUSES[st].color+'"></span>'+STATUSES[st].label+' <b class="num">'+c[st]+'</b>';
-      lg.appendChild(l);
-    });
-    $("#funnelTotal").textContent = "· " + total + " ideas all time";
-
-    // weekly bars, last 8 ISO-ish weeks (Mon start)
-    var nowD = new Date(); var day = (nowD.getDay()+6)%7;
-    var monday = new Date(nowD.getFullYear(), nowD.getMonth(), nowD.getDate()-day);
-    var weeks = [];
-    for(var w=7; w>=0; w--){
-      var start = new Date(monday.getTime() - w*7*86400e3);
-      weeks.push({start:start, count:0});
-    }
-    IDEAS.forEach(function(i){
-      var d = new Date(i.created_at); if(isNaN(d)) return;
-      for(var k=weeks.length-1;k>=0;k--){
-        if(d >= weeks[k].start){ weeks[k].count++; break; }
-      }
-    });
-    var max = Math.max.apply(null, weeks.map(function(w){return w.count;}).concat([1]));
-    $("#sparkBars").innerHTML = weeks.map(function(w,idx){
-      var h = Math.max(6, Math.round(100*w.count/max));
-      return '<div class="bar'+(idx===weeks.length-1?' hot':'')+'" style="height:'+h+'%"><span>'+w.count+'</span></div>';
-    }).join("");
-    $("#sparkX").innerHTML = weeks.map(function(w){
-      return '<div>'+MONTHS[w.start.getMonth()]+' '+w.start.getDate()+'</div>';
-    }).join("");
-
-    // cohort coverage
-    var perCohort = {};
-    IDEAS.forEach(function(i){
-      var key = i.cohort_id || "other";
-      perCohort[key] = (perCohort[key]||0)+1;
-    });
-    var keys = Object.keys(COHORT_NAMES);
-    Object.keys(perCohort).forEach(function(k){ if(keys.indexOf(k)===-1) keys.push(k); });
-    $("#cohortCards").innerHTML = keys.map(function(k){
-      var n = perCohort[k]||0;
-      var tag = LIVE_TAGS[k] ? '<span class="tag tag-live">'+LIVE_TAGS[k]+'</span>' : '<span class="tag tag-open">Open space</span>';
-      var name = COHORT_NAMES[k] || (k==="other" ? "Other audiences" : k);
-      return '<div class="card cohort"><div class="top"><span class="name">'+esc(name)+'</span>'+tag+'</div>'+
-        '<div class="meta"><span class="num">'+n+' idea'+(n===1?'':'s')+'</span></div></div>';
-    }).join("");
-  }
-
-  function renderFeed(events){
-    $("#feed").innerHTML = events.length ? events.map(function(e){
-      return '<li><time>'+fmtDate(e.ts)+'</time><span>'+esc(e.text)+'</span></li>';
-    }).join("") : '<li><span style="color:var(--faint)">No activity yet. Generate some ideas.</span></li>';
-  }
-
-  /* ---------- idea bank ---------- */
-  var fStatus = "all", fCohort = "all", fText = "";
-  function displayTitle(i){ return i.title || i.slug.replace(/_/g," "); }
-  function renderCohortSel(){
-    var seen = {};
-    IDEAS.forEach(function(i){ if(i.cohort_id) seen[i.cohort_id]=1; });
-    var opts = '<option value="all">All audiences</option>';
-    Object.keys(seen).sort().forEach(function(k){ opts += '<option value="'+esc(k)+'">'+esc(cohortLabel(k))+'</option>'; });
-    $("#cohortSel").innerHTML = opts;
-    $("#cohortSel").value = fCohort==="all"||seen[fCohort] ? fCohort : "all";
-  }
-  function renderRows(){
-    var tb = $("#rows"); tb.innerHTML = "";
-    var shown = 0;
-    IDEAS.forEach(function(i){
-      if(fStatus!=="all" && i.status!==fStatus) return;
-      if(fCohort!=="all" && i.cohort_id!==fCohort) return;
-      var hay = (displayTitle(i)+" "+(i.body||"")+" "+(i.cohort_id||"")+" "+i.slug+" "+(i.rationale||"")).toLowerCase();
-      if(fText && hay.indexOf(fText)===-1) return;
-      shown++;
-      var tr = document.createElement("tr");
-      tr.className = "row";
-      tr.tabIndex = 0;
-      var dup = i.near_dup_of ? '<span class="dupflag">possible repeat</span>' : "";
-      tr.innerHTML =
-        '<td><div class="t">'+esc(displayTitle(i))+dup+'</div><div class="s">“'+esc(i.body||"")+'”</div></td>'+
-        '<td>'+(i.cohort_id?'<span class="cohort-pill">'+esc(cohortLabel(i.cohort_id))+'</span>':'<span style="color:var(--faint)">—</span>')+'</td>'+
-        '<td><span style="font-size:12.5px; color:var(--mut)">'+esc(goalLabel(i))+'</span></td>'+
-        '<td>'+chip(i.status)+'</td>'+
-        '<td><div class="num" style="font-size:13px">'+fmtDate(i.created_at)+'</div></td>';
-      tr.addEventListener("click", function(){ openDrawer(i.id); });
-      tr.addEventListener("keydown", function(e){ if(e.key==="Enter") openDrawer(i.id); });
-      tb.appendChild(tr);
-    });
-    $("#emptyMsg").hidden = shown>0;
-  }
-  $all(".fchip[data-f]").forEach(function(b){
-    b.addEventListener("click", function(){
-      $all(".fchip[data-f]").forEach(function(x){ x.classList.remove("on"); });
-      b.classList.add("on"); fStatus = b.dataset.f; renderRows();
-    });
-  });
-  $("#cohortSel").addEventListener("change", function(e){ fCohort = e.target.value; renderRows(); });
-  $("#q").addEventListener("input", function(e){ fText = e.target.value.trim().toLowerCase(); renderRows(); });
-
-  /* ---------- drawer ---------- */
-  function setSec(secId, textId, val){
-    $(secId).hidden = !val;
-    if(val) $(textId).textContent = val;
-  }
-  function openDrawer(id){
-    var i = byId[id];
-    if(!i) return;
-    $("#dTitle").textContent = displayTitle(i);
-    $("#dSlug").textContent = i.slug;
-    $("#dPushT").textContent = i.title || "—";
-    $("#dPushB").textContent = i.body || "—";
-    $("#dStatus").innerHTML = chip(i.status);
-    $("#dCohort").textContent = cohortLabel(i.cohort_id);
-    $("#dMetric").textContent = goalLabel(i);
-    $("#dWindow").textContent = i.warmupday_window ? "Day "+i.warmupday_window.replace(/D/g,"").replace("-"," to ") : "—";
-    $("#dLink").innerHTML = esc(i.deep_link||"—") +
-      (i.deep_link ? ' <span class="vbadge '+(i.deep_link_verified?"vbadge-ok":"vbadge-warn")+'">'+
-        (i.deep_link_verified?"Verified":"Not tested yet")+'</span>' : "");
-    $("#dEvent").textContent = i.conversion_event || "—";
-    $("#dRun").textContent = i.run_id;
-    $("#dWhy").textContent = i.rationale || "—";
-    setSec("#dLiftSec","#dLift", i.expected_lift);
-    setSec("#dRiskSec","#dRisk", i.risk);
-    setSec("#dAudSec","#dAud", i.audience_logic);
-    if(i.near_dup_of && byId[i.near_dup_of]){
-      $("#dDupSec").hidden = false;
-      $("#dDupText").textContent = "Possible duplicate: "+Math.round((i.similarity||0)*100)+
-        "% similar to “"+displayTitle(byId[i.near_dup_of])+"” ("+byId[i.near_dup_of].run_id+").";
-    } else {
-      $("#dDupSec").hidden = true;
-    }
-    var h = $("#dHist");
-    h.innerHTML = '<li><b>'+fmtDate(i.created_at)+'</b> · Generated by run '+esc(i.run_id)+'</li>';
-    api("/api/ideas/"+i.id+"/history").then(function(hist){
-      var items = hist.map(function(ev){
-        var t = '<b>'+fmtDate(ev.changed_at)+'</b> · '+esc(ev.changed_by||"")+' marked '+esc(ev.to_status);
-        if(ev.note) t += ' · '+esc(ev.note);
-        return '<li>'+t+'</li>';
-      });
-      items.push('<li><b>'+fmtDate(i.created_at)+'</b> · Generated by run '+esc(i.run_id)+'</li>');
-      h.innerHTML = items.join("");
-    }).catch(function(){});
-    var a = $("#dActions"); a.innerHTML = "";
-    ORDER.forEach(function(st){
-      var b = document.createElement("button");
-      b.className = "sbtn" + (st===i.status ? " cur" : "");
-      b.textContent = STATUSES[st].label;
-      b.addEventListener("click", function(){
-        if(st===i.status) return;
-        api("/api/ideas/"+i.id, {
-          method:"PATCH",
-          headers:{"Content-Type":"application/json"},
-          body:JSON.stringify({status:st, by:who()})
-        }).then(function(){
-          i.status = st;
-          renderRows(); renderDash(); loadActivity(); openDrawer(i.id);
-        }).catch(function(e){ alert("Could not save: "+e.message); });
-      });
-      a.appendChild(b);
-    });
-    $("#drawer").classList.add("on");
-    $("#scrim").classList.add("on");
-  }
-  function closeDrawer(){
-    $("#drawer").classList.remove("on");
-    $("#scrim").classList.remove("on");
-  }
-  $("#dClose").addEventListener("click", closeDrawer);
-  $("#scrim").addEventListener("click", closeDrawer);
-  document.addEventListener("keydown", function(e){ if(e.key==="Escape") closeDrawer(); });
-
-  /* ---------- campaigns ---------- */
-  var CAMPS = [], cFilter = "all", tFilter = "all";
-  function chLabel(c){ return c === "In-App Message" ? "In-app" : c; }
-  function stateChip(s){
-    return '<span class="chip chip-'+(s||"").toLowerCase()+'">'+esc(s)+'</span>';
-  }
-  function renderCamps(){
-    var tb = $("#campRows"); tb.innerHTML = "";
-    CAMPS.slice()
-      .sort(function(a,b){ return (b.date||"").localeCompare(a.date||""); })
-      .forEach(function(c){
-        if(cFilter!=="all" && c.state!==cFilter) return;
-        if(tFilter!=="all" && c.kind!==tFilter) return;
-        var tr = document.createElement("tr");
-        tr.className = "row";
-        tr.tabIndex = 0;
-        var oline = "";
-        if(c.outcome){
-          var op = c.outcome.split("→");
-          oline = op.length===2
-            ? '<div class="s outcome num"><b>'+esc(op[0].trim())+'</b> → '+esc(op[1].trim())+'</div>'
-            : '<div class="s outcome num">'+esc(c.outcome)+'</div>';
+        if(c.type==="theme"){
+          const has=!!d.theme;
+          const bg=has?cssv(thKey(d.theme)):"",fg=has?cssv(thKey(d.theme)+"T"):"";
+          return `<td class="theme" style="background:${bg}"><select class="tm" data-k="theme" style="color:${fg};background-color:${bg}"><option value="" ${!has?"selected":""}>—</option>${THEMES.map(s=>`<option ${s===d.theme?"selected":""}>${s}</option>`).join("")}</select></td>`;
         }
-        tr.innerHTML =
-          '<td><div class="t">'+esc(c.title)+'</div>'+oline+'</td>'+
-          '<td><span class="cohort-pill">'+esc(chLabel(c.channel))+'</span></td>'+
-          '<td style="font-size:13px; color:var(--mut)">'+esc(c.kind)+'</td>'+
-          '<td class="num" style="font-size:13px">'+fmtDate(c.date)+'</td>'+
-          '<td>'+stateChip(c.state)+'</td>';
-        var exp = document.createElement("tr");
-        exp.className = "exp"; exp.hidden = true;
-        exp.innerHTML = '<td colspan="5">'+
-          (c.metrics ? '<h5>Key numbers</h5><p class="num">'+esc(c.metrics)+'</p>' : '')+
-          '<h5>Next step</h5><p>'+esc(c.next_steps||"—")+'</p></td>';
-        var toggle = function(){ exp.hidden = !exp.hidden; };
-        tr.addEventListener("click", toggle);
-        tr.addEventListener("keydown", function(e){ if(e.key==="Enter") toggle(); });
-        tb.appendChild(tr); tb.appendChild(exp);
+        if(c.type==="select"){
+          return `<td class="${c.cls}"><select class="conf" data-k="${c.key}"><option value="" ${!d[c.key]?"selected":""}>—</option>${c.opts.map(o=>`<option ${o===d[c.key]?"selected":""}>${o}</option>`).join("")}</select></td>`;
+        }
+        if(c.type==="textarea"){
+          return `<td class="${c.cls}"><textarea class="cell" rows="2" data-k="${c.key}">${d[c.key]??""}</textarea></td>`;
+        }
+        const ty=c.type==="number"?"number":"text";
+        return `<td class="${c.cls}"><input class="cell" type="${ty}" data-k="${c.key}" value="${(d[c.key]??"").toString().replace(/"/g,'&quot;')}"></td>`;
+      }).join("")+"</tr>";
+    });
+    html+="</tbody>";
+    t.innerHTML=html;
+    t.querySelectorAll("thead th[data-k]").forEach(th=>th.onclick=()=>{
+      const k=th.dataset.k; if(sortKey===k)sortDir*=-1;else{sortKey=k;sortDir=1;} render();
+    });
+    t.querySelectorAll(".rowtools button[data-act='del']").forEach(b=>b.onclick=e=>{
+      e.stopPropagation(); delRow(+b.closest("tr").dataset.id);
+    });
+    let dragId=null;
+    const clearDrop=()=>t.querySelectorAll("tr").forEach(r=>r.classList.remove("dropbefore","dropafter"));
+    t.querySelectorAll("tbody tr").forEach(tr=>{
+      const rn=tr.querySelector("td.rownum");
+      rn.setAttribute("draggable","true");
+      rn.addEventListener("dragstart",e=>{dragId=+tr.dataset.id;tr.classList.add("dragging");e.dataTransfer.effectAllowed="move";e.dataTransfer.setData("text/plain",dragId);});
+      rn.addEventListener("dragend",()=>{tr.classList.remove("dragging");clearDrop();dragId=null;});
+      tr.addEventListener("dragover",e=>{
+        if(dragId==null)return; e.preventDefault();
+        const rect=tr.getBoundingClientRect(), after=(e.clientY-rect.top)>rect.height/2;
+        clearDrop(); tr.classList.add(after?"dropafter":"dropbefore");
       });
-  }
-  $all(".cchip").forEach(function(b){
-    b.addEventListener("click", function(){
-      $all(".cchip").forEach(function(x){ x.classList.remove("on"); });
-      b.classList.add("on"); cFilter = b.dataset.cf; renderCamps();
+      tr.addEventListener("drop",e=>{
+        if(dragId==null)return; e.preventDefault();
+        const rect=tr.getBoundingClientRect(), after=(e.clientY-rect.top)>rect.height/2;
+        reorder(dragId,+tr.dataset.id,after);
+      });
     });
-  });
-  $all(".tchip").forEach(function(b){
-    b.addEventListener("click", function(){
-      $all(".tchip").forEach(function(x){ x.classList.remove("on"); });
-      b.classList.add("on"); tFilter = b.dataset.tf; renderCamps();
-    });
-  });
-  function renderRunning(){
-    var run = CAMPS.filter(function(c){ return c.state==="Running"; })
-      .sort(function(a,b){ return (b.date||"").localeCompare(a.date||""); });
-    $("#runningCount").textContent = "· "+run.length+" live right now";
-    $("#runningList").innerHTML = run.map(function(c){
-      return '<li style="cursor:pointer"><time>'+fmtDate(c.date)+'</time><span><b>'+esc(c.title)+'</b> · '+
-        esc(chLabel(c.channel))+' '+esc((c.kind||"").toLowerCase())+
-        (c.metrics ? '<span class="num" style="color:var(--faint)"> · '+esc(c.metrics)+'</span>' : '')+
-        '</span></li>';
-    }).join("") || '<li><span style="color:var(--faint)">Nothing running.</span></li>';
-    $all("#runningList li").forEach(function(el){
-      el.addEventListener("click", function(){ show("camps"); });
+    t.querySelectorAll("[data-k]").forEach(el=>{
+      if(el.tagName==="TH")return;
+      const id=+el.closest("tr").dataset.id, key=el.dataset.k;
+      const ev=el.tagName==="SELECT"?"change":"input";
+      el.addEventListener(ev,()=>{
+        const d=DATA.find(x=>x.id===id); if(!d)return;
+        d[key]=el.tagName==="INPUT"&&el.type==="number"?(el.value===""?0:+el.value):el.value;
+        if(key==="status")render();
+        else updateSummary();
+      });
     });
   }
-  function loadCampaigns(){
-    api("/api/campaigns").then(function(d){
-      CAMPS = d.campaigns || [];
-      $("#campSource").textContent = "Source: lifecycle portfolio sheet"+(d.synced_at ? " · updated "+d.synced_at : "");
-      renderCamps(); renderRunning();
-    }).catch(function(){});
-  }
+  updateFilters(); updateSummary(); updateHint();
+}
 
-  /* ---------- generate ---------- */
-  function stageIndex(step, status){
-    if(status==="succeeded") return 5;
-    if(!step || step==="init" || step==="gathering_data") return 0;
-    if(step==="calling_llm") return 1;
-    if(step==="reprompting_with_validation_errors") return 2;
-    if(step==="generating_brief") return 3;
-    if(step==="awaiting_idea_choice") return 4;
-    if(step.indexOf("failed_parse")===0) return 1;
-    if(step.indexOf("failed")===0) return 2;
-    return 0;
+function updateFilters(){
+  const sf=document.getElementById("statusFilter");
+  if(tab==="backlog"){ sf.style.display="none"; statusFilter=""; }
+  else{
+    sf.style.display="";
+    sf.innerHTML=`<option value="">All statuses</option>`+PIPELINE_STATUSES.map(s=>`<option ${s===statusFilter?"selected":""}>${s}</option>`).join("");
   }
-  function renderStages(idx, failed){
-    $all("#steps li").forEach(function(li, n){
-      li.classList.remove("run","done","fail");
-      if(failed && n===idx){ li.classList.add("fail"); }
-      else if(n<idx){ li.classList.add("done"); }
-      else if(n===idx && !failed){ li.classList.add("run"); }
-    });
+  const mf=document.getElementById("metricFilter");const ms=[...new Set(DATA.map(d=>d.metric).filter(Boolean))];
+  mf.innerHTML=`<option value="">All metrics</option>`+ms.map(m=>`<option ${m===metricFilter?"selected":""}>${m}</option>`).join("");
+  const tf=document.getElementById("themeFilter");
+  tf.innerHTML=`<option value="">All audiences</option>`+THEMES.map(t=>`<option ${t===themeFilter?"selected":""}>${t}</option>`).join("");
+}
+function updateSummary(){
+  if(tab==="backlog"){
+    const b=DATA.filter(d=>d.status==="Backlog");
+    document.getElementById("summary").innerHTML=`<b>${b.length}</b> ideas waiting`;
+  }else{
+    const p=DATA.filter(d=>d.status!=="Backlog");
+    const running=p.filter(d=>d.status==="Running").length;
+    const decided=p.filter(d=>["Winner","Lost"].includes(d.status));
+    const wins=decided.filter(d=>d.status==="Winner").length;
+    const wr=decided.length?Math.round(wins/decided.length*100):0;
+    document.getElementById("summary").innerHTML=`<b>${p.length}</b> experiments · <b>${running}</b> running · win rate <b>${wr}%</b> (${wins}/${decided.length})`;
   }
-  var polling = false;
-  function pollRun(id){
-    api("/api/runs/"+id).then(function(r){
-      var failed = r.status==="failed";
-      var idx = stageIndex(r.step, r.status);
-      renderStages(failed ? Math.min(idx, 4) : idx, failed);
-      if(r.log_tail){ $("#logBox").hidden = false; $("#logBox").textContent = r.log_tail; $("#logBox").scrollTop = 1e6; }
-      if(r.status==="running"){
-        setTimeout(function(){ pollRun(id); }, 2500);
-        return;
-      }
-      polling = false;
-      var btn = $("#runBtn");
-      btn.disabled = false; btn.textContent = "Run again";
-      if(failed){
-        $("#runErr").hidden = false;
-        $("#runErr").textContent = "Run failed: " + (r.error || "see the log above") +
-          " — nothing was added to the bank. You can run it again.";
-      } else {
-        var res = $("#results"); res.hidden = false;
-        var ideas = r.ideas || [];
-        res.innerHTML = ideas.map(function(i){
-          var dup = i.near_dup_of ? '<span class="dupflag">possible repeat</span>' : chip("idea");
-          return '<div class="rcard" data-id="'+i.id+'"><div class="rt"><b>'+esc(i.title||i.slug)+'</b>'+dup+'</div>'+
-            '<p>“'+esc(i.body||"")+'” · '+esc(cohortLabel(i.cohort_id))+'</p></div>';
-        }).join("") +
-        '<div class="rhint">'+r.ideas_added+' ideas added'+
-          (r.dups_flagged?', '+r.dups_flagged+' flagged as a possible repeat':'')+
-          '. Click one to review.</div>';
-        $all("#results .rcard").forEach(function(el){
-          el.addEventListener("click", function(){ openDrawer(parseInt(el.dataset.id,10)); });
-        });
-        loadAll();
-      }
-    }).catch(function(e){
-      polling = false;
-      $("#runBtn").disabled = false; $("#runBtn").textContent = "Run the agent";
-      $("#runErr").hidden = false; $("#runErr").textContent = "Lost contact with the server: "+e.message;
-    });
-  }
-  $("#runBtn").addEventListener("click", function(){
-    if(polling) return;
-    polling = true;
-    var btn = $("#runBtn");
-    btn.disabled = true; btn.textContent = "Running…";
-    $("#runErr").hidden = true; $("#results").hidden = true; $("#results").innerHTML = "";
-    $("#logBox").hidden = true; $("#logBox").textContent = "";
-    renderStages(0, false);
-    api("/api/runs", {
-      method:"POST", headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({by:who()})
-    }).then(function(r){
-      pollRun(r.id);
-    }).catch(function(e){
-      polling = false;
-      btn.disabled = false; btn.textContent = "Run the agent";
-      $("#runErr").hidden = false; $("#runErr").textContent = e.message;
-    });
-  });
+}
+function updateHint(){
+  document.getElementById("hint").textContent = tab==="backlog"
+    ? "Ideas waiting to be picked. Edit any cell; set Status to Picked to move an idea into the Pipeline tab."
+    : "Everything shipped, with the outcome in plain words. Change Status to walk an experiment through Picked → Running → Analysis → Winner / Lost.";
+}
 
-  /* ---------- load ---------- */
-  function loadActivity(){
-    api("/api/activity").then(renderFeed).catch(function(){});
-  }
-  function loadAll(){
-    api("/api/ideas").then(function(list){
-      IDEAS = list;
-      byId = {};
-      IDEAS.forEach(function(i){ byId[i.id] = i; });
-      renderCohortSel();
-      renderRows();
-      renderDash();
-    }).catch(function(e){
-      $("#rows").innerHTML = "";
-      $("#emptyMsg").hidden = false;
-      $("#emptyMsg").textContent = "Could not load ideas: "+e.message;
-    });
-    loadActivity();
-    loadCampaigns();
-  }
-  loadAll();
-})();
+document.getElementById("tabBacklog").onclick=()=>{tab="backlog";sortKey=null;metricFilter="";themeFilter="";render();};
+document.getElementById("tabPipeline").onclick=()=>{tab="pipeline";sortKey=null;metricFilter="";themeFilter="";render();};
+document.getElementById("statusFilter").onchange=e=>{statusFilter=e.target.value;render();};
+document.getElementById("metricFilter").onchange=e=>{metricFilter=e.target.value;render();};
+document.getElementById("themeFilter").onchange=e=>{themeFilter=e.target.value;render();};
+document.getElementById("addBtn").onclick=()=>{
+  DATA.unshift({id:nextId++,theme:"",metric:"",hypothesis:"",baseline:"",lift:"",reach:"",conf:"",effort:"",status:"Backlog"});
+  tab="backlog";sortKey=null;metricFilter="";themeFilter="";render();
+};
+
+// ---- generate ideas for a selected metric (simulated; the real version runs our activation agent) ----
+const METRIC_OPTS=[
+  {name:"First export, day 1",baseline:"now 31.9% Android · 46.5% iOS"},
+  {name:"Second export in 7 days",baseline:"the retention north star (2ED7)"},
+  {name:"Editor → export",baseline:"now 51.9% — our #1 leak"},
+  {name:"Tool opened, day 1",baseline:"for declared-intent cohorts"},
+  {name:"Video activation",baseline:"now 39.4% — worst big intent"},
+  {name:"First credit use",baseline:"12.9% of exporters use credits"},
+];
+const CANDIDATES={
+  "First export, day 1":[
+    {theme:"New users",hypothesis:"Push registered users who never opened the editor straight into Effects ('Your first stunning edit is one tap away'), since this top-of-funnel cohort has no live coverage and Effects delivers the promise in one tap.",baseline:"~40% d1 export",lift:"goal: lift d1 export",reach:"2.1M/mo est.",conf:"Med",effort:1},
+    {theme:"Selfie",hypothesis:"Send declared-selfie users a day-1 Retouch push ('Faces first. Fix the light in one tap'), since declared intent + a verified in-tool link is our strongest first-edit pattern.",baseline:"46.2% selfie d1",lift:"goal +3–5pp",reach:"~500K/mo est.",conf:"Med",effort:1},
+    {theme:"New users",hypothesis:"Pre-select a camera-roll photo in the first-edit flow, since roughly 40% of push-tap sessions die at the photo chooser before any edit starts.",baseline:"~40% chooser drop",lift:"goal: cut chooser drop",reach:"all push taps",conf:"Med",effort:4},
+  ],
+  "Second export in 7 days":[
+    {theme:"One export",hypothesis:"Nudge one-export users with 'That edit was no fluke — your next one takes half the time', since a second export within 7 days is the strongest retention predictor we track.",baseline:"2ED7 cohort",lift:"goal: 2nd export ≤7d",reach:"~800K/mo est.",conf:"Med",effort:1},
+    {theme:"One export",hypothesis:"Offer a weekend sticker project ('Turn any photo into a sticker'), since activated users respond to novelty and Sticker is verified and unsaturated in recent sends.",baseline:"2ED7 cohort",lift:"goal: 2nd export ≤7d",reach:"~800K/mo est.",conf:"Med",effort:1},
+    {theme:"One export",hypothesis:"Suggest AI Replace ('Change the sky. Change the shirt. One prompt'), since high-curiosity AI tools pull one-export users back at the highest rate.",baseline:"2ED7 cohort",lift:"goal: 2nd export ≤7d",reach:"~800K/mo est.",conf:"Low",effort:1},
+  ],
+  "Editor → export":[
+    {theme:"Edit abandoned",hypothesis:"Show a 'resume your project' modal that deep-links to Recent Projects for users who opened the editor in the last 48h without exporting — the current rescue modal loses the session at the chooser.",baseline:"51.9% editor→export",lift:"goal +2–4pp",reach:"~1.4M/mo est.",conf:"Med",effort:2},
+    {theme:"Edit abandoned",hypothesis:"Retarget the rescue modal to only the highest-abandonment sessions, since the broad cohort already exports at ~75% and the blended lift keeps narrowing.",baseline:"74.8% broad cohort",lift:"goal: real incremental",reach:"subset of 308K",conf:"Med",effort:1},
+  ],
+  "Tool opened, day 1":[
+    {theme:"Business",hypothesis:"Send declared-business users straight to AI Logo Maker ('Type your business name. AI Logo Maker does the rest'), since the miniapp lands in-tool and this intent is completely uncovered.",baseline:"uncovered intent",lift:"goal: tool open d1",reach:"~300K/mo est.",conf:"High",effort:1},
+    {theme:"Selfie",hypothesis:"Route declared-selfie users to AI Enhance ('One tap makes every selfie HD'), since it is free, credit-exempt, and matches the declared intent exactly.",baseline:"46.2% selfie d1",lift:"goal: tool open d1",reach:"~500K/mo est.",conf:"Med",effort:1},
+  ],
+  "Video activation":[
+    {theme:"Video",hypothesis:"Recover video-editor abandoners with 'Your video is waiting — finish it in about a minute', since ~2.6M users a month open the video editor and never export.",baseline:"39.4% video d1",lift:"goal +2–3pp",reach:"2.6M/mo",conf:"Med",effort:1},
+    {theme:"Video",hypothesis:"Give declared-video users an image-to-video first render ('Your first video in 60 seconds'), since it lands in-tool and produces a shareable result on the first try.",baseline:"39.4% video d1",lift:"goal: first video",reach:"~1.6M/mo intent",conf:"Med",effort:2},
+  ],
+  "First credit use":[
+    {theme:"New users",hypothesis:"Point free-credit holders at text-to-image ('5 free credits, zero pressure — type a few words'), since T2I is the lowest-friction first generation and skips the photo chooser entirely.",baseline:"12.9% credit use",lift:"goal: first credit spend",reach:"~117K/day",conf:"Med",effort:1},
+    {theme:"New users",hypothesis:"Run a 'credits 101' education modal for users who received credits but never spent one, since not understanding credits is a known activation barrier.",baseline:"12.9% credit use",lift:"goal: first credit spend",reach:"~1M est.",conf:"Low",effort:2},
+  ],
+};
+
+let genMetric=null;
+const scrim=document.getElementById("scrim");
+const genPick=document.getElementById("genPick");
+const genRun=document.getElementById("genRun");
+const genGo=document.getElementById("genGo");
+
+function openGen(){
+  genMetric=null;
+  genPick.style.display=""; genRun.style.display="none";
+  genGo.disabled=true; genGo.textContent="Generate ideas";
+  document.getElementById("metricGrid").innerHTML=METRIC_OPTS.map(m=>
+    `<div class="mchip" data-m="${m.name}"><div class="mn">${m.name}</div><div class="mb">${m.baseline}</div></div>`).join("");
+  document.querySelectorAll("#metricGrid .mchip").forEach(ch=>ch.onclick=()=>{
+    document.querySelectorAll("#metricGrid .mchip").forEach(x=>x.classList.remove("sel"));
+    ch.classList.add("sel"); genMetric=ch.dataset.m;
+    genGo.disabled=false; genGo.textContent=`Generate ideas for ${genMetric}`;
+  });
+  scrim.classList.add("open");
+}
+function runGen(){
+  genPick.style.display="none"; genRun.style.display="";
+  document.getElementById("genRunTitle").innerHTML=`Generating ideas for <span class="genmetric">${genMetric}</span>`;
+  const steps=[
+    `Size the audiences behind ${genMetric}`,
+    `Refresh funnel baselines from the warehouse`,
+    `Draft hypotheses that could move ${genMetric}`,
+    `Validate: real links, real facts, no collision with live campaigns`,
+    `Check against the idea bank — no repeats`,
+    `Add ideas to the Backlog tab`,
+  ];
+  const log=document.getElementById("genlog");
+  log.innerHTML=steps.map(s=>`<li data-step><span class="tick"></span>${s}</li>`).join("");
+  const els=[...log.querySelectorAll("[data-step]")];
+  let i=0;const iv=setInterval(()=>{
+    if(i>0){els[i-1].classList.add("done");els[i-1].querySelector(".tick").textContent="✓";}
+    if(i<els.length){els[i].style.color="var(--accent)";i++;}
+    else{
+      clearInterval(iv);
+      (CANDIDATES[genMetric]||[]).forEach(c=>DATA.unshift({...c,metric:genMetric,id:nextId++,status:"Backlog"}));
+      scrim.classList.remove("open");
+      tab="backlog"; sortKey=null; metricFilter=genMetric; render();
+    }
+  },520);
+}
+document.getElementById("genBtn").onclick=openGen;
+document.getElementById("genCancel").onclick=()=>scrim.classList.remove("open");
+genGo.onclick=()=>{ if(genMetric) runGen(); };
+
+render();
 </script>
 </body>
 </html>
