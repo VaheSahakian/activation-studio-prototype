@@ -6,116 +6,270 @@
 <title>Activation Studio — Experiment Backlog</title>
 <style>
   :root{
-    --bg:#f4f5f7; --grid:#d7dbe0; --gridStrong:#b9bec7; --head:#f2f4f8; --text:#1f2430; --muted:#6b7280;
-    --accent:#2f6fed; --sel:#e8f0ff;
-    --backlog:#eceef1; --backlogT:#4b5563;
-    --picked:#e1ebff;  --pickedT:#1d4ed8;
-    --running:#fff2d6;  --runningT:#b45309;
-    --stopped:#eceef1;  --stoppedT:#6b7280;
-    --analysis:#f0e6ff; --analysisT:#7c3aed;
-    --winner:#dcf6e3;   --winnerT:#15803d;
-    --lost:#fde3e3;     --lostT:#b91c1c;
-    /* audience tags */
-    --th-New-users:#dcecff;     --th-New-usersT:#1e4fa3;
-    --th-One-export:#e6f7f7;    --th-One-exportT:#0f6d6d;
-    --th-Edit-abandoned:#fdecc8;--th-Edit-abandonedT:#92600a;
-    --th-Selfie:#ffe6ec;        --th-SelfieT:#a3123f;
-    --th-Business:#e3f7ec;      --th-BusinessT:#17663b;
-    --th-Video:#f3e6ff;         --th-VideoT:#6b21a8;
-    --th-Tool-adoption:#e9e9f9; --th-Tool-adoptionT:#4338ca;
+    --bg:#f5f4f8; --surface:#ffffff; --surface-2:#faf9fc; --surface-3:#f3f1f7;
+    --ink:#1a1622; --muted:#6d6779; --faint:#9d97a9;
+    --line:#eceaf0; --line-strong:#dedbe6;
+    --accent:#c209c1; --accent-2:#7b1fe0; --accent-weak:#fbe9fb;
+    --ring:rgba(194,9,193,.28);
+    --shadow-sm:0 1px 2px rgba(26,22,34,.06);
+    --shadow:0 1px 2px rgba(26,22,34,.04), 0 12px 32px rgba(26,22,34,.08);
+    /* status */
+    --backlog:#eef0f3;   --backlogT:#5a6472;
+    --picked:#e6efff;    --pickedT:#1d4ed8;
+    --running:#fff2d6;   --runningT:#b45309;
+    --stopped:#ecebf0;   --stoppedT:#79808e;
+    --analysis:#f1e9ff;  --analysisT:#7c3aed;
+    --winner:#e5f7ec;    --winnerT:#15803d;
+    --lost:#fdecec;      --lostT:#c0322f;
+    /* area */
+    --ar-Activation:#dff2f5;   --ar-ActivationT:#0e7490;
+    --ar-Monetization:#fbeecb; --ar-MonetizationT:#8a5a06;
+    --ar-Retention:#e5f7ec;    --ar-RetentionT:#15803d;
+    --ar-Reactivation:#f1e9ff; --ar-ReactivationT:#7c3aed;
+    /* theme */
+    --th-Pricing:#fbeecb;    --th-PricingT:#8a5a06;
+    --th-Onboarding:#e2ecff; --th-OnboardingT:#1e4fa3;
+    --th-Lifecycle:#e5f7ec;  --th-LifecycleT:#15803d;
+    --th-Paywall:#f1e9ff;    --th-PaywallT:#7c3aed;
+    --th-Checkout:#ffe4ec;   --th-CheckoutT:#a3123f;
+    --th-Upsell:#dff3f3;     --th-UpsellT:#0f6d6d;
+    /* semantic */
+    --good-ink:#15803d; --bad-ink:#c0322f;
+  }
+  @media (prefers-color-scheme: dark){ :root{
+    --bg:#131019; --surface:#1c1826; --surface-2:#221d2e; --surface-3:#282234;
+    --ink:#f2eff7; --muted:#a79fb6; --faint:#726b81;
+    --line:#2b2637; --line-strong:#39334a;
+    --accent:#ec5cea; --accent-2:#a877ff; --accent-weak:#3a1240;
+    --ring:rgba(236,92,234,.32);
+    --shadow-sm:0 1px 2px rgba(0,0,0,.5);
+    --shadow:0 2px 4px rgba(0,0,0,.4), 0 14px 36px rgba(0,0,0,.55);
+    --backlog:#2b2737;   --backlogT:#b3acca;
+    --picked:#1a2a48;    --pickedT:#8fb4ff;
+    --running:#3a2c12;   --runningT:#f0b45f;
+    --stopped:#2a2636;   --stoppedT:#9a94a8;
+    --analysis:#2a1f40;  --analysisT:#c6a5ff;
+    --winner:#16301f;    --winnerT:#66d78f;
+    --lost:#3a1a1c;      --lostT:#f38b8b;
+    --ar-Activation:#123640;   --ar-ActivationT:#5cc6dd;
+    --ar-Monetization:#3a2c12; --ar-MonetizationT:#e6b45f;
+    --ar-Retention:#16301f;    --ar-RetentionT:#66d78f;
+    --ar-Reactivation:#2a1f40; --ar-ReactivationT:#c6a5ff;
+    --th-Pricing:#3a2c12;    --th-PricingT:#e6b45f;
+    --th-Onboarding:#182a44; --th-OnboardingT:#8fb4ff;
+    --th-Lifecycle:#16301f;  --th-LifecycleT:#66d78f;
+    --th-Paywall:#2a1f40;    --th-PaywallT:#c6a5ff;
+    --th-Checkout:#3a1a24;   --th-CheckoutT:#f58bad;
+    --th-Upsell:#12302f;     --th-UpsellT:#5fcaca;
+    --good-ink:#66d78f; --bad-ink:#f38b8b;
+  }}
+  :root[data-theme="light"]{
+    --bg:#f5f4f8; --surface:#ffffff; --surface-2:#faf9fc; --surface-3:#f3f1f7;
+    --ink:#1a1622; --muted:#6d6779; --faint:#9d97a9; --line:#eceaf0; --line-strong:#dedbe6;
+    --accent:#c209c1; --accent-2:#7b1fe0; --accent-weak:#fbe9fb; --ring:rgba(194,9,193,.28);
+    --shadow-sm:0 1px 2px rgba(26,22,34,.06); --shadow:0 1px 2px rgba(26,22,34,.04),0 12px 32px rgba(26,22,34,.08);
+    --backlog:#eef0f3;--backlogT:#5a6472;--picked:#e6efff;--pickedT:#1d4ed8;--running:#fff2d6;--runningT:#b45309;
+    --stopped:#ecebf0;--stoppedT:#79808e;--analysis:#f1e9ff;--analysisT:#7c3aed;--winner:#e5f7ec;--winnerT:#15803d;--lost:#fdecec;--lostT:#c0322f;
+    --ar-Activation:#dff2f5;--ar-ActivationT:#0e7490;--ar-Monetization:#fbeecb;--ar-MonetizationT:#8a5a06;
+    --ar-Retention:#e5f7ec;--ar-RetentionT:#15803d;--ar-Reactivation:#f1e9ff;--ar-ReactivationT:#7c3aed;
+    --th-Pricing:#fbeecb;--th-PricingT:#8a5a06;--th-Onboarding:#e2ecff;--th-OnboardingT:#1e4fa3;--th-Lifecycle:#e5f7ec;--th-LifecycleT:#15803d;
+    --th-Paywall:#f1e9ff;--th-PaywallT:#7c3aed;--th-Checkout:#ffe4ec;--th-CheckoutT:#a3123f;--th-Upsell:#dff3f3;--th-UpsellT:#0f6d6d;
+    --good-ink:#15803d;--bad-ink:#c0322f;
+  }
+  :root[data-theme="dark"]{
+    --bg:#131019; --surface:#1c1826; --surface-2:#221d2e; --surface-3:#282234;
+    --ink:#f2eff7; --muted:#a79fb6; --faint:#726b81; --line:#2b2637; --line-strong:#39334a;
+    --accent:#ec5cea; --accent-2:#a877ff; --accent-weak:#3a1240; --ring:rgba(236,92,234,.32);
+    --shadow-sm:0 1px 2px rgba(0,0,0,.5); --shadow:0 2px 4px rgba(0,0,0,.4),0 14px 36px rgba(0,0,0,.55);
+    --backlog:#2b2737;--backlogT:#b3acca;--picked:#1a2a48;--pickedT:#8fb4ff;--running:#3a2c12;--runningT:#f0b45f;
+    --stopped:#2a2636;--stoppedT:#9a94a8;--analysis:#2a1f40;--analysisT:#c6a5ff;--winner:#16301f;--winnerT:#66d78f;--lost:#3a1a1c;--lostT:#f38b8b;
+    --ar-Activation:#123640;--ar-ActivationT:#5cc6dd;--ar-Monetization:#3a2c12;--ar-MonetizationT:#e6b45f;
+    --ar-Retention:#16301f;--ar-RetentionT:#66d78f;--ar-Reactivation:#2a1f40;--ar-ReactivationT:#c6a5ff;
+    --th-Pricing:#3a2c12;--th-PricingT:#e6b45f;--th-Onboarding:#182a44;--th-OnboardingT:#8fb4ff;--th-Lifecycle:#16301f;--th-LifecycleT:#66d78f;
+    --th-Paywall:#2a1f40;--th-PaywallT:#c6a5ff;--th-Checkout:#3a1a24;--th-CheckoutT:#f58bad;--th-Upsell:#12302f;--th-UpsellT:#5fcaca;
+    --good-ink:#66d78f;--bad-ink:#f38b8b;
   }
   *{box-sizing:border-box}
-  body{margin:0;background:var(--bg);color:var(--text);font:13px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif}
-  header.top{display:flex;align-items:center;gap:12px;padding:10px 18px;background:#fff;border-bottom:1px solid var(--grid)}
-  .logo{width:26px;height:26px;border-radius:6px;background:#C209C1;color:#fff;display:grid;place-items:center;font-weight:700;font-size:14px}
-  header .t h1{font-size:14px;margin:0}
-  header .t p{margin:0;color:var(--muted);font-size:11px}
-  .tag{margin-left:auto;font-size:11px;color:var(--muted);border:1px solid var(--grid);padding:3px 9px;border-radius:6px}
-  .tabs{display:flex;gap:2px;padding:0 18px;background:#fff;border-bottom:1px solid var(--grid)}
-  .tabs button{border:1px solid var(--grid);border-bottom:0;background:#eef0f3;color:var(--muted);
-    padding:8px 16px;border-radius:8px 8px 0 0;font:inherit;font-weight:600;cursor:pointer;margin-bottom:-1px}
-  .tabs button.active{background:#fff;color:var(--text);border-bottom:1px solid #fff}
-  .tabs button .n{margin-left:7px;font-size:11px;color:var(--muted);background:#e2e6ec;border-radius:999px;padding:1px 7px}
-  .tabs button.active .n{background:#fbe1fb;color:#a007a0}
-  .toolbar{display:flex;align-items:center;gap:8px;padding:9px 18px;background:#fff;border-bottom:1px solid var(--grid);flex-wrap:wrap}
-  button{font:inherit;cursor:pointer;border-radius:6px;border:1px solid var(--grid);background:#fff;color:var(--text);padding:6px 11px}
-  button:hover{background:#f0f2f5}
-  button.primary{background:#C209C1;border-color:#C209C1;color:#fff;font-weight:600}
+  html,body{height:100%}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:13px/1.5 -apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+  header.top{display:flex;align-items:center;gap:13px;padding:15px 22px 13px}
+  .logo{width:31px;height:31px;border-radius:9px;background:linear-gradient(135deg,var(--accent),var(--accent-2));
+    color:#fff;display:grid;place-items:center;font-size:15px;box-shadow:0 5px 16px var(--ring)}
+  header .t h1{font-size:16px;margin:0;letter-spacing:-.2px;font-weight:700}
+  header .t p{margin:1px 0 0;color:var(--muted);font-size:11.5px}
+  .spacer{margin-left:auto}
+  .iconbtn{border:1px solid var(--line);background:var(--surface);border-radius:9px;width:34px;height:34px;
+    display:grid;place-items:center;font-size:15px;color:var(--muted);cursor:pointer}
+  .iconbtn:hover{background:var(--surface-2);color:var(--ink)}
+  .kbadge{font-size:11px;color:var(--muted);border:1px solid var(--line);background:var(--surface);padding:5px 11px;border-radius:8px}
+
+  .controlbar{display:flex;align-items:center;gap:10px;padding:4px 22px 14px;flex-wrap:wrap}
+  .tabs{display:inline-flex;gap:3px;background:var(--surface-3);border:1px solid var(--line);border-radius:11px;padding:3px}
+  .tabs button{border:0;background:transparent;color:var(--muted);padding:6px 15px;border-radius:8px;font:inherit;font-weight:600;cursor:pointer}
+  .tabs button.active{background:var(--surface);color:var(--ink);box-shadow:var(--shadow-sm)}
+  .tabs .n{margin-left:7px;font-size:11px;background:var(--surface-3);color:var(--muted);border-radius:999px;padding:1px 7px}
+  .tabs button.active .n{background:var(--accent-weak);color:var(--accent)}
+  .divider{width:1px;height:26px;background:var(--line);margin:0 2px}
+  button{font:inherit;cursor:pointer;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:8px 13px}
+  button:hover{background:var(--surface-2)}
+  button.primary{background:linear-gradient(135deg,var(--accent),var(--accent-2));border:0;color:#fff;font-weight:600;box-shadow:0 5px 16px var(--ring)}
   button.primary:hover{filter:brightness(1.06)}
-  select.filt{border:1px solid var(--grid);border-radius:6px;padding:6px 9px;background:#fff;color:var(--text)}
-  .sep{width:1px;height:22px;background:var(--grid);margin:0 4px}
-  .summary{margin-left:auto;color:var(--muted);font-size:12px}
-  .summary b{color:var(--text)}
-  .sheetwrap{overflow:auto;height:calc(100vh - 128px)}
-  table{border-collapse:collapse;background:#fff;font-size:13px;width:max-content;min-width:100%}
-  th,td{border:1px solid var(--grid);padding:0;vertical-align:middle}
-  thead th{position:sticky;top:0;z-index:5;background:var(--head);color:var(--text);font-weight:600;padding:7px 10px;text-align:left;white-space:nowrap;cursor:pointer;user-select:none;border-bottom:2px solid var(--gridStrong)}
-  thead th:hover{background:#e9edf3}
-  thead th .ar{color:var(--muted);font-size:10px;margin-left:4px}
-  th.rownum,td.rownum{position:sticky;left:0;z-index:4;background:var(--head);color:var(--muted);text-align:center;width:76px;min-width:76px;font-variant-numeric:tabular-nums;cursor:default}
-  td.rownum{background:#fafbfc;font-weight:500;cursor:grab}
+  button.ghost{border-color:var(--line)}
+  select.filt{border:1px solid var(--line);border-radius:10px;padding:8px 11px;background:var(--surface);color:var(--ink);font:inherit;cursor:pointer}
+  select.filt:hover{border-color:var(--line-strong)}
+  .summary{margin-left:auto;display:flex;gap:8px;align-items:center}
+  .stat{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:6px 11px;font-size:12px;color:var(--muted);white-space:nowrap}
+  .stat b{color:var(--ink);font-weight:700;font-variant-numeric:tabular-nums}
+  .stat .dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:5px;vertical-align:1px}
+
+  .sheetwrap{overflow:auto;margin:0 18px;height:calc(100vh - 190px);
+    background:var(--surface);border:1px solid var(--line);border-radius:15px;box-shadow:var(--shadow)}
+  table{border-collapse:separate;border-spacing:0;background:transparent;font-size:13px;width:max-content;min-width:100%}
+  th,td{padding:0;vertical-align:middle;border-bottom:1px solid var(--line)}
+  thead th{position:sticky;top:0;z-index:5;background:var(--surface);color:var(--faint);font-weight:600;
+    padding:11px 12px;text-align:left;white-space:nowrap;cursor:pointer;user-select:none;
+    font-size:10.5px;letter-spacing:.6px;text-transform:uppercase;border-bottom:1px solid var(--line-strong)}
+  thead th:hover{color:var(--muted)}
+  thead th .ar{color:var(--accent);font-size:9px;margin-left:4px}
+  th.rownum,td.rownum{position:sticky;left:0;z-index:4;width:52px;min-width:52px;text-align:center;
+    border-right:1px solid var(--line);font-variant-numeric:tabular-nums}
+  thead th.rownum{z-index:6;background:var(--surface)}
+  td.rownum{background:var(--surface);color:var(--faint);font-weight:500;cursor:grab}
   td.rownum:active{cursor:grabbing}
-  .grip{display:none;color:var(--gridStrong);font-size:12px;line-height:1;letter-spacing:1px}
+  .grip{display:none;color:var(--line-strong);font-size:11px;line-height:1;letter-spacing:1px}
   tr:hover .grip{display:block}
-  .rowtools{display:none;gap:3px;justify-content:center;margin-top:3px}
+  .rn{padding:6px 0}
+  .rowtools{display:none;justify-content:center;margin-top:2px}
   tr:hover .rowtools{display:flex}
-  .rowtools button{padding:0 6px;font-size:11px;line-height:18px;border:1px solid var(--grid);background:#fff;border-radius:4px;cursor:pointer;color:var(--muted)}
-  .rowtools button[data-act="del"]:hover{background:#fde3e3;border-color:#f0a3a3;color:#b91c1c}
-  tr.dragging td{opacity:.45}
+  .rowtools button{padding:0 6px;font-size:11px;line-height:17px;border:1px solid var(--line);background:var(--surface);border-radius:5px;cursor:pointer;color:var(--faint)}
+  .rowtools button:hover{background:var(--lost);border-color:transparent;color:var(--lostT)}
+  tr.dragging td{opacity:.4}
   tr.dropbefore td{box-shadow:inset 0 2px 0 0 var(--accent)}
   tr.dropafter td{box-shadow:inset 0 -2px 0 0 var(--accent)}
-  tbody tr:hover td{background:#fbfcfe}
-  tbody tr:hover td.rownum{background:#f0f2f5}
-  td .cell{width:100%;border:0;background:transparent;font:inherit;color:inherit;padding:6px 9px;outline:none;resize:none}
-  td .cell:focus{background:var(--sel);box-shadow:inset 0 0 0 2px var(--accent)}
+  tbody tr:hover td{background:var(--surface-2)}
+  tbody tr:hover td.rownum{background:var(--surface-2)}
+
+  td .cell{width:100%;border:0;background:transparent;font:inherit;color:inherit;padding:9px 12px;outline:none;resize:none;border-radius:8px}
+  td .cell::placeholder{color:var(--faint)}
+  td .cell:focus{background:var(--accent-weak);box-shadow:inset 0 0 0 1.5px var(--accent)}
   td.num .cell{text-align:right;font-variant-numeric:tabular-nums}
-  td.hyp{min-width:380px;max-width:480px}
-  td.hyp .cell{white-space:normal;line-height:1.35;min-height:44px}
-  td.metric{min-width:150px}
-  td.theme{padding:0;min-width:130px}
-  select.tm{width:100%;border:0;padding:7px 9px;font:inherit;font-weight:600;cursor:pointer;appearance:none;-webkit-appearance:none;background-repeat:no-repeat;background-position:right 8px center;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='3'><path d='M6 9l6 6 6-6'/></svg>")}
-  td.status{padding:0;min-width:130px}
-  select.st{width:100%;border:0;padding:7px 9px;font:inherit;font-weight:600;cursor:pointer;appearance:none;-webkit-appearance:none;background-repeat:no-repeat;background-position:right 8px center;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='3'><path d='M6 9l6 6 6-6'/></svg>")}
-  select.conf{width:100%;border:0;padding:6px 9px;font:inherit;background:transparent;cursor:pointer}
-  .empty{padding:40px;text-align:center;color:var(--muted)}
-  .hint{padding:8px 18px;color:var(--muted);font-size:11px;background:#fff;border-top:1px solid var(--grid)}
-  .scrim{position:fixed;inset:0;background:rgba(0,0,0,.4);display:none;place-items:center;z-index:50}
+  td.hyp{min-width:340px;max-width:440px}
+  td.hyp .cell{display:block;white-space:normal;line-height:1.4;min-height:38px;overflow:hidden}
+  .clip{display:inline-flex;align-items:center;gap:4px;margin:0 12px 9px;font-size:10px;font-weight:600;letter-spacing:.2px;
+    color:var(--faint);background:var(--surface-3);border-radius:6px;padding:2px 8px;cursor:default}
+  .clip:hover{color:var(--muted)}
+  td.metric{min-width:150px;font-weight:500}
+  td.owner{min-width:90px}
+  td.camp{min-width:118px}
+  td.camp .cell{color:var(--muted);font-variant-numeric:tabular-nums;font-size:12px}
+
+  td.area,td.theme,td.status{padding:6px 10px}
+  .chip{border:0;border-radius:999px;padding:5px 12px 5px 22px;font:inherit;font-size:11.5px;font-weight:600;
+    cursor:pointer;appearance:none;-webkit-appearance:none;background-repeat:no-repeat;letter-spacing:.1px;max-width:100%}
+  .chip:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+  .chip.empty{padding-left:13px;color:var(--faint);background:var(--surface-3)!important}
+  select.conf{border:0;background:transparent;font:inherit;color:inherit;padding:8px 10px;cursor:pointer;border-radius:8px}
+  select.conf:focus-visible{outline:2px solid var(--accent)}
+
+  td.score .scorewrap{display:flex;flex-direction:column;align-items:flex-end;gap:5px;padding:8px 12px}
+  .sv{font-weight:700;font-variant-numeric:tabular-nums;font-size:12.5px}
+  .sv.none{color:var(--faint);font-weight:500}
+  .meter{width:66px;height:4px;border-radius:999px;background:var(--line-strong);overflow:hidden}
+  .meter i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),var(--accent-2));border-radius:999px}
+
+  td.lift{position:relative}
+  td.lift .trend{position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:9px}
+  td.lift.up .cell,td.lift.up .trend{color:var(--good-ink);font-weight:700}
+  td.lift.down .cell,td.lift.down .trend{color:var(--bad-ink);font-weight:700}
+  td.lift.up .cell,td.lift.down .cell{padding-left:24px}
+
+  .empty{padding:56px 20px;text-align:center;color:var(--muted)}
+  .empty .big{font-size:15px;color:var(--ink);font-weight:600;margin-bottom:5px}
+  .hint{padding:11px 22px;color:var(--faint);font-size:11.5px}
+
+  /* modal */
+  .scrim{position:fixed;inset:0;background:rgba(15,10,22,.5);backdrop-filter:blur(3px);display:none;place-items:center;z-index:50;padding:20px}
   .scrim.open{display:grid}
-  .modal{background:#fff;border-radius:12px;padding:22px;width:460px;box-shadow:0 20px 60px rgba(0,0,0,.3)}
-  .modal h3{margin:0 0 4px;font-size:15px}
-  .modal p{margin:0 0 14px;color:var(--muted);font-size:12px}
+  .modal{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:24px;width:540px;max-width:100%;
+    max-height:90vh;overflow:auto;box-shadow:var(--shadow)}
+  .modal h3{margin:0 0 5px;font-size:17px;letter-spacing:-.2px}
+  .modal p{margin:0 0 16px;color:var(--muted);font-size:12.5px;line-height:1.5}
+  .areagroup{margin-bottom:14px}
+  .areagroup>.al{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;margin:0 0 7px;display:flex;align-items:center;gap:6px}
+  .areagroup>.al::before{content:"";width:8px;height:8px;border-radius:50%;background:currentColor}
+  .metricgrid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+  .mchip{border:1px solid var(--line);border-radius:12px;padding:11px 12px;cursor:pointer;background:var(--surface);text-align:left;position:relative;transition:.12s}
+  .mchip:hover{background:var(--surface-2);border-color:var(--line-strong)}
+  .mchip.sel{border-color:var(--accent);background:var(--accent-weak);box-shadow:inset 0 0 0 1px var(--accent)}
+  .mchip .mn{font-weight:600;font-size:12.5px;padding-right:58px;line-height:1.3}
+  .mchip .mb{color:var(--muted);font-size:11px;margin-top:3px;font-variant-numeric:tabular-nums}
+  .mchip .badge{position:absolute;top:10px;right:10px;font-size:9px;font-weight:700;border-radius:6px;padding:2px 7px;text-transform:uppercase;letter-spacing:.4px}
+  .badge.live{background:var(--winner);color:var(--winnerT)}
+  .badge.mock{background:var(--surface-3);color:var(--muted)}
+  .modal-actions{display:flex;justify-content:flex-end;gap:9px;margin-top:18px}
+  button.primary:disabled{opacity:.45;cursor:not-allowed;filter:none}
+  .genmetric{display:inline-block;background:var(--accent-weak);color:var(--accent);border-radius:7px;padding:1px 9px;font-weight:700}
   .genlog{list-style:none;padding:0;margin:0}
-  .genlog li{padding:6px 0;color:var(--muted);display:flex;gap:9px;align-items:center;font-size:13px}
-  .genlog li.done{color:var(--text)}
-  .genlog li .tick{width:16px;display:inline-block;color:#15803d}
-  .metricgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px}
-  .mchip{border:1px solid var(--grid);border-radius:9px;padding:10px 12px;cursor:pointer;background:#fff;text-align:left}
-  .mchip:hover{background:#f5f7fa}
-  .mchip.sel{border-color:#C209C1;background:#fdf0fd;box-shadow:inset 0 0 0 1px #C209C1}
-  .mchip .mn{font-weight:600;font-size:13px}
-  .mchip .mb{color:var(--muted);font-size:11px;margin-top:2px}
-  .modal-actions{display:flex;justify-content:flex-end;gap:8px}
-  button.primary:disabled{opacity:.5;cursor:not-allowed}
-  .genmetric{display:inline-block;background:#fdf0fd;color:#a007a0;border:1px solid #eec4ee;border-radius:6px;padding:1px 8px;font-weight:600}
+  .genlog li{padding:8px 0;color:var(--muted);display:flex;gap:10px;align-items:center;font-size:13px}
+  .genlog li.done{color:var(--ink)}
+  .genlog li .tick{width:18px;height:18px;border-radius:50%;border:1.5px solid var(--line-strong);display:inline-grid;place-items:center;font-size:11px;color:var(--winnerT);flex:none}
+  .genlog li.done .tick{border-color:var(--winnerT);background:var(--winner)}
+
+  /* detail + comments drawer */
+  td.cmt{width:52px;min-width:52px;text-align:center;padding:0}
+  .cmtbtn{border:1px solid transparent;background:transparent;cursor:pointer;padding:5px 9px;color:var(--faint);font:inherit;border-radius:8px}
+  .cmtbtn:hover{background:var(--surface-3);color:var(--ink)}
+  .cmtbtn.has{color:var(--accent);font-weight:600}
+  .cscrim{position:fixed;inset:0;background:rgba(15,10,22,.4);display:none;z-index:60}
+  .cscrim.open{display:block}
+  .cdrawer{position:fixed;top:0;right:0;height:100%;width:420px;max-width:94vw;background:var(--surface);
+    border-left:1px solid var(--line);transform:translateX(100%);transition:transform .22s ease;z-index:70;display:flex;flex-direction:column;box-shadow:var(--shadow)}
+  .cdrawer.open{transform:none}
+  .cdrawer .ch{padding:18px 20px 16px;border-bottom:1px solid var(--line);position:relative}
+  .cdrawer .ch .cm{font-size:10.5px;color:var(--accent);font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+  .cdrawer .ch #cmtHyp{margin-top:7px;font-size:14.5px;line-height:1.45;padding-right:26px}
+  .cdrawer .ch .cx{position:absolute;top:14px;right:16px;border:0;background:transparent;font-size:22px;color:var(--faint);cursor:pointer;line-height:1;padding:0}
+  .cdrawer .ch .cx:hover{color:var(--ink)}
+  .ground{margin:14px 20px 0;background:var(--accent-weak);border-radius:11px;padding:11px 13px;font-size:12px;line-height:1.5;color:var(--ink)}
+  .ground b{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--accent);margin-bottom:4px}
+  .ground.mock{background:var(--surface-3);color:var(--muted)}
+  .ground.mock b{color:var(--muted)}
+  .clist{flex:1;overflow-y:auto;padding:16px 20px}
+  .comment{margin-bottom:15px}
+  .comment .meta{font-size:11px;color:var(--muted);margin-bottom:4px}
+  .comment .meta b{color:var(--ink)}
+  .comment .txt{background:var(--surface-2);border:1px solid var(--line);border-radius:10px;padding:9px 11px;white-space:pre-wrap;line-height:1.45}
+  .cempty{color:var(--faint);text-align:center;padding:34px 0;line-height:1.6}
+  .cfoot{border-top:1px solid var(--line);padding:13px 16px}
+  .cfoot textarea{width:100%;border:1px solid var(--line);border-radius:10px;padding:9px 11px;font:inherit;color:var(--ink);background:var(--surface-2);resize:vertical;min-height:58px;outline:none}
+  .cfoot textarea:focus{border-color:var(--accent);background:var(--surface)}
+  .cfoot .r{display:flex;justify-content:flex-end;margin-top:9px}
 </style>
 </head>
 <body>
 <header class="top">
-  <div class="logo">A</div>
-  <div class="t"><h1>Activation Studio — Experiment Backlog</h1><p>Activation · generated from internal data</p></div>
-  <div class="tag">Prototype · sample data · cells are editable</div>
+  <div class="logo">✦</div>
+  <div class="t"><h1>Activation Studio</h1><p>Lifecycle growth · ideas grounded in internal data, tracked to a verdict</p></div>
+  <div class="spacer"></div>
+  <button class="iconbtn" id="themeToggle" title="Toggle light / dark">☾</button>
+  <span class="kbadge">Prototype</span>
 </header>
 
-<div class="tabs">
-  <button id="tabBacklog" class="active">Ideas / Backlog <span class="n" id="cntBacklog">0</span></button>
-  <button id="tabPipeline">Pipeline <span class="n" id="cntPipeline">0</span></button>
-</div>
-
-<div class="toolbar">
-  <button class="primary" id="genBtn">✨ Generate ideas for a metric</button>
-  <button id="addBtn">+ Add idea</button>
-  <div class="sep"></div>
+<div class="controlbar">
+  <div class="tabs">
+    <button id="tabBacklog" class="active">Backlog <span class="n" id="cntBacklog">0</span></button>
+    <button id="tabPipeline">Pipeline <span class="n" id="cntPipeline">0</span></button>
+  </div>
+  <div class="divider"></div>
+  <button class="primary" id="genBtn">✨ Generate ideas</button>
+  <button class="ghost" id="addBtn">+ Add idea</button>
+  <div class="divider"></div>
   <select class="filt" id="statusFilter"></select>
+  <select class="filt" id="areaFilter"></select>
   <select class="filt" id="metricFilter"></select>
   <select class="filt" id="themeFilter"></select>
   <div class="summary" id="summary"></div>
@@ -127,12 +281,13 @@
 </div>
 <div class="hint" id="hint"></div>
 
+<!-- generate modal -->
 <div class="scrim" id="scrim">
   <div class="modal">
     <div id="genPick">
       <h3>Which metric should we improve?</h3>
-      <p>Pick one target metric. The agent studies internal data <em>for that metric</em> and proposes hypotheses to move it.</p>
-      <div class="metricgrid" id="metricGrid"></div>
+      <p>Pick a target metric. The agent studies internal data <em>for that metric</em> and proposes hypotheses grounded in it.</p>
+      <div id="metricGroups"></div>
       <div class="modal-actions">
         <button id="genCancel">Cancel</button>
         <button class="primary" id="genGo" disabled>Generate ideas</button>
@@ -146,53 +301,92 @@
   </div>
 </div>
 
+<!-- detail + comments drawer -->
+<div class="cscrim" id="cmtScrim"></div>
+<aside class="cdrawer" id="cmtDrawer">
+  <div class="ch">
+    <button class="cx" id="cmtClose">×</button>
+    <div class="cm" id="cmtMetric"></div>
+    <div id="cmtHyp"></div>
+  </div>
+  <div id="cmtGround"></div>
+  <div class="clist" id="cmtList"></div>
+  <div class="cfoot">
+    <textarea id="cmtInput" placeholder="Add a comment…"></textarea>
+    <div class="r"><button class="primary" id="cmtAdd">Comment</button></div>
+  </div>
+</aside>
+
 <script>
 const STATUSES=["Backlog","Picked","Running","Stopped","Analysis","Winner","Lost"];
 const PIPELINE_STATUSES=STATUSES.filter(s=>s!=="Backlog");
+const DECIDED=["Winner","Lost"];
 const STYLE={Backlog:["--backlog","--backlogT"],Picked:["--picked","--pickedT"],Running:["--running","--runningT"],
   Stopped:["--stopped","--stoppedT"],Analysis:["--analysis","--analysisT"],Winner:["--winner","--winnerT"],Lost:["--lost","--lostT"]};
-const THEMES=["New users","One export","Edit abandoned","Selfie","Business","Video","Tool adoption"];
-const thKey=t=>"--th-"+t.replace(/\s+/g,"-");
+const AREAS=["Activation","Monetization","Retention","Reactivation"];
+const THEMES=["Pricing","Onboarding","Lifecycle","Paywall","Checkout","Upsell"];
 
-const COLS=[
-  {key:"hypothesis",label:"Hypothesis / outcome",cls:"hyp",type:"textarea"},
-  {key:"theme",label:"Audience",cls:"theme",type:"theme"},
-  {key:"metric",label:"Target metric",cls:"metric",type:"text"},
-  {key:"baseline",label:"Baseline",cls:"num",type:"text"},
-  {key:"lift",label:"Lift / result",cls:"num",type:"text"},
-  {key:"reach",label:"Reach",cls:"num",type:"text"},
-  {key:"conf",label:"Confidence",cls:"conf",type:"select",opts:["High","Med","Low"]},
-  {key:"effort",label:"Effort (1-5)",cls:"num",type:"number"},
-  {key:"status",label:"Status",cls:"status",type:"status"},
-];
+const COL={
+  hypothesis:{label:"Hypothesis",cls:"hyp",type:"textarea"},
+  area:{label:"Area",cls:"area",type:"area"},
+  theme:{label:"Theme",cls:"theme",type:"theme"},
+  metric:{label:"Target metric",cls:"metric",type:"text"},
+  baseline:{label:"Baseline",cls:"num",type:"text"},
+  target:{label:"Target",cls:"num",type:"text"},
+  revProj:{label:"Rev proj. $/yr",cls:"num",type:"number"},
+  conf:{label:"Confidence",cls:"conf",type:"select",opts:["High","Med","Low"]},
+  reach:{label:"Reach /mo",cls:"num",type:"number"},
+  effort:{label:"Effort 1-5",cls:"num",type:"number"},
+  score:{label:"Score",cls:"num score",type:"computed"},
+  owner:{label:"Owner",cls:"owner",type:"text"},
+  status:{label:"Status",cls:"status",type:"status"},
+  control:{label:"Control %",cls:"num",type:"text"},
+  result:{label:"Result",cls:"num",type:"text"},
+  lift:{label:"Lift vs control",cls:"num lift",type:"lift"},
+  sig:{label:"Sig.",cls:"num",type:"text"},
+  convWindow:{label:"Conv. window",cls:"num",type:"text"},
+  campaign:{label:"Campaign",cls:"camp",type:"text"},
+  comments:{label:"💬",cls:"cmt",type:"comments"},
+};
+const BACKLOG_COLS=["hypothesis","area","theme","metric","baseline","target","revProj","conf","reach","effort","score","owner","status","comments"];
+const PIPELINE_COLS=["hypothesis","area","metric","baseline","target","status","control","result","lift","sig","convWindow","campaign","owner","comments"];
 
-// Pipeline = real shipped campaigns & journeys. Backlog starts EMPTY — generate to fill it.
+const CONF_F={High:1,Med:0.65,Low:0.35};
+function scoreOf(d){
+  const rev=+d.revProj||0, eff=+d.effort||0, cf=CONF_F[d.conf]||0;
+  if(!rev||!eff||!cf) return null;
+  return Math.round(rev*cf/eff);
+}
+
 let DATA=[
-  {id:1,theme:"Tool adoption",metric:"Tool conversion",hypothesis:"Remove Background in-app modal: +472% lift, our best result to date → flagship modal, scaling to full base + Android.",baseline:"2.5% control",lift:"+472%",reach:"52.8K viewed",conf:"High",effort:1,status:"Winner"},
-  {id:2,theme:"Tool adoption",metric:"Tool conversion",hypothesis:"AI Enhance modal (video creative): +1388% tool lift, +9.14% activation lift → graduated to always-on rollout.",baseline:"0.51% control",lift:"+1388% / +9.14%",reach:"2.46M viewed",conf:"High",effort:1,status:"Winner"},
-  {id:3,theme:"Tool adoption",metric:"Tool conversion",hypothesis:"AI Enhance modal (Android): +313% lift → the in-app modal became our default activation format.",baseline:"0.45% control",lift:"+313%",reach:"305K viewed",conf:"High",effort:1,status:"Winner"},
-  {id:4,theme:"Tool adoption",metric:"Tool conversion",hypothesis:"Effects modal at full base: +86.67% lift, beats control on raw count too → locked in as a standard activation play.",baseline:"5.1% control",lift:"+86.67%",reach:"34.6K viewed",conf:"High",effort:1,status:"Winner"},
-  {id:5,theme:"Tool adoption",metric:"Tool conversion",hypothesis:"Text modal at full base: lift compresses on the broad audience but stays clearly positive → reading the 7-day.",baseline:"3.65% control",lift:"+43.84% (1d)",reach:"143K viewed",conf:"Med",effort:1,status:"Running"},
-  {id:6,theme:"Tool adoption",metric:"Tool conversion",hypothesis:"Beautify modal at full base: weakest modal so far → ranked below the others, testing a stronger hook than 'flawless selfie'.",baseline:"2.65% control",lift:"+35.09%",reach:"790K viewed",conf:"Med",effort:1,status:"Analysis"},
-  {id:7,theme:"Edit abandoned",metric:"Editor → export",hypothesis:"Editor-abandonment rescue modal: +5.6% relative and narrowing every day (cohort already exports at ~75%) → keep/kill call at day 7.",baseline:"74.8% no modal",lift:"+5.6% rel",reach:"308K routed",conf:"Med",effort:2,status:"Analysis"},
-  {id:8,theme:"Edit abandoned",metric:"First export, day 1",hypothesis:"5-tool edit recovery journey: the +68% tool-specific copy win, scaled to 5 tools → expansion decision after the 7-day read.",baseline:"generic copy",lift:"7d pending",reach:"millions",conf:"High",effort:2,status:"Running"},
-  {id:9,theme:"Video",metric:"Video activation",hypothesis:"Declared-intent video push: first campaign ever to target an onboarding answer → 7-day read decides the intent playbook rollout.",baseline:"39.4% video d1",lift:"7d pending",reach:"186K est.",conf:"Med",effort:1,status:"Running"},
-  {id:10,theme:"Video",metric:"Video activation",hypothesis:"Declared-intent video modal: same cohort and message as the push → clean push-vs-modal format comparison.",baseline:"39.4% video d1",lift:"—",reach:"183K est.",conf:"Med",effort:1,status:"Picked"},
-  {id:11,theme:"One export",metric:"Second export in 7 days",hypothesis:"Late Bloomers push (D8–D60, one tool): +39.22% lift with only 15% delivery → weekly drip once delivery is fixed.",baseline:"0.51% control",lift:"+39.22%",reach:"186K sent",conf:"High",effort:1,status:"Winner"},
-  {id:12,theme:"Tool adoption",metric:"Tool conversion",hypothesis:"Remove Background unused-tool push: the only push to beat control on BOTH rate and count → kept, paired with the modal.",baseline:"0.18% control",lift:"+11.11%",reach:"6.0M sent",conf:"High",effort:1,status:"Winner"},
-  {id:13,theme:"Tool adoption",metric:"Tool conversion",hypothesis:"Effects unused-tool push: +3.45% only and control won on raw count → Effects activation routed through the modal instead.",baseline:"0.29% control",lift:"+3.45%",reach:"4.5M sent",conf:"High",effort:1,status:"Lost"},
-  {id:14,theme:"Tool adoption",metric:"Tool conversion",hypothesis:"AI Enhance unused-tool push: +12.5% rate lift but near-zero absolute gain → AI Enhance belongs in the modal, push kept as cheap reminder.",baseline:"0.08% control",lift:"+12.5%",reach:"7.5M sent",conf:"High",effort:1,status:"Lost"},
-  {id:15,theme:"Tool adoption",metric:"Tool conversion",hypothesis:"AI Enhance journey via in-app message: 159K completions but NO control group → stopped and rebuilt properly as the A/B modal program.",baseline:"no control",lift:"n/a — no A/B",reach:"2.72M viewed",conf:"Low",effort:2,status:"Stopped"},
-  {id:16,theme:"",metric:"Winback",hypothesis:"Win-back push for lapsed paid subscribers: 15,161 subscribers back in 7 days → next version personalizes by favorite tool.",baseline:"—",lift:"15.2K back",reach:"—",conf:"High",effort:1,status:"Winner"},
+  {id:1,area:"Activation",theme:"Onboarding",metric:"Tool conversion",hypothesis:"Remove Background in-app modal: instant, obvious payoff makes it the strongest tool-to-format fit — flagship modal, scaling to full base + Android.",baseline:"2.5%",target:"",revProj:"",conf:"High",reach:52820,effort:1,owner:"Vahe",status:"Winner",control:"holdout",result:"14.31%",lift:"+472.4%",sig:"n/a",convWindow:"7d",campaign:"Jun 19",evidence:"7-day A/B read vs holdout: 14.31% vs 2.5%, 3,423 vs 707 applied (~2,800 incremental)",comments:[{author:"Vahe",ts:Date.now()-9*864e5,text:"Best result to date. Cloning this structure to Retouch as wave 2."}]},
+  {id:2,area:"Activation",theme:"Onboarding",metric:"Tool conversion",hypothesis:"AI Enhance modal with video creative: the modal massively shifts which tool users touch, activation moves more modestly on an already-high baseline.",baseline:"0.51%",target:"",revProj:"",conf:"High",reach:2463753,effort:1,owner:"Vahe",status:"Winner",control:"holdout",result:"7.59%",lift:"+1388%",sig:"n/a",convWindow:"7d",campaign:"Jun 30",evidence:"Dual goals: ai_enhance_complete +1388% (84,269 vs 7,787 raw), object_export +9.14% — graduated to always-on"},
+  {id:3,area:"Activation",theme:"Onboarding",metric:"Tool conversion",hypothesis:"AI Enhance modal on Android: format beats copy — the modal dwarfs every push we ran.",baseline:"0.45%",target:"",revProj:"",conf:"High",reach:304642,effort:1,owner:"Vahe",status:"Winner",control:"holdout",result:"1.86%",lift:"+313%",sig:"n/a",convWindow:"1d",campaign:"Jun 16",evidence:"1-day read: 85.53% CTR, 1.86% vs 0.45% control — made the modal our default activation format"},
+  {id:4,area:"Activation",theme:"Onboarding",metric:"Tool conversion",hypothesis:"Effects modal at full base (no registration filter): the format survives broad, less-engaged audiences.",baseline:"5.1%",target:"",revProj:"",conf:"High",reach:34619,effort:1,owner:"Vahe",status:"Winner",control:"50/50",result:"9.52%",lift:"+86.67%",sig:"n/a",convWindow:"1d",campaign:"Jun 25",evidence:"Original beats Variant B on rate AND raw count (2,120 vs 1,782)"},
+  {id:5,area:"Activation",theme:"Onboarding",metric:"Tool conversion",hypothesis:"Text modal at full base: lift compresses on the broad audience but stays clearly positive at volume.",baseline:"3.65%",target:"",revProj:"",conf:"Med",reach:143172,effort:1,owner:"Vahe",status:"Running",control:"holdout",result:"5.25%",lift:"+43.84%",sig:"n/a",convWindow:"7d",campaign:"Jun 24",evidence:"1-day read on 143K viewed / 317K control; 7-day read pending"},
+  {id:6,area:"Activation",theme:"Onboarding",metric:"Tool conversion",hypothesis:"Beautify modal at full base: weakest modal of the wave — mid-tier hook on a broad audience; testing a stronger hook.",baseline:"2.65%",target:"",revProj:"",conf:"Med",reach:789849,effort:1,owner:"Vahe",status:"Analysis",control:"holdout",result:"3.58%",lift:"+35.09%",sig:"n/a",convWindow:"6d",campaign:"Jun 25",evidence:"Rate win only — campaign cap held viewers below the 2M control; lift the cap for raw-count parity"},
+  {id:7,area:"Activation",theme:"Lifecycle",metric:"Editor→export completion",hypothesis:"Editor-abandonment rescue modal: cohort already exports at ~75% with no modal, so headroom is structurally small.",baseline:"74.76%",target:"",revProj:"",conf:"Med",reach:308565,effort:2,owner:"Vahe",status:"Analysis",control:"50/50",result:"78.93%",lift:"+5.6%",sig:"n/a",convWindow:"5d",campaign:"Jul 1",evidence:"Gap narrowing as natural exports accrue: +8.8% (2d) → +6.6% (3d) → +5.6% (6d) — keep/kill at day 7",comments:[{author:"Vahe",ts:Date.now()-11*864e5,text:"If flat at day 7: retarget to highest-abandonment sessions only, where headroom is larger."}]},
+  {id:8,area:"Activation",theme:"Lifecycle",metric:"Editor→export completion",hypothesis:"5-tool edit recovery journey: tool-specific copy beat generic by +68% in the copy test — scaled to the 5 highest-volume abandoned tools.",baseline:"generic copy",target:"",revProj:"",conf:"High",reach:0,effort:2,owner:"Vahe",status:"Running",control:"50/50",result:"",lift:"",sig:"",convWindow:"7d",campaign:"May 21",evidence:"Copy-test wins: AI Enhance +68%, Remove BG +42% taps vs generic — reaching millions, 7-day read pending"},
+  {id:9,area:"Activation",theme:"Onboarding",metric:"Video activation",hypothesis:"Declared-intent video push: first campaign ever to target an onboarding answer — declared video editors who never opened the video editor.",baseline:"39.4% video d1",target:"",revProj:"",conf:"Med",reach:186487,effort:1,owner:"Vahe",status:"Running",control:"holdout",result:"",lift:"",sig:"",convWindow:"7d",campaign:"Jul 8",evidence:"Video is a top-2 declared intent (~1.6M/mo) with the worst install-day activation of any big intent (39.4% vs 46.2% selfie)"},
+  {id:10,area:"Activation",theme:"Onboarding",metric:"Video activation",hypothesis:"Declared-intent video modal: same cohort and message as the push — a clean push-vs-modal format comparison.",baseline:"39.4% video d1",target:"",revProj:"",conf:"Med",reach:183409,effort:1,owner:"Vahe",status:"Picked",control:"holdout",result:"",lift:"",sig:"",convWindow:"7d",campaign:"Jul 9",evidence:"Platform flip vs the push (76% Android vs 81% iOS) — read results per OS"},
+  {id:11,area:"Retention",theme:"Lifecycle",metric:"2nd export in 7 days",hypothesis:"Late Bloomers push (day 8–60, exactly one tool used): a passive reminder lifts 2nd-tool adoption; delivery caps the ceiling.",baseline:"0.51%",target:"",revProj:"",conf:"High",reach:186395,effort:1,owner:"Vahe",status:"Winner",control:"holdout",result:"0.71%",lift:"+39.22%",sig:"n/a",convWindow:"7d",campaign:"Jun 30",evidence:"Held from +46% (2d) to +39% (7d); only 15% delivered — fix delivery for ~6x headroom, then weekly drip"},
+  {id:12,area:"Activation",theme:"Lifecycle",metric:"Tool conversion",hypothesis:"Remove Background unused-tool push: the only push in the 5-tool wave to beat control on BOTH rate and raw count.",baseline:"0.18%",target:"",revProj:"",conf:"High",reach:6009242,effort:1,owner:"Vahe",status:"Winner",control:"50/50",result:"0.2%",lift:"+11.11%",sig:"n/a",convWindow:"9d",campaign:"Jun 16",evidence:"11,786 vs 11,720 conversions — genuine, if small; pairs with the Remove BG modal"},
+  {id:13,area:"Activation",theme:"Lifecycle",metric:"Tool conversion",hypothesis:"Effects unused-tool push: best curiosity (top CTR of the wave) but it does not convert to activation via push.",baseline:"0.29%",target:"",revProj:"",conf:"High",reach:4459628,effort:1,owner:"Vahe",status:"Lost",control:"50/50",result:"0.3%",lift:"+3.45%",sig:"weak",convWindow:"9d",campaign:"Jun 16",evidence:"Control had MORE raw conversions (13,639 vs 13,290) — Effects routed through the modal instead"},
+  {id:14,area:"Activation",theme:"Lifecycle",metric:"Tool conversion",hypothesis:"AI Enhance unused-tool push: highest rate lift of the wave but near-zero absolute movement on the hardest goal.",baseline:"0.08%",target:"",revProj:"",conf:"High",reach:7539940,effort:1,owner:"Vahe",status:"Lost",control:"50/50",result:"0.09%",lift:"+12.5%",sig:"weak",convWindow:"9d",campaign:"Jun 16",evidence:"Raw counts tied (6,669 vs 6,688) — AI Enhance belongs in the modal; push kept as cheap reminder"},
+  {id:15,area:"Activation",theme:"Lifecycle",metric:"Tool conversion",hypothesis:"AI Enhance journey via in-app message: largest absolute driver, but ran without a control group.",baseline:"",target:"",revProj:"",conf:"Low",reach:2723547,effort:2,owner:"Vahe",status:"Stopped",control:"",result:"159K completions",lift:"",sig:"",convWindow:"30d",campaign:"May 28",evidence:"No control → no lift claim. Stopped and rebuilt properly as the A/B modal program",comments:[{author:"Vahe",ts:Date.now()-20*864e5,text:"This is why the guardrail exists — great volume, unprovable lift."}]},
+  {id:16,area:"Reactivation",theme:"Lifecycle",metric:"Winback rate",hypothesis:"Win-back push for lapsed paid subscribers works as a passive reminder, not a tap-driver.",baseline:"",target:"",revProj:"",conf:"High",reach:0,effort:1,owner:"Vahe",status:"Stopped",control:"",result:"15,161 back in 7d",lift:"",sig:"",convWindow:"7d",campaign:"May 14",evidence:"Absolute read only (no holdout) — next version adds a control and personalizes by favorite tool"},
 ];
 let nextId=100;
 let tab="backlog";
-let sortKey=null,sortDir=1;
-let statusFilter="",metricFilter="",themeFilter="";
+let sortKey="score",sortDir=-1;
+let statusFilter="",areaFilter="",metricFilter="",themeFilter="";
 
 const cssv=v=>getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const esc=s=>(s??"").toString().replace(/"/g,'&quot;');
+const autosize=ta=>{ ta.style.height="auto"; ta.style.height=ta.scrollHeight+"px"; };
 const inTab=d=> tab==="backlog" ? d.status==="Backlog" : d.status!=="Backlog";
-const matches=d=>inTab(d)&&(!statusFilter||d.status===statusFilter)&&(!metricFilter||d.metric===metricFilter)&&(!themeFilter||d.theme===themeFilter);
+const matches=d=>inTab(d)&&(!statusFilter||d.status===statusFilter)&&(!areaFilter||d.area===areaFilter)&&(!metricFilter||d.metric===metricFilter)&&(!themeFilter||d.theme===themeFilter);
+const cols=()=> (tab==="backlog"?BACKLOG_COLS:PIPELINE_COLS);
 
 function reorder(dragId,targetId,after){
   if(dragId===targetId)return;
@@ -210,14 +404,16 @@ function reorder(dragId,targetId,after){
 }
 function delRow(id){ DATA=DATA.filter(d=>d.id!==id); render(); }
 
-function rows(){
+function rowData(){
   let r=DATA.filter(matches);
   if(sortKey){
     r=r.slice().sort((a,b)=>{
-      let x=a[sortKey], y=b[sortKey];
+      let x,y;
+      if(sortKey==="score"){ x=scoreOf(a); y=scoreOf(b); x=x==null?-Infinity:x; y=y==null?-Infinity:y; return (x-y)*sortDir; }
+      x=a[sortKey]; y=b[sortKey];
       const nx=parseFloat(x), ny=parseFloat(y);
       if(!isNaN(nx)&&!isNaN(ny)) return (nx-ny)*sortDir;
-      x=(""+x).toLowerCase(); y=(""+y).toLowerCase();
+      x=(""+(x||"")).toLowerCase(); y=(""+(y||"")).toLowerCase();
       return (x<y?-1:x>y?1:0)*sortDir;
     });
   }
@@ -230,46 +426,63 @@ function render(){
   document.getElementById("tabBacklog").classList.toggle("active",tab==="backlog");
   document.getElementById("tabPipeline").classList.toggle("active",tab==="pipeline");
 
-  const data=rows();
+  const data=rowData(), CS=cols();
+  const _sc=data.map(scoreOf).filter(v=>v!=null); const maxScore=_sc.length?Math.max(..._sc):0;
   const t=document.getElementById("sheet"), empty=document.getElementById("empty");
   if(!data.length){
     t.innerHTML=""; empty.style.display="";
-    empty.textContent= tab==="backlog"
-      ? "No ideas yet. Press “✨ Generate ideas for a metric” and pick the metric you want to move — the agent does the rest."
-      : "Nothing in the pipeline yet. Move a backlog idea to Picked to start.";
+    empty.innerHTML= tab==="backlog"
+      ? `<div class="big">No ideas yet</div>Click <b>Generate ideas</b> to pull hypotheses for a metric, or <b>Add idea</b> to write one.`
+      : `<div class="big">Pipeline is empty</div>Set a backlog idea's status to <b>Picked</b> to move it here.`;
   } else {
     empty.style.display="none";
-    let html="<thead><tr><th class='rownum'>#</th>"+COLS.map(c=>
-      `<th data-k="${c.key}">${c.label}${sortKey===c.key?`<span class='ar'>${sortDir>0?"▲":"▼"}</span>`:""}</th>`).join("")+"</tr></thead><tbody>";
+    let html="<thead><tr><th class='rownum'>#</th>"+CS.map(k=>
+      `<th data-k="${k}">${COL[k].label}${sortKey===k?`<span class='ar'>${sortDir>0?"▲":"▼"}</span>`:""}</th>`).join("")+"</tr></thead><tbody>";
     data.forEach((d,i)=>{
-      html+=`<tr data-id="${d.id}"><td class="rownum"><span class="grip">⠿</span><div>${i+1}</div><div class="rowtools"><button data-act="del" title="Delete row">✕</button></div></td>`+COLS.map(c=>{
+      html+=`<tr data-id="${d.id}"><td class="rownum"><div class="rn"><span class="grip">⠿</span><span class="idx">${i+1}</span></div><div class="rowtools"><button data-act="del" title="Delete">✕</button></div></td>`+CS.map(k=>{
+        const c=COL[k];
         if(c.type==="status"){
           const bg=cssv(STYLE[d.status][0]),fg=cssv(STYLE[d.status][1]);
-          return `<td class="status" style="background:${bg}"><select class="st" data-k="status" style="color:${fg};background-color:${bg}">${STATUSES.map(s=>`<option ${s===d.status?"selected":""}>${s}</option>`).join("")}</select></td>`;
+          return `<td class="status"><select class="st chip" data-k="status" style="color:${fg};background-color:${bg};background-image:radial-gradient(circle at 11px 50%, ${fg} 0 3px, transparent 3.6px)">${STATUSES.map(s=>`<option ${s===d.status?"selected":""}>${s}</option>`).join("")}</select></td>`;
         }
-        if(c.type==="theme"){
-          const has=!!d.theme;
-          const bg=has?cssv(thKey(d.theme)):"",fg=has?cssv(thKey(d.theme)+"T"):"";
-          return `<td class="theme" style="background:${bg}"><select class="tm" data-k="theme" style="color:${fg};background-color:${bg}"><option value="" ${!has?"selected":""}>—</option>${THEMES.map(s=>`<option ${s===d.theme?"selected":""}>${s}</option>`).join("")}</select></td>`;
+        if(c.type==="comments"){
+          const n=(d.comments||[]).length;
+          return `<td class="cmt"><button class="cmtbtn ${n?"has":""}" title="Notes & evidence">💬${n?" "+n:""}</button></td>`;
+        }
+        if(c.type==="area"||c.type==="theme"){
+          const pre=c.type==="area"?"--ar-":"--th-", cls=c.type==="area"?"arsel":"tm", opts=c.type==="area"?AREAS:THEMES;
+          const has=!!d[k], bg=has?cssv(pre+d[k]):"",fg=has?cssv(pre+d[k]+"T"):"";
+          const style=has?`color:${fg};background-color:${bg};background-image:radial-gradient(circle at 11px 50%, ${fg} 0 3px, transparent 3.6px)`:"";
+          return `<td class="${c.cls}"><select class="${cls} chip ${has?"":"empty"}" data-k="${k}" style="${style}"><option value="" ${!has?"selected":""}>—</option>${opts.map(s=>`<option ${s===d[k]?"selected":""}>${s}</option>`).join("")}</select></td>`;
         }
         if(c.type==="select"){
-          return `<td class="${c.cls}"><select class="conf" data-k="${c.key}"><option value="" ${!d[c.key]?"selected":""}>—</option>${c.opts.map(o=>`<option ${o===d[c.key]?"selected":""}>${o}</option>`).join("")}</select></td>`;
+          return `<td class="${c.cls}"><select class="conf" data-k="${k}"><option value="" ${!d[k]?"selected":""}>—</option>${c.opts.map(o=>`<option ${o===d[k]?"selected":""}>${o}</option>`).join("")}</select></td>`;
+        }
+        if(c.type==="computed"){
+          const s=scoreOf(d), pct=(s!=null&&maxScore)?Math.max(8,Math.round(s/maxScore*100)):0;
+          return `<td class="${c.cls}"><div class="scorewrap">${s==null?`<span class="sv none">—</span>`:`<span class="sv">$${s.toLocaleString()}</span><span class="meter"><i style="width:${pct}%"></i></span>`}</div></td>`;
+        }
+        if(c.type==="lift"){
+          const v=d.lift||"", dir=/^\+/.test(v)?"up":/^-/.test(v)?"down":"";
+          return `<td class="${c.cls} ${dir}"><span class="trend">${dir==="up"?"▲":dir==="down"?"▼":""}</span><input class="cell" type="text" data-k="lift" value="${esc(v)}"></td>`;
         }
         if(c.type==="textarea"){
-          return `<td class="${c.cls}"><textarea class="cell" rows="2" data-k="${c.key}">${d[c.key]??""}</textarea></td>`;
+          const clip=d.evidence?`<span class="clip" title="${esc(d.evidence)}">📎 source</span>`:"";
+          return `<td class="${c.cls}"><textarea class="cell" rows="1" data-k="${k}">${d[k]??""}</textarea>${clip}</td>`;
         }
         const ty=c.type==="number"?"number":"text";
-        return `<td class="${c.cls}"><input class="cell" type="${ty}" data-k="${c.key}" value="${(d[c.key]??"").toString().replace(/"/g,'&quot;')}"></td>`;
+        return `<td class="${c.cls}"><input class="cell" type="${ty}" data-k="${k}" value="${esc(d[k])}"></td>`;
       }).join("")+"</tr>";
     });
     html+="</tbody>";
     t.innerHTML=html;
+    t.querySelectorAll("td.hyp textarea").forEach(autosize);
     t.querySelectorAll("thead th[data-k]").forEach(th=>th.onclick=()=>{
-      const k=th.dataset.k; if(sortKey===k)sortDir*=-1;else{sortKey=k;sortDir=1;} render();
+      const k=th.dataset.k; if(sortKey===k)sortDir*=-1;else{sortKey=k;sortDir=(k==="score"||k==="revProj")?-1:1;} render();
     });
-    t.querySelectorAll(".rowtools button[data-act='del']").forEach(b=>b.onclick=e=>{
-      e.stopPropagation(); delRow(+b.closest("tr").dataset.id);
-    });
+    t.querySelectorAll(".rowtools button[data-act='del']").forEach(b=>b.onclick=e=>{ e.stopPropagation(); delRow(+b.closest("tr").dataset.id); });
+    t.querySelectorAll(".cmtbtn").forEach(b=>b.onclick=e=>{ e.stopPropagation(); openComments(+b.closest("tr").dataset.id); });
+    // drag & drop reorder (handle = row-number cell)
     let dragId=null;
     const clearDrop=()=>t.querySelectorAll("tr").forEach(r=>r.classList.remove("dropbefore","dropafter"));
     t.querySelectorAll("tbody tr").forEach(tr=>{
@@ -294,8 +507,19 @@ function render(){
       const ev=el.tagName==="SELECT"?"change":"input";
       el.addEventListener(ev,()=>{
         const d=DATA.find(x=>x.id===id); if(!d)return;
-        d[key]=el.tagName==="INPUT"&&el.type==="number"?(el.value===""?0:+el.value):el.value;
-        if(key==="status")render();
+        if(key==="status"){
+          const old=d.status, nv=el.value;
+          if(DECIDED.includes(nv) && !(d.control && d.lift && d.sig)){
+            alert("Can't mark \""+nv+"\" without a Control %, measured Lift, and Significance.\n\nRule: no control → no lift claim. Fill those on the Pipeline tab first.");
+            el.value=old; return;
+          }
+          d.status=nv;
+          if(nv==="Running" && !d.convWindow) d.convWindow="7d";
+          render(); return;
+        }
+        d[key]=el.tagName==="INPUT"&&el.type==="number"?(el.value===""?"":+el.value):el.value;
+        if(el.tagName==="TEXTAREA") autosize(el);
+        if(["revProj","conf","effort","lift"].includes(key)) render();
         else updateSummary();
       });
     });
@@ -306,114 +530,139 @@ function render(){
 function updateFilters(){
   const sf=document.getElementById("statusFilter");
   if(tab==="backlog"){ sf.style.display="none"; statusFilter=""; }
-  else{
-    sf.style.display="";
-    sf.innerHTML=`<option value="">All statuses</option>`+PIPELINE_STATUSES.map(s=>`<option ${s===statusFilter?"selected":""}>${s}</option>`).join("");
-  }
-  const mf=document.getElementById("metricFilter");const ms=[...new Set(DATA.map(d=>d.metric).filter(Boolean))];
-  mf.innerHTML=`<option value="">All metrics</option>`+ms.map(m=>`<option ${m===metricFilter?"selected":""}>${m}</option>`).join("");
-  const tf=document.getElementById("themeFilter");
-  tf.innerHTML=`<option value="">All audiences</option>`+THEMES.map(t=>`<option ${t===themeFilter?"selected":""}>${t}</option>`).join("");
+  else{ sf.style.display=""; sf.innerHTML=`<option value="">All statuses</option>`+PIPELINE_STATUSES.map(s=>`<option ${s===statusFilter?"selected":""}>${s}</option>`).join(""); }
+  document.getElementById("areaFilter").innerHTML=`<option value="">All areas</option>`+AREAS.map(a=>`<option ${a===areaFilter?"selected":""}>${a}</option>`).join("");
+  const ms=[...new Set(DATA.map(d=>d.metric))].filter(Boolean);
+  document.getElementById("metricFilter").innerHTML=`<option value="">All metrics</option>`+ms.map(m=>`<option ${m===metricFilter?"selected":""}>${m}</option>`).join("");
+  document.getElementById("themeFilter").innerHTML=`<option value="">All themes</option>`+THEMES.map(t=>`<option ${t===themeFilter?"selected":""}>${t}</option>`).join("");
 }
 function updateSummary(){
+  const s=document.getElementById("summary");
   if(tab==="backlog"){
     const b=DATA.filter(d=>d.status==="Backlog");
-    document.getElementById("summary").innerHTML=`<b>${b.length}</b> ideas waiting`;
+    const pot=b.reduce((a,d)=>a+(+d.revProj||0),0);
+    s.innerHTML=`<span class="stat"><b>${b.length}</b> ideas</span><span class="stat"><b>$${(pot/1000).toLocaleString()}K</b>/yr projected</span>`;
   }else{
     const p=DATA.filter(d=>d.status!=="Backlog");
     const running=p.filter(d=>d.status==="Running").length;
-    const decided=p.filter(d=>["Winner","Lost"].includes(d.status));
+    const decided=p.filter(d=>DECIDED.includes(d.status));
     const wins=decided.filter(d=>d.status==="Winner").length;
     const wr=decided.length?Math.round(wins/decided.length*100):0;
-    document.getElementById("summary").innerHTML=`<b>${p.length}</b> experiments · <b>${running}</b> running · win rate <b>${wr}%</b> (${wins}/${decided.length})`;
+    s.innerHTML=`<span class="stat"><b>${p.length}</b> experiments</span><span class="stat"><span class="dot" style="background:${cssv("--runningT")}"></span><b>${running}</b> running</span><span class="stat"><span class="dot" style="background:${cssv("--winnerT")}"></span>win rate <b>${wr}%</b></span>`;
   }
 }
 function updateHint(){
   document.getElementById("hint").textContent = tab==="backlog"
-    ? "Ideas waiting to be picked. Edit any cell; set Status to Picked to move an idea into the Pipeline tab."
-    : "Everything shipped, with the outcome in plain words. Change Status to walk an experiment through Picked → Running → Analysis → Winner / Lost.";
+    ? "Ranked by Score (projected revenue × confidence ÷ effort). Drag the row number to reorder; set Status to Picked to move an idea into the Pipeline."
+    : "A Winner or Lost verdict stays locked until Control %, Lift and Significance are filled — no control, no lift claim.";
 }
 
-document.getElementById("tabBacklog").onclick=()=>{tab="backlog";sortKey=null;metricFilter="";themeFilter="";render();};
+document.getElementById("tabBacklog").onclick=()=>{tab="backlog";sortKey="score";sortDir=-1;metricFilter="";themeFilter="";render();};
 document.getElementById("tabPipeline").onclick=()=>{tab="pipeline";sortKey=null;metricFilter="";themeFilter="";render();};
 document.getElementById("statusFilter").onchange=e=>{statusFilter=e.target.value;render();};
+document.getElementById("areaFilter").onchange=e=>{areaFilter=e.target.value;render();};
 document.getElementById("metricFilter").onchange=e=>{metricFilter=e.target.value;render();};
 document.getElementById("themeFilter").onchange=e=>{themeFilter=e.target.value;render();};
 document.getElementById("addBtn").onclick=()=>{
-  DATA.unshift({id:nextId++,theme:"",metric:"",hypothesis:"",baseline:"",lift:"",reach:"",conf:"",effort:"",status:"Backlog"});
+  DATA.unshift({id:nextId++,area:"",theme:"",metric:"",hypothesis:"",baseline:"",target:"",revProj:"",conf:"",reach:"",effort:"",owner:"",status:"Backlog",control:"",result:"",lift:"",sig:"",convWindow:"",campaign:"",evidence:"",comments:[]});
   tab="backlog";sortKey=null;metricFilter="";themeFilter="";render();
 };
 
-// ---- generate ideas for a selected metric (simulated; the real version runs our activation agent) ----
+// theme toggle
+const themeToggle=document.getElementById("themeToggle");
+function curTheme(){ const a=document.documentElement.getAttribute("data-theme"); if(a)return a; return matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"; }
+function syncThemeIcon(){ themeToggle.textContent=curTheme()==="dark"?"☀":"☾"; }
+themeToggle.onclick=()=>{ document.documentElement.setAttribute("data-theme", curTheme()==="dark"?"light":"dark"); syncThemeIcon(); render(); };
+syncThemeIcon();
+
+// ---- generate ideas for a metric ----
 const METRIC_OPTS=[
-  {name:"First export, day 1",baseline:"now 31.9% Android · 46.5% iOS"},
-  {name:"Second export in 7 days",baseline:"the retention north star (2ED7)"},
-  {name:"Editor → export",baseline:"now 51.9% — our #1 leak"},
-  {name:"Tool opened, day 1",baseline:"for declared-intent cohorts"},
-  {name:"Video activation",baseline:"now 39.4% — worst big intent"},
-  {name:"First credit use",baseline:"12.9% of exporters use credits"},
+  {area:"Activation",name:"W1 activation rate (export or generation)",baseline:"now ~32%",live:true},
+  {area:"Activation",name:"Editor→export completion",baseline:"now 51.9%",live:true},
+  {area:"Activation",name:"Day-1 export rate",baseline:"now ~19%",live:true},
+  {area:"Monetization",name:"Trial→Paid CVR",baseline:"now 6.1%",live:false},
+  {area:"Monetization",name:"Paywall CVR",baseline:"now 3.4%",live:false},
+  {area:"Monetization",name:"ARPU",baseline:"now $1.82",live:false},
+  {area:"Monetization",name:"Checkout completion",baseline:"now 64%",live:false},
+  {area:"Retention",name:"Subscription retention",baseline:"now 88.0%",live:false},
+  {area:"Retention",name:"D30 active rate",baseline:"now ~41%",live:false},
+  {area:"Reactivation",name:"Winback rate",baseline:"now ~3.2%",live:false},
 ];
 const CANDIDATES={
-  "First export, day 1":[
-    {theme:"New users",hypothesis:"Push registered users who never opened the editor straight into Effects ('Your first stunning edit is one tap away'), since this top-of-funnel cohort has no live coverage and Effects delivers the promise in one tap.",baseline:"~40% d1 export",lift:"goal: lift d1 export",reach:"2.1M/mo est.",conf:"Med",effort:1},
-    {theme:"Selfie",hypothesis:"Send declared-selfie users a day-1 Retouch push ('Faces first. Fix the light in one tap'), since declared intent + a verified in-tool link is our strongest first-edit pattern.",baseline:"46.2% selfie d1",lift:"goal +3–5pp",reach:"~500K/mo est.",conf:"Med",effort:1},
-    {theme:"New users",hypothesis:"Pre-select a camera-roll photo in the first-edit flow, since roughly 40% of push-tap sessions die at the photo chooser before any edit starts.",baseline:"~40% chooser drop",lift:"goal: cut chooser drop",reach:"all push taps",conf:"Med",effort:4},
+  "W1 activation rate (export or generation)":[
+    {theme:"Onboarding",hypothesis:"Pre-select the user's photo after a push tap so they skip the photo chooser, since ~40% of tapped sessions drop at the chooser (~2M lost sessions/mo).",baseline:"~32%",target:"37%",revProj:210000,conf:"Med",reach:2000000,effort:3,evidence:"First-valuable-edit drop-off analysis + editor→export 51.9% cliff (Databricks 30d, Jun 2026)"},
+    {theme:"Onboarding",hypothesis:"Show a contextual onboarding modal on first editor open (canonical IAM template) inviting the first export.",baseline:"~32%",target:"35%",revProj:160000,conf:"High",reach:1500000,effort:2,evidence:"AI Enhance IAM measured +9.14% activation lift on object_export (campaign 1782806216)"},
+    {theme:"Lifecycle",hypothesis:"Fire a W0 'no editor open' activation push to the top-of-funnel cohort with an Effects deep link and a 7d export goal.",baseline:"~32%",target:"34%",revProj:120000,conf:"Med",reach:900000,effort:1,evidence:"W0 no-editor-open cohort greenlit 2026-06-09; object_export 7d goal"},
   ],
-  "Second export in 7 days":[
-    {theme:"One export",hypothesis:"Nudge one-export users with 'That edit was no fluke — your next one takes half the time', since a second export within 7 days is the strongest retention predictor we track.",baseline:"2ED7 cohort",lift:"goal: 2nd export ≤7d",reach:"~800K/mo est.",conf:"Med",effort:1},
-    {theme:"One export",hypothesis:"Offer a weekend sticker project ('Turn any photo into a sticker'), since activated users respond to novelty and Sticker is verified and unsaturated in recent sends.",baseline:"2ED7 cohort",lift:"goal: 2nd export ≤7d",reach:"~800K/mo est.",conf:"Med",effort:1},
-    {theme:"One export",hypothesis:"Suggest AI Replace ('Change the sky. Change the shirt. One prompt'), since high-curiosity AI tools pull one-export users back at the highest rate.",baseline:"2ED7 cohort",lift:"goal: 2nd export ≤7d",reach:"~800K/mo est.",conf:"Low",effort:1},
+  "Editor→export completion":[
+    {theme:"Onboarding",hypothesis:"Route new Android users to AI/prompt tools that skip the chooser, since Android exports at 31.9% vs Apple 46.5%.",baseline:"51.9%",target:"56%",revProj:180000,conf:"Med",reach:1200000,effort:3,evidence:"Real funnel data, Databricks 2026-07-01 (Apple 46.5% vs Android 31.9% export)"},
+    {theme:"Lifecycle",hypothesis:"Add a 'resume your recent project' deep link to the edit-abandoned push so users land back in their in-flight edit instead of the chooser.",baseline:"51.9%",target:"55%",revProj:140000,conf:"Med",reach:800000,effort:2,evidence:"Edit-abandoned resume IAM → catalog Recent Projects card (pending click-test)"},
   ],
-  "Editor → export":[
-    {theme:"Edit abandoned",hypothesis:"Show a 'resume your project' modal that deep-links to Recent Projects for users who opened the editor in the last 48h without exporting — the current rescue modal loses the session at the chooser.",baseline:"51.9% editor→export",lift:"goal +2–4pp",reach:"~1.4M/mo est.",conf:"Med",effort:2},
-    {theme:"Edit abandoned",hypothesis:"Retarget the rescue modal to only the highest-abandonment sessions, since the broad cohort already exports at ~75% and the blended lift keeps narrowing.",baseline:"74.8% broad cohort",lift:"goal: real incremental",reach:"subset of 308K",conf:"Med",effort:1},
+  "Day-1 export rate":[
+    {theme:"Onboarding",hypothesis:"Give new free users a 'first stunning edit in one tap' Effects entry, since day-1 export correlates with ~2x retention.",baseline:"~19%",target:"23%",revProj:170000,conf:"Med",reach:1600000,effort:2,evidence:"Onboarding canonical: day-1 export ≈ 2x retention north star (2026-06-23)"},
+    {theme:"Lifecycle",hypothesis:"Send a First Spark free-credits push toward a text-to-image miniapp to turn free-credit holders into first generators.",baseline:"~19%",target:"21%",revProj:110000,conf:"Low",reach:4500000,effort:1,evidence:"First Spark draft 1783069640; t2i miniapp deep link click-tested"},
   ],
-  "Tool opened, day 1":[
-    {theme:"Business",hypothesis:"Send declared-business users straight to AI Logo Maker ('Type your business name. AI Logo Maker does the rest'), since the miniapp lands in-tool and this intent is completely uncovered.",baseline:"uncovered intent",lift:"goal: tool open d1",reach:"~300K/mo est.",conf:"High",effort:1},
-    {theme:"Selfie",hypothesis:"Route declared-selfie users to AI Enhance ('One tap makes every selfie HD'), since it is free, credit-exempt, and matches the declared intent exactly.",baseline:"46.2% selfie d1",lift:"goal: tool open d1",reach:"~500K/mo est.",conf:"Med",effort:1},
-    {theme:"Tool adoption",hypothesis:"Clone the Remove Background modal structure to Retouch as wave 2, since the modal format wins at every tier (+35% to +472%) and Retouch is the next unsaturated tool in the queue.",baseline:"modal wave 2",lift:"goal: tool adoption",reach:"full base",conf:"High",effort:1},
-    {theme:"Business",hypothesis:"Show e-commerce sellers a product-shots Remove Background modal ('Clean product photos in one tap'), since Remove BG is our proven #1 modal and product shots are the worst declared-intent follow-through (3.0%).",baseline:"3.0% follow-through",lift:"goal: tool open d1",reach:"e-com declared",conf:"High",effort:1},
+  "Trial→Paid CVR":[
+    {theme:"Pricing",hypothesis:"Auto-apply a 20% first-month discount at the trial-expiry paywall, since a large share of expired trials re-open within 3 days.",baseline:"6.1%",target:"7.0%",revProj:175000,conf:"Med",reach:120000,effort:1,evidence:"internal monetization funnel review"},
+    {theme:"Onboarding",hypothesis:"Guide new trials to their first export within day 1 via a 3-step interactive onboarding, since activated trials convert far higher.",baseline:"6.1%",target:"7.5%",revProj:230000,conf:"Med",reach:120000,effort:3,evidence:"internal monetization funnel review"},
   ],
-  "Video activation":[
-    {theme:"Video",hypothesis:"Recover video-editor abandoners with 'Your video is waiting — finish it in about a minute', since ~2.6M users a month open the video editor and never export.",baseline:"39.4% video d1",lift:"goal +2–3pp",reach:"2.6M/mo",conf:"Med",effort:1},
-    {theme:"Video",hypothesis:"Give declared-video users an image-to-video first render ('Your first video in 60 seconds'), since it lands in-tool and produces a shareable result on the first try.",baseline:"39.4% video d1",lift:"goal: first video",reach:"~1.6M/mo intent",conf:"Med",effort:2},
+  "Paywall CVR":[
+    {theme:"Paywall",hypothesis:"Trigger the paywall right after a successful AI result (peak intent) instead of on tool-open.",baseline:"3.4%",target:"4.2%",revProj:340000,conf:"Med",reach:400000,effort:2,evidence:"internal funnel review"},
+    {theme:"Paywall",hypothesis:"Add social proof ('2M creators upgraded this month') to the AI-tools paywall.",baseline:"3.4%",target:"3.8%",revProj:180000,conf:"Low",reach:400000,effort:1,evidence:"internal funnel review"},
   ],
-  "First credit use":[
-    {theme:"New users",hypothesis:"Point free-credit holders at text-to-image ('5 free credits, zero pressure — type a few words'), since T2I is the lowest-friction first generation and skips the photo chooser entirely.",baseline:"12.9% credit use",lift:"goal: first credit spend",reach:"~117K/day",conf:"Med",effort:1},
-    {theme:"New users",hypothesis:"Run a 'credits 101' education modal for users who received credits but never spent one, since not understanding credits is a known activation barrier.",baseline:"12.9% credit use",lift:"goal: first credit spend",reach:"~1M est.",conf:"Low",effort:2},
-    {theme:"Tool adoption",hypothesis:"Nudge exporters who never touched a generative tool toward one cheap-credit AI edit, since only 12.9% of monthly exporters use credits and AI tools carry the strongest upgrade pull.",baseline:"12.9% credit use",lift:"goal: first credit spend",reach:"exporters, no AI",conf:"Med",effort:2},
+  "ARPU":[
+    {theme:"Pricing",hypothesis:"Bundle the AI-Avatar pack into Pro (vs à-la-carte) because many Pro users already buy at least one pack.",baseline:"$1.82",target:"$1.95",revProj:205000,conf:"Med",reach:600000,effort:2,evidence:"internal funnel review"},
+  ],
+  "Checkout completion":[
+    {theme:"Checkout",hypothesis:"Pre-fill billing country and show localized currency at checkout to cut currency-confusion drop-off.",baseline:"64%",target:"70%",revProj:130000,conf:"Med",reach:210000,effort:2,evidence:"internal funnel review"},
+    {theme:"Checkout",hypothesis:"Collapse checkout to a single step.",baseline:"64%",target:"72%",revProj:170000,conf:"Med",reach:210000,effort:3,evidence:"internal funnel review"},
+  ],
+  "Subscription retention":[
+    {theme:"Lifecycle",hypothesis:"Add a 'pause instead of cancel' option in the cancel flow.",baseline:"88.0%",target:"89.0%",revProj:125000,conf:"High",reach:11000,effort:1,evidence:"internal funnel review"},
+  ],
+  "D30 active rate":[
+    {theme:"Lifecycle",hypothesis:"Send a personalized 'pick up where you left off' push on day 3 of inactivity to at-risk new users.",baseline:"~41%",target:"44%",revProj:150000,conf:"Low",reach:700000,effort:2,evidence:"internal funnel review"},
+  ],
+  "Winback rate":[
+    {theme:"Lifecycle",hypothesis:"Offer lapsed annual users a one-time winback discount 7 days after cancel.",baseline:"~3.2%",target:"4.0%",revProj:90000,conf:"Med",reach:60000,effort:2,evidence:"internal funnel review"},
   ],
 };
 
-let genMetric=null;
+let genMetric=null, genLive=false;
 const scrim=document.getElementById("scrim");
 const genPick=document.getElementById("genPick");
 const genRun=document.getElementById("genRun");
 const genGo=document.getElementById("genGo");
 
 function openGen(){
-  genMetric=null;
+  genMetric=null; genLive=false;
   genPick.style.display=""; genRun.style.display="none";
   genGo.disabled=true; genGo.textContent="Generate ideas";
-  document.getElementById("metricGrid").innerHTML=METRIC_OPTS.map(m=>
-    `<div class="mchip" data-m="${m.name}"><div class="mn">${m.name}</div><div class="mb">${m.baseline}</div></div>`).join("");
-  document.querySelectorAll("#metricGrid .mchip").forEach(ch=>ch.onclick=()=>{
-    document.querySelectorAll("#metricGrid .mchip").forEach(x=>x.classList.remove("sel"));
+  const byArea={};
+  METRIC_OPTS.forEach(m=>{(byArea[m.area]=byArea[m.area]||[]).push(m);});
+  document.getElementById("metricGroups").innerHTML=Object.keys(byArea).map(a=>
+    `<div class="areagroup"><p class="al" style="color:${cssv("--ar-"+a+"T")}">${a}</p><div class="metricgrid">`+
+    byArea[a].map(m=>`<div class="mchip" data-m="${esc(m.name)}"><div class="mn">${m.name}</div><div class="mb">${m.baseline}</div></div>`).join("")+
+    `</div></div>`).join("");
+  document.querySelectorAll("#metricGroups .mchip").forEach(ch=>ch.onclick=()=>{
+    document.querySelectorAll("#metricGroups .mchip").forEach(x=>x.classList.remove("sel"));
     ch.classList.add("sel"); genMetric=ch.dataset.m;
-    genGo.disabled=false; genGo.textContent=`Generate ideas for ${genMetric}`;
+    genGo.disabled=false; genGo.textContent=`Generate for ${genMetric.length>26?genMetric.slice(0,24)+"…":genMetric}`;
   });
   scrim.classList.add("open");
 }
 function runGen(){
   genPick.style.display="none"; genRun.style.display="";
   document.getElementById("genRunTitle").innerHTML=`Generating ideas for <span class="genmetric">${genMetric}</span>`;
+  document.getElementById("genRunSub").textContent=
+    "Reading the funnel behind this metric, then proposing hypotheses grounded in it.";
   const steps=[
-    `Size the audiences behind ${genMetric}`,
-    `Refresh funnel baselines from the warehouse`,
-    `Draft hypotheses that could move ${genMetric}`,
-    `Validate: real links, real facts, no collision with live campaigns`,
-    `Check against the idea bank — no repeats`,
-    `Add ideas to the Backlog tab`,
+    `Pull the live funnel baselines behind ${genMetric} (Databricks, trailing 30d)`,
+    `Draft hypotheses grounded in that data`,
+    `Check every cited stat against the facts table (anti-hallucination)`,
+    `Screen against last-7-day shipped ideas (no repeats)`,
+    `Estimate reach, projected revenue and effort`,
+    `Add ideas to the backlog with evidence links`,
   ];
   const log=document.getElementById("genlog");
   log.innerHTML=steps.map(s=>`<li data-step><span class="tick"></span>${s}</li>`).join("");
@@ -423,15 +672,58 @@ function runGen(){
     if(i<els.length){els[i].style.color="var(--accent)";i++;}
     else{
       clearInterval(iv);
-      (CANDIDATES[genMetric]||[]).forEach(c=>DATA.unshift({...c,metric:genMetric,id:nextId++,status:"Backlog"}));
+      const area=(METRIC_OPTS.find(m=>m.name===genMetric)||{}).area||"";
+      (CANDIDATES[genMetric]||[]).forEach(c=>DATA.unshift({
+        ...c,area,metric:genMetric,id:nextId++,status:"Backlog",owner:"",
+        control:"",result:"",lift:"",sig:"",convWindow:"",campaign:"",comments:[]
+      }));
       scrim.classList.remove("open");
-      tab="backlog"; sortKey=null; metricFilter=genMetric; render();
+      tab="backlog"; sortKey="score"; sortDir=-1; metricFilter=genMetric; areaFilter=""; render();
     }
-  },520);
+  },480);
 }
 document.getElementById("genBtn").onclick=openGen;
 document.getElementById("genCancel").onclick=()=>scrim.classList.remove("open");
+scrim.onclick=e=>{ if(e.target===scrim) scrim.classList.remove("open"); };
 genGo.onclick=()=>{ if(genMetric) runGen(); };
+
+// ---- detail + comments drawer ----
+let cmtId=null;
+const cmtScrim=document.getElementById("cmtScrim");
+const cmtDrawer=document.getElementById("cmtDrawer");
+const fmtTime=ts=>new Date(ts).toLocaleString([], {month:"short",day:"numeric",hour:"2-digit",minute:"2-digit"});
+function openComments(id){
+  const d=DATA.find(x=>x.id===id); if(!d)return;
+  cmtId=id;
+  document.getElementById("cmtMetric").textContent=(d.area?d.area+" · ":"")+(d.metric||"Untitled experiment");
+  document.getElementById("cmtHyp").textContent=d.hypothesis||"(no hypothesis yet)";
+  const g=document.getElementById("cmtGround");
+  if(d.evidence){
+    g.innerHTML=`<div class="ground"><b>Grounding</b>${d.evidence}</div>`;
+  } else g.innerHTML="";
+  renderComments();
+  document.getElementById("cmtInput").value="";
+  cmtScrim.classList.add("open"); cmtDrawer.classList.add("open");
+  setTimeout(()=>document.getElementById("cmtInput").focus(),160);
+}
+function renderComments(){
+  const d=DATA.find(x=>x.id===cmtId); const list=document.getElementById("cmtList");
+  const cs=d.comments||[];
+  list.innerHTML= cs.length ? cs.map(c=>
+    `<div class="comment"><div class="meta"><b>${c.author}</b> · ${fmtTime(c.ts)}</div><div class="txt">${(c.text||"").replace(/</g,"&lt;")}</div></div>`).join("")
+    : `<div class="cempty">No comments yet.<br>Start the discussion below.</div>`;
+}
+function closeComments(){cmtScrim.classList.remove("open");cmtDrawer.classList.remove("open");cmtId=null;}
+function addComment(){
+  const d=DATA.find(x=>x.id===cmtId); if(!d)return;
+  const ta=document.getElementById("cmtInput"); const text=ta.value.trim(); if(!text)return;
+  (d.comments=d.comments||[]).push({author:"You",ts:Date.now(),text});
+  ta.value=""; renderComments(); render(); ta.focus();
+}
+document.getElementById("cmtClose").onclick=closeComments;
+cmtScrim.onclick=closeComments;
+document.getElementById("cmtAdd").onclick=addComment;
+document.getElementById("cmtInput").addEventListener("keydown",e=>{ if(e.key==="Enter"&&(e.metaKey||e.ctrlKey))addComment(); });
 
 render();
 </script>
