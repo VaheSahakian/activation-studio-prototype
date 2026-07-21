@@ -274,6 +274,9 @@
     .sheetwrap{margin:0 8px}
     .summary{margin-left:0}
   }
+  .speclink{display:inline-flex;align-items:center;gap:4px;margin:0 12px 9px;font-size:10.5px;font-weight:600;
+    color:var(--accent);background:var(--accent-weak);border:0;border-radius:6px;padding:3px 9px;cursor:pointer}
+  .speclink:hover{filter:brightness(1.05)}
 </style>
 </head>
 <body>
@@ -638,7 +641,8 @@ function render(){
           return `<td class="${c.cls} ${dir}"><span class="trend">${dir==="up"?"▲":dir==="down"?"▼":""}</span><input class="cell" type="text" data-k="lift" value="${esc(v)}"></td>`;
         }
         if(c.type==="textarea"){
-          return `<td class="${c.cls}"><textarea class="cell" rows="1" data-k="${k}">${d[k]??""}</textarea></td>`;
+          const lbl=d.spec?"📋 Copy, deep link & audience":((d.comments||[]).length?"💬 Notes ("+d.comments.length+")":"＋ Details & notes");
+          return `<td class="${c.cls}"><textarea class="cell" rows="1" data-k="${k}">${d[k]??""}</textarea><button class="speclink" data-open>${lbl}</button></td>`;
         }
         const ty=c.type==="number"?"number":"text";
         return `<td class="${c.cls}"><input class="cell" type="${ty}" data-k="${k}" value="${esc(d[k])}"></td>`;
@@ -652,6 +656,7 @@ function render(){
     });
     t.querySelectorAll(".rowtools button[data-act='del']").forEach(b=>b.onclick=e=>{ e.stopPropagation(); delRow(+b.closest("tr").dataset.id); });
     t.querySelectorAll(".cmtbtn").forEach(b=>b.onclick=e=>{ e.stopPropagation(); openDetail(+b.closest("tr").dataset.id); });
+    t.querySelectorAll(".speclink").forEach(b=>b.onclick=e=>{ e.stopPropagation(); openDetail(+b.closest("tr").dataset.id); });
     let dragId=null;
     const clearDrop=()=>t.querySelectorAll("tr").forEach(r=>r.classList.remove("dropbefore","dropafter"));
     t.querySelectorAll("tbody tr").forEach(tr=>{
