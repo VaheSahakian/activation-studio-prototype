@@ -371,6 +371,8 @@ const CANDIDATES={
   "Tool opened, day 1":[
     {theme:"Business",hypothesis:"Send declared-business users straight to AI Logo Maker ('Type your business name. AI Logo Maker does the rest'), since the miniapp lands in-tool and this intent is completely uncovered.",baseline:"uncovered intent",lift:"goal: tool open d1",reach:"~300K/mo est.",conf:"High",effort:1},
     {theme:"Selfie",hypothesis:"Route declared-selfie users to AI Enhance ('One tap makes every selfie HD'), since it is free, credit-exempt, and matches the declared intent exactly.",baseline:"46.2% selfie d1",lift:"goal: tool open d1",reach:"~500K/mo est.",conf:"Med",effort:1},
+    {theme:"Tool adoption",hypothesis:"Clone the Remove Background modal structure to Retouch as wave 2, since the modal format wins at every tier (+35% to +472%) and Retouch is the next unsaturated tool in the queue.",baseline:"modal wave 2",lift:"goal: tool adoption",reach:"full base",conf:"High",effort:1},
+    {theme:"Business",hypothesis:"Show e-commerce sellers a product-shots Remove Background modal ('Clean product photos in one tap'), since Remove BG is our proven #1 modal and product shots are the worst declared-intent follow-through (3.0%).",baseline:"3.0% follow-through",lift:"goal: tool open d1",reach:"e-com declared",conf:"High",effort:1},
   ],
   "Video activation":[
     {theme:"Video",hypothesis:"Recover video-editor abandoners with 'Your video is waiting — finish it in about a minute', since ~2.6M users a month open the video editor and never export.",baseline:"39.4% video d1",lift:"goal +2–3pp",reach:"2.6M/mo",conf:"Med",effort:1},
@@ -379,6 +381,7 @@ const CANDIDATES={
   "First credit use":[
     {theme:"New users",hypothesis:"Point free-credit holders at text-to-image ('5 free credits, zero pressure — type a few words'), since T2I is the lowest-friction first generation and skips the photo chooser entirely.",baseline:"12.9% credit use",lift:"goal: first credit spend",reach:"~117K/day",conf:"Med",effort:1},
     {theme:"New users",hypothesis:"Run a 'credits 101' education modal for users who received credits but never spent one, since not understanding credits is a known activation barrier.",baseline:"12.9% credit use",lift:"goal: first credit spend",reach:"~1M est.",conf:"Low",effort:2},
+    {theme:"Tool adoption",hypothesis:"Nudge exporters who never touched a generative tool toward one cheap-credit AI edit, since only 12.9% of monthly exporters use credits and AI tools carry the strongest upgrade pull.",baseline:"12.9% credit use",lift:"goal: first credit spend",reach:"exporters, no AI",conf:"Med",effort:2},
   ],
 };
 
