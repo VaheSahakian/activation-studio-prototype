@@ -135,6 +135,7 @@
     font-size:10.5px;letter-spacing:.6px;text-transform:uppercase;border-bottom:1px solid var(--line-strong)}
   thead th:hover{color:var(--muted)}
   thead th .ar{color:var(--accent);font-size:9px;margin-left:4px}
+  thead th.thnum{text-align:right}
   th.rownum,td.rownum{position:sticky;left:0;z-index:4;width:52px;min-width:52px;text-align:center;
     border-right:1px solid var(--line);font-variant-numeric:tabular-nums}
   thead th.rownum{z-index:6;background:var(--surface)}
@@ -437,7 +438,7 @@ function render(){
   } else {
     empty.style.display="none";
     let html="<thead><tr><th class='rownum'>#</th>"+CS.map(k=>
-      `<th data-k="${k}">${COL[k].label}${sortKey===k?`<span class='ar'>${sortDir>0?"▲":"▼"}</span>`:""}</th>`).join("")+"</tr></thead><tbody>";
+      `<th data-k="${k}" class="${(COL[k].cls||"").indexOf("num")>-1?"thnum":""}">${COL[k].label}${sortKey===k?`<span class='ar'>${sortDir>0?"▲":"▼"}</span>`:""}</th>`).join("")+"</tr></thead><tbody>";
     data.forEach((d,i)=>{
       html+=`<tr data-id="${d.id}"><td class="rownum"><div class="rn"><span class="grip">⠿</span><span class="idx">${i+1}</span></div><div class="rowtools"><button data-act="del" title="Delete">✕</button></div></td>`+CS.map(k=>{
         const c=COL[k];
