@@ -591,7 +591,7 @@ const METRIC_OPTS=[
 const CANDIDATES={
   "W1 activation rate (export or generation)":[
     {theme:"Onboarding",hypothesis:"Pre-select the user's photo after a push tap so they skip the photo chooser, since ~40% of tapped sessions drop at the chooser (~2M lost sessions/mo).",baseline:"~32%",target:"37%",revProj:210000,conf:"Med",reach:2000000,effort:3,evidence:"First-valuable-edit drop-off analysis + editor→export 51.9% cliff (Databricks 30d, Jun 2026)"},
-    {theme:"Onboarding",hypothesis:"Show a contextual onboarding modal on first editor open (canonical IAM template) inviting the first export.",baseline:"~32%",target:"35%",revProj:160000,conf:"High",reach:1500000,effort:2,evidence:"AI Enhance IAM measured +9.14% activation lift on object_export (campaign 1782806216)"},
+    {theme:"Onboarding",hypothesis:"Show a contextual onboarding modal on first editor open (canonical IAM template) inviting the first export.",baseline:"~32%",target:"35%",revProj:160000,conf:"High",reach:1500000,effort:2,evidence:"AI Enhance IAM measured +9.14% activation lift on object_export, measured Jul 2026"},
     {theme:"Lifecycle",hypothesis:"Fire a W0 'no editor open' activation push to the top-of-funnel cohort with an Effects deep link and a 7d export goal.",baseline:"~32%",target:"34%",revProj:120000,conf:"Med",reach:900000,effort:1,evidence:"W0 no-editor-open cohort greenlit 2026-06-09; object_export 7d goal"},
   ],
   "Editor→export completion":[
@@ -600,7 +600,7 @@ const CANDIDATES={
   ],
   "Day-1 export rate":[
     {theme:"Onboarding",hypothesis:"Give new free users a 'first stunning edit in one tap' Effects entry, since day-1 export correlates with ~2x retention.",baseline:"~19%",target:"23%",revProj:170000,conf:"Med",reach:1600000,effort:2,evidence:"Onboarding canonical: day-1 export ≈ 2x retention north star (2026-06-23)"},
-    {theme:"Lifecycle",hypothesis:"Send a First Spark free-credits push toward a text-to-image miniapp to turn free-credit holders into first generators.",baseline:"~19%",target:"21%",revProj:110000,conf:"Low",reach:4500000,effort:1,evidence:"First Spark draft 1783069640; t2i miniapp deep link click-tested"},
+    {theme:"Lifecycle",hypothesis:"Send a First Spark free-credits push toward a text-to-image miniapp to turn free-credit holders into first generators.",baseline:"~19%",target:"21%",revProj:110000,conf:"Low",reach:4500000,effort:1,evidence:"First Spark draft; t2i miniapp deep link click-tested"},
   ],
   "Trial→Paid CVR":[
     {theme:"Pricing",hypothesis:"Auto-apply a 20% first-month discount at the trial-expiry paywall, since a large share of expired trials re-open within 3 days.",baseline:"6.1%",target:"7.0%",revProj:175000,conf:"Med",reach:120000,effort:1,evidence:"internal monetization funnel review"},
