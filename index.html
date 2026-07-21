@@ -105,6 +105,7 @@
   .iconbtn{border:1px solid var(--line);background:var(--surface);border-radius:9px;width:34px;height:34px;
     display:grid;place-items:center;font-size:15px;color:var(--muted);cursor:pointer}
   .iconbtn:hover{background:var(--surface-2);color:var(--ink)}
+  .iconbtn svg{display:block}
   .kbadge{font-size:11px;color:var(--muted);border:1px solid var(--line);background:var(--surface);padding:0 12px;border-radius:9px;height:34px;display:inline-flex;align-items:center}
 
   .controlbar{display:flex;align-items:center;gap:10px;padding:4px 22px 14px;flex-wrap:wrap}
@@ -297,8 +298,8 @@
   <div class="logo">✦</div>
   <div class="t"><h1>Activation Studio</h1><p>Lifecycle growth · ideas grounded in internal data, tracked to a verdict</p></div>
   <div class="spacer"></div>
-  <button class="iconbtn" id="resetBtn" title="Reset demo data">↺</button>
-  <button class="iconbtn" id="themeToggle" title="Toggle light / dark">☾</button>
+  <button class="iconbtn" id="resetBtn" title="Reset demo data"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 2.8-6.5"/><path d="M3 4v5h5"/></svg></button>
+  <button class="iconbtn" id="themeToggle" title="Toggle light / dark"></button>
   <span class="kbadge">Prototype</span>
 </header>
 
@@ -769,7 +770,9 @@ document.getElementById("resetBtn").onclick=()=>{
 // theme toggle (persisted)
 const themeToggle=document.getElementById("themeToggle");
 function curTheme(){ const a=document.documentElement.getAttribute("data-theme"); if(a)return a; return matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"; }
-function syncThemeIcon(){ themeToggle.textContent=curTheme()==="dark"?"☀":"☾"; }
+const SUN='<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.4M12 19.1v2.4M2.5 12h2.4M19.1 12h2.4M5 5l1.7 1.7M17.3 17.3L19 19M19 5l-1.7 1.7M6.7 17.3L5 19"/></svg>';
+const MOON='<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>';
+function syncThemeIcon(){ themeToggle.innerHTML=curTheme()==="dark"?SUN:MOON; }
 try{ const th=localStorage.getItem("asb-theme"); if(th) document.documentElement.setAttribute("data-theme",th); }catch(e){}
 themeToggle.onclick=()=>{ const nv=curTheme()==="dark"?"light":"dark"; document.documentElement.setAttribute("data-theme",nv); try{localStorage.setItem("asb-theme",nv);}catch(e){} syncThemeIcon(); render(); };
 syncThemeIcon();
