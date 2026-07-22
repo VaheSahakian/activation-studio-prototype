@@ -299,6 +299,7 @@
   .copybtn{border:1px solid var(--line);background:var(--surface);border-radius:6px;font-size:10px;
     padding:1px 7px;color:var(--muted);cursor:pointer;margin-left:6px;vertical-align:1px;white-space:nowrap}
   .copybtn:hover{border-color:var(--accent);color:var(--accent)}
+  .scrim.copychoice{z-index:85}
 </style>
 </head>
 <body>
@@ -373,6 +374,17 @@
   </div>
 </aside>
 
+<div class="scrim copychoice" id="copyScrim">
+  <div class="modal" style="width:380px">
+    <h3>Copy which version?</h3>
+    <p id="locNote"></p>
+    <div style="display:flex;flex-direction:column;gap:9px">
+      <button class="primary" id="copyEn">English only</button>
+      <button id="copyLiquid">Localized · 19-language Liquid</button>
+      <button class="ghost" id="copyCancel">Cancel</button>
+    </div>
+  </div>
+</div>
 <div class="toast" id="toast"></div>
 <script>
 const SEED_VERSION="v6-2026-07-21";
@@ -883,6 +895,36 @@ document.getElementById("genCancel").onclick=()=>scrim.classList.remove("open");
 scrim.onclick=e=>{ if(e.target===scrim) scrim.classList.remove("open"); };
 genGo.onclick=()=>{ if(genMetric) runGen(); };
 
+// ---- localized copy: canonical 19-language Liquid ----
+const LANGS=["ar","bn","de","en","es","fa","fr","hi","id","it","ja","ko","pl","pt","ru","th","tr","vi","zh"];
+const TR={
+"That clip in your camera roll? 🎬":{ar:"ذلك المقطع في معرض صورك؟ 🎬",bn:"আপনার গ্যালারির সেই ক্লিপটা? 🎬",de:"Der Clip in deiner Galerie? 🎬",es:"¿Ese clip en tu galería? 🎬",fa:"آن کلیپ توی گالری‌ات؟ 🎬",fr:"Ce clip dans ta galerie ? 🎬",hi:"आपकी गैलरी की वह क्लिप? 🎬",id:"Klip di galerimu itu? 🎬",it:"Quella clip nella tua galleria? 🎬",ja:"カメラロールのあの動画 🎬",ko:"갤러리 속 그 클립 🎬",pl:"Ten klip w twojej galerii? 🎬",pt:"Aquele clipe na sua galeria? 🎬",ru:"Тот клип в вашей галерее? 🎬",th:"คลิปในแกลเลอรีของคุณ? 🎬",tr:"Galerindeki o klip? 🎬",vi:"Đoạn clip trong thư viện của bạn? 🎬",zh:"相册里的那段视频？🎬"},
+"One edit and it's ready to post.":{ar:"تعديل واحد ويصبح جاهزًا للنشر.",bn:"একটা এডিট করলেই পোস্টের জন্য তৈরি।",de:"Ein Edit und er ist bereit zum Posten.",es:"Una edición y está listo para publicar.",fa:"یک ویرایش و آماده‌ی انتشار است.",fr:"Un montage et il est prêt à poster.",hi:"बस एक एडिट और पोस्ट के लिए तैयार।",id:"Sekali edit langsung siap diposting.",it:"Un edit ed è pronta da postare.",ja:"ひとつ編集すれば、投稿できます。",ko:"한 번만 편집하면 바로 올릴 수 있어요.",pl:"Jedna edycja i gotowy do publikacji.",pt:"Uma edição e está pronto para postar.",ru:"Одно редактирование — и он готов к публикации.",th:"แก้ไขครั้งเดียวก็พร้อมโพสต์.",tr:"Tek düzenlemeyle paylaşmaya hazır.",vi:"Chỉnh một lần là sẵn sàng đăng.",zh:"一次编辑，就能发布。"},
+"Pick a clip":{ar:"اختر مقطعًا",bn:"একটি ক্লিপ বাছুন",de:"Clip auswählen",es:"Elige un clip",fa:"یک کلیپ انتخاب کن",fr:"Choisis un clip",hi:"क्लिप चुनें",id:"Pilih klip",it:"Scegli una clip",ja:"クリップを選ぶ",ko:"클립 선택하기",pl:"Wybierz klip",pt:"Escolha um clipe",ru:"Выбрать клип",th:"เลือกคลิป",tr:"Klip seç",vi:"Chọn clip",zh:"选择片段"},
+};
+function toLiquid(en){
+  const tr=TR[en]||{};
+  return LANGS.map((l,i)=>(i?"{% elsif Profile.Language == '"+l+"' %}":"{% if Profile.Language == '"+l+"' %}")+(tr[l]||en)).join("")
+    +"{% else %}"+en+"{% endif %}";
+}
+let pendingCopy=null;
+const copyScrim=document.getElementById("copyScrim");
+function openCopyChoice(value){
+  pendingCopy=value;
+  document.getElementById("locNote").textContent = TR[value]
+    ? "This copy has real translations for all 19 languages."
+    : "Prototype note: the Liquid structure is canonical, but all 19 branches carry the English text — translations are generated at draft time.";
+  copyScrim.classList.add("open");
+}
+function doCopy(text,msg){
+  navigator.clipboard.writeText(text).then(()=>toast(msg)).catch(()=>toast("Copy failed — select the text manually."));
+  copyScrim.classList.remove("open"); pendingCopy=null;
+}
+document.getElementById("copyEn").onclick=()=>{ if(pendingCopy!=null) doCopy(pendingCopy,"English copy on the clipboard."); };
+document.getElementById("copyLiquid").onclick=()=>{ if(pendingCopy!=null) doCopy(toLiquid(pendingCopy),"19-language Liquid on the clipboard."); };
+document.getElementById("copyCancel").onclick=()=>{ copyScrim.classList.remove("open"); pendingCopy=null; };
+copyScrim.onclick=e=>{ if(e.target===copyScrim){ copyScrim.classList.remove("open"); pendingCopy=null; } };
+
 // ---- detail drawer: execution spec + grounding + comments ----
 let cmtId=null;
 const cmtScrim=document.getElementById("cmtScrim");
@@ -900,11 +942,11 @@ function openDetail(id){
   if(d.spec){
     const sp=d.spec;
     const vb=sp.link?`<span class="vbadge ${sp.verified?"ok":"warn"}">${sp.verified?"✓ click-tested":"not click-tested yet"}</span>`:"";
-    const cp=v=>` <button class="copybtn" data-copy="${esc(v)}">copy</button>`;
+    const cp=(v,loc)=>` <button class="copybtn" data-copy="${esc(v)}"${loc?' data-loc="1"':''}>copy</button>`;
     html+=`<div class="specbox"><b>Execution spec</b><table class="spect">`+
-      (sp.title?`<tr><td>Title</td><td>${esc(sp.title)}${cp(sp.title)}</td></tr>`:"")+
-      (sp.body?`<tr><td>Body</td><td>${esc(sp.body)}${cp(sp.body)}</td></tr>`:"")+
-      (sp.cta&&sp.cta!=="(push tap)"?`<tr><td>CTA</td><td>${esc(sp.cta)}${cp(sp.cta)}</td></tr>`:"")+
+      (sp.title?`<tr><td>Title</td><td>${esc(sp.title)}${cp(sp.title,1)}</td></tr>`:"")+
+      (sp.body?`<tr><td>Body</td><td>${esc(sp.body)}${cp(sp.body,1)}</td></tr>`:"")+
+      (sp.cta&&sp.cta!=="(push tap)"?`<tr><td>CTA</td><td>${esc(sp.cta)}${cp(sp.cta,1)}</td></tr>`:"")+
       (sp.link?`<tr><td>Opens</td><td class="mono">${esc(sp.link)} ${vb}${cp(sp.link)}</td></tr>`:"")+
       (sp.audience?`<tr><td>Audience</td><td>${esc(sp.audience)}${cp(sp.audience)}</td></tr>`:"")+
       (sp.goal?`<tr><td>Goal</td><td>${esc(sp.goal)}${cp(sp.goal)}</td></tr>`:"")+
@@ -916,6 +958,7 @@ function openDetail(id){
   }
   g.innerHTML=html;
   g.querySelectorAll(".copybtn").forEach(b=>b.onclick=()=>{
+    if(b.dataset.loc){ openCopyChoice(b.dataset.copy); return; }
     navigator.clipboard.writeText(b.dataset.copy).then(()=>{
       b.textContent="✓ copied"; setTimeout(()=>{b.textContent="copy";},1200);
     }).catch(()=>{ b.textContent="select manually"; });
@@ -943,7 +986,8 @@ function addComment(){
 }
 document.addEventListener("keydown",e=>{
   if(e.key!=="Escape")return;
-  if(scrim.classList.contains("open")) scrim.classList.remove("open");
+  if(copyScrim.classList.contains("open")){ copyScrim.classList.remove("open"); pendingCopy=null; }
+  else if(scrim.classList.contains("open")) scrim.classList.remove("open");
   else if(cmtDrawer.classList.contains("open")) closeDetail();
 });
 document.getElementById("cmtClose").onclick=closeDetail;
