@@ -946,7 +946,7 @@ function segmentRules(d){
   (sp.audience||"").split(/\s*\+\s*|;\s*/).forEach(x=>{ x=x.trim(); if(x) rules.push(["WHO",x]); });
   if(ch==="email"){
     rules.push(["INCLUDE","Segment: Nov1425_Email_Settings_on…"]);
-    if(/holdout/i.test(sp.goal||"")) rules.push(["CONTROL","Holdout control group ON"]);
+    if(/holdout/i.test(sp.goal||"")) rules.push(["CONTROL","Holdout 50% (A/B default) — omit the control group when not running a test"]);
     if(sp.goal) rules.push(["TESTING","Goal: "+sp.goal]);
     return rules;
   }
@@ -956,19 +956,20 @@ function segmentRules(d){
     rules.push(["PROPERTY","do_not_sell — not equals: true, True (both cases)"]);
     rules.push(["PROPERTY","has_guideline_violation — not equals: true, True (both cases)"]);
     rules.push(["TRIGGER","Shows on in-app events per campaign (e.g. network open / create flow open)"]);
-    if(/holdout/i.test(sp.goal||"")) rules.push(["CONTROL","Holdout control group ON"]);
+    if(/holdout/i.test(sp.goal||"")) rules.push(["CONTROL","Holdout 50% (A/B default) — omit the control group when not running a test"]);
     if(sp.goal) rules.push(["TESTING","Goal: "+sp.goal]);
   } else {
     rules.push(["PROPERTY","do_not_sell — not equals: true, True"]);
     rules.push(["PROPERTY","has_guideline_violation — not equals: true, True"]);
     rules.push(["EXCLUDE","Segment: Dec0925_Exclude_Countries…"]);
     rules.push(["INCLUDE","Segment: Reachability_Has device token…"]);
-    if(/holdout/i.test(sp.goal||"")) rules.push(["CONTROL","Holdout control group ON"]);
+    rules.push(["SETTING","DND: no sends 10PM–9AM, every day (M T W T F S S)"]);
+    if(/holdout/i.test(sp.goal||"")) rules.push(["CONTROL","Holdout 50% (A/B default) — omit the control group when not running a test"]);
     if(sp.goal) rules.push(["TESTING","Goal: "+sp.goal]);
   }
   return rules;
 }
-const SEGTAG_CLS={WHO:"who",INCLUDE:"inc",EXCLUDE:"exc",PROPERTY:"prop",TRIGGER:"trig",CONTROL:"ctl",TESTING:"test",NOTE:"note"};
+const SEGTAG_CLS={WHO:"who",INCLUDE:"inc",EXCLUDE:"exc",PROPERTY:"prop",TRIGGER:"trig",CONTROL:"ctl",TESTING:"test",NOTE:"note",SETTING:"prop"};
 
 // ---- detail drawer: execution spec + grounding + comments ----
 let cmtId=null;
