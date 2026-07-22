@@ -300,6 +300,18 @@
     padding:1px 7px;color:var(--muted);cursor:pointer;margin-left:6px;vertical-align:1px;white-space:nowrap}
   .copybtn:hover{border-color:var(--accent);color:var(--accent)}
   .scrim.copychoice{z-index:85}
+  .segview{margin-top:10px;border-top:1px dashed var(--line-strong);padding-top:9px}
+  .segview>b{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--accent);margin-bottom:6px}
+  .segrule{display:flex;gap:8px;align-items:flex-start;margin:4px 0;font-size:11.5px;line-height:1.45}
+  .segtag{flex:none;font-size:9px;font-weight:700;letter-spacing:.4px;border-radius:5px;padding:2px 6px;min-width:56px;text-align:center;margin-top:1px}
+  .segtag.who{background:var(--accent-weak);color:var(--accent)}
+  .segtag.inc{background:var(--picked);color:var(--pickedT)}
+  .segtag.exc{background:var(--lost);color:var(--lostT)}
+  .segtag.prop{background:var(--surface-3);color:var(--muted)}
+  .segtag.trig{background:var(--running);color:var(--runningT)}
+  .segtag.ctl{background:var(--winner);color:var(--winnerT)}
+  .segtag.test{background:var(--analysis);color:var(--analysisT)}
+  .segtag.note{background:var(--surface-3);color:var(--faint)}
 </style>
 </head>
 <body>
@@ -925,6 +937,27 @@ document.getElementById("copyLiquid").onclick=()=>{ if(pendingCopy!=null) doCopy
 document.getElementById("copyCancel").onclick=()=>{ copyScrim.classList.remove("open"); pendingCopy=null; };
 copyScrim.onclick=e=>{ if(e.target===copyScrim){ copyScrim.classList.remove("open"); pendingCopy=null; } };
 
+// ---- segment view: full rule stack by campaign type ----
+function isModalSpec(sp){ return !!(sp && sp.cta && sp.cta!=="(push tap)"); }
+function segmentRules(d){
+  const sp=d.spec||{}; const rules=[];
+  (sp.audience||"").split(/\s*\+\s*|;\s*/).forEach(x=>{ x=x.trim(); if(x) rules.push(["WHO",x]); });
+  if(isModalSpec(sp)){
+    rules.push(["INCLUDE","Modal-capable devices segment"]);
+    rules.push(["EXCLUDE","Country exclusion list"]);
+    rules.push(["PROPERTY","do_not_sell — not equals: true, True (both cases)"]);
+    rules.push(["PROPERTY","has_guideline_violation — not equals: true, True (both cases)"]);
+    rules.push(["TRIGGER","Shows on in-app events per campaign (e.g. network open / create flow open)"]);
+    if(/holdout/i.test(sp.goal||"")) rules.push(["CONTROL","Holdout control group ON"]);
+    if(sp.goal) rules.push(["TESTING","Goal: "+sp.goal]);
+  } else {
+    rules.push(["NOTE","Push launch stack (reachability, exclusions, privacy flags) — final checklist pending"]);
+    if(sp.goal) rules.push(["TESTING","Goal: "+sp.goal]);
+  }
+  return rules;
+}
+const SEGTAG_CLS={WHO:"who",INCLUDE:"inc",EXCLUDE:"exc",PROPERTY:"prop",TRIGGER:"trig",CONTROL:"ctl",TESTING:"test",NOTE:"note"};
+
 // ---- detail drawer: execution spec + grounding + comments ----
 let cmtId=null;
 const cmtScrim=document.getElementById("cmtScrim");
@@ -948,21 +981,31 @@ function openDetail(id){
       (sp.body?`<tr><td>Body</td><td>${esc(sp.body)}${cp(sp.body,1)}</td></tr>`:"")+
       (sp.cta&&sp.cta!=="(push tap)"?`<tr><td>CTA</td><td>${esc(sp.cta)}${cp(sp.cta,1)}</td></tr>`:"")+
       (sp.link?`<tr><td>Opens</td><td class="mono">${esc(sp.link)} ${vb}${cp(sp.link)}</td></tr>`:"")+
-      (sp.audience?`<tr><td>Audience</td><td>${esc(sp.audience)}${cp(sp.audience)}</td></tr>`:"")+
+      (sp.audience?`<tr><td>Audience</td><td>${esc(sp.audience)}${cp(sp.audience)} <button class="copybtn" id="segToggle">show segment</button></td></tr>`:"")+
       (sp.goal?`<tr><td>Goal</td><td>${esc(sp.goal)}${cp(sp.goal)}</td></tr>`:"")+
-      `</table></div>`;
+      `</table>`+
+      (sp.audience?`<div class="segview" id="segView" hidden><b>${isModalSpec(sp)?"Modal segment — full rule stack":"Push segment — cohort rules"}</b>`+
+        segmentRules(d).map(r=>`<div class="segrule"><span class="segtag ${SEGTAG_CLS[r[0]]}">${r[0]}</span><span>${esc(r[1])}</span></div>`).join("")+
+        `</div>`:"")+
+      `</div>`;
   } else if(d.status!=="Backlog"){
     html+=`<div class="specbox mockspec"><b>Execution spec</b>The full setup for this one lives in CleverTap — copy, audience and goals were configured at launch.</div>`;
   } else {
     html+=`<div class="specbox mockspec"><b>Execution spec</b>No spec yet — this idea needs copy, a deep link and audience rules before it can be picked.</div>`;
   }
   g.innerHTML=html;
-  g.querySelectorAll(".copybtn").forEach(b=>b.onclick=()=>{
+  const st=g.querySelector("#segToggle");
+  if(st) st.onclick=()=>{
+    const sv=g.querySelector("#segView");
+    sv.hidden=!sv.hidden;
+    st.textContent=sv.hidden?"show segment":"hide segment";
+  };
+  g.querySelectorAll(".copybtn").forEach(b=>{ if(b.id==="segToggle")return; b.onclick=()=>{
     if(b.dataset.loc){ openCopyChoice(b.dataset.copy); return; }
     navigator.clipboard.writeText(b.dataset.copy).then(()=>{
       b.textContent="✓ copied"; setTimeout(()=>{b.textContent="copy";},1200);
     }).catch(()=>{ b.textContent="select manually"; });
-  });
+  };});
   renderComments();
   document.getElementById("cmtInput").value="";
   cmtScrim.classList.add("open"); cmtDrawer.classList.add("open");
