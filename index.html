@@ -291,16 +291,20 @@
   .speclink:hover{filter:brightness(1.05)}
   .databasis{margin:0 12px 7px;font-size:11px;line-height:1.45;color:var(--muted);
     border-left:2px solid var(--accent);padding:2px 0 2px 9px}
+  .copybtn{border:1px solid var(--line);background:var(--surface);border-radius:6px;font-size:10px;
+    padding:1px 7px;color:var(--muted);cursor:pointer;margin-left:6px;vertical-align:1px;white-space:nowrap}
+  .copybtn:hover{border-color:var(--accent);color:var(--accent)}
 </style>
 </head>
 <body>
+<script>try{var _t=localStorage.getItem("asb-theme");if(_t)document.documentElement.setAttribute("data-theme",_t);}catch(e){}</script>
 <header class="top">
   <div class="logo">✦</div>
   <div class="t"><h1>Activation Studio</h1><p>Lifecycle growth · ideas grounded in internal data, tracked to a verdict</p></div>
   <div class="spacer"></div>
   <button class="iconbtn" id="resetBtn" title="Reset demo data"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 1-15.5 6.2"/><path d="M3 12a9 9 0 0 1 15.5-6.2"/><path d="M18.5 2.5v3.6h-3.6"/><path d="M5.5 21.5v-3.6h3.6"/></svg></button>
   <button class="iconbtn" id="themeToggle" title="Toggle light / dark"></button>
-  <span class="kbadge">Prototype</span>
+  <span class="kbadge">Prototype · data Jul 9</span>
 </header>
 
 <div class="controlbar">
@@ -311,6 +315,7 @@
   <div class="divider"></div>
   <button class="primary" id="genBtn">✨ Generate ideas</button>
   <button class="ghost" id="addBtn">+ Add idea</button>
+  <button class="ghost" id="csvBtn" title="Download the current view as CSV">⬇ CSV</button>
   <div class="divider"></div>
   <select class="filt" id="statusFilter"></select>
   <select class="filt" id="areaFilter"></select>
@@ -382,7 +387,7 @@ const COL={
   baseline:{label:"Baseline (est.)",cls:"num",type:"text"},
   target:{label:"Goal (est.)",cls:"num",type:"text"},
   conf:{label:"Confidence",cls:"conf",type:"select",opts:["High","Med","Low"]},
-  reach:{label:"Reach /mo (est.)",cls:"num",type:"number"},
+  reach:{label:"Reach /mo (est.)",cls:"num",type:"reachfmt"},
   effort:{label:"Effort 1-5",cls:"num",type:"number"},
   score:{label:"Priority (est.)",cls:"num score",type:"computed"},
   added:{label:"Added",cls:"num",type:"date"},
@@ -647,6 +652,10 @@ function render(){
           const s=scoreOf(d), pct=(s!=null&&maxScore)?Math.max(8,Math.round(s/maxScore*100)):0;
           return `<td class="${c.cls}" title="reach × confidence ÷ effort — an estimate, not a forecast"><div class="scorewrap">${s==null?`<span class="sv none">—</span>`:`<span class="sv">${s.toLocaleString()}</span><span class="meter"><i style="width:${pct}%"></i></span>`}</div></td>`;
         }
+        if(c.type==="reachfmt"){
+          const v=(d.reach===""||d.reach==null)?"":(+d.reach).toLocaleString("en-US");
+          return `<td class="${c.cls}"><input class="cell" type="text" inputmode="numeric" data-k="reach" value="${v}"></td>`;
+        }
         if(c.type==="date"){
           return `<td class="${c.cls}"><span class="cell" style="display:block">${fmtDay(d.created)}</span></td>`;
         }
@@ -706,6 +715,12 @@ function render(){
           if(nv==="Running" && !d.convWindow) d.convWindow="7d";
           save(); render(); return;
         }
+        if(key==="reach"){
+          const digits=el.value.replace(/[^0-9]/g,"");
+          d.reach=digits===""?"":+digits;
+          if(!el._blurWired){ el._blurWired=true; el.addEventListener("blur",()=>render()); }
+          save(); updateSummary(); return;
+        }
         d[key]=el.tagName==="INPUT"&&el.type==="number"?(el.value===""?"":+el.value):el.value;
         if(el.tagName==="TEXTAREA") autosize(el);
         save();
@@ -760,6 +775,24 @@ document.getElementById("q").addEventListener("input",e=>{q=e.target.value.trim(
 document.getElementById("addBtn").onclick=()=>{
   DATA.unshift({id:nextId++,area:"",theme:"",metric:"",desc:"",hypothesis:"",baseline:"",target:"",conf:"",reach:"",effort:"",owner:"",status:"Backlog",control:"",result:"",lift:"",convWindow:"",campaign:"",evidence:"",created:Date.now(),comments:[]});
   tab="backlog";sortKey=null;save();render();
+};
+document.getElementById("csvBtn").onclick=()=>{
+  const CS=cols().filter(k=>k!=="comments");
+  const head=["#"].concat(CS.map(k=>COL[k].label));
+  const body=rowData().map((d,i)=>[i+1].concat(CS.map(k=>{
+    if(k==="score"){const s=scoreOf(d);return s==null?"":s;}
+    if(k==="added")return d.created?new Date(d.created).toISOString().slice(0,10):"";
+    return d[k]??"";
+  })));
+  const csv="\uFEFF"+[head].concat(body).map(r=>r.map(v=>{
+    v=(""+v).replace(/"/g,'""');
+    return /[",\n]/.test(v)?'"'+v+'"':v;
+  }).join(",")).join("\n");
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"}));
+  a.download="activation-studio-"+tab+"-"+new Date().toISOString().slice(0,10)+".csv";
+  document.body.appendChild(a); a.click(); a.remove();
+  toast("CSV downloaded — "+body.length+" rows.");
 };
 document.getElementById("resetBtn").onclick=()=>{
   if(confirm("Reset the demo? This clears every edit, comment and generated idea, and restores the original data.")){
@@ -862,13 +895,14 @@ function openDetail(id){
   if(d.spec){
     const sp=d.spec;
     const vb=sp.link?`<span class="vbadge ${sp.verified?"ok":"warn"}">${sp.verified?"✓ click-tested":"not click-tested yet"}</span>`:"";
+    const cp=v=>` <button class="copybtn" data-copy="${esc(v)}">copy</button>`;
     html+=`<div class="specbox"><b>Execution spec</b><table class="spect">`+
-      (sp.title?`<tr><td>Title</td><td>${esc(sp.title)}</td></tr>`:"")+
-      (sp.body?`<tr><td>Body</td><td>${esc(sp.body)}</td></tr>`:"")+
-      (sp.cta&&sp.cta!=="(push tap)"?`<tr><td>CTA</td><td>${esc(sp.cta)}</td></tr>`:"")+
-      (sp.link?`<tr><td>Opens</td><td class="mono">${esc(sp.link)} ${vb}</td></tr>`:"")+
-      (sp.audience?`<tr><td>Audience</td><td>${esc(sp.audience)}</td></tr>`:"")+
-      (sp.goal?`<tr><td>Goal</td><td>${esc(sp.goal)}</td></tr>`:"")+
+      (sp.title?`<tr><td>Title</td><td>${esc(sp.title)}${cp(sp.title)}</td></tr>`:"")+
+      (sp.body?`<tr><td>Body</td><td>${esc(sp.body)}${cp(sp.body)}</td></tr>`:"")+
+      (sp.cta&&sp.cta!=="(push tap)"?`<tr><td>CTA</td><td>${esc(sp.cta)}${cp(sp.cta)}</td></tr>`:"")+
+      (sp.link?`<tr><td>Opens</td><td class="mono">${esc(sp.link)} ${vb}${cp(sp.link)}</td></tr>`:"")+
+      (sp.audience?`<tr><td>Audience</td><td>${esc(sp.audience)}${cp(sp.audience)}</td></tr>`:"")+
+      (sp.goal?`<tr><td>Goal</td><td>${esc(sp.goal)}${cp(sp.goal)}</td></tr>`:"")+
       `</table></div>`;
   } else if(d.status!=="Backlog"){
     html+=`<div class="specbox mockspec"><b>Execution spec</b>The full setup for this one lives in CleverTap — copy, audience and goals were configured at launch.</div>`;
@@ -876,6 +910,11 @@ function openDetail(id){
     html+=`<div class="specbox mockspec"><b>Execution spec</b>No spec yet — this idea needs copy, a deep link and audience rules before it can be picked.</div>`;
   }
   g.innerHTML=html;
+  g.querySelectorAll(".copybtn").forEach(b=>b.onclick=()=>{
+    navigator.clipboard.writeText(b.dataset.copy).then(()=>{
+      b.textContent="✓ copied"; setTimeout(()=>{b.textContent="copy";},1200);
+    }).catch(()=>{ b.textContent="select manually"; });
+  });
   renderComments();
   document.getElementById("cmtInput").value="";
   cmtScrim.classList.add("open"); cmtDrawer.classList.add("open");
@@ -892,7 +931,9 @@ function closeDetail(){cmtScrim.classList.remove("open");cmtDrawer.classList.rem
 function addComment(){
   const d=DATA.find(x=>x.id===cmtId); if(!d)return;
   const ta=document.getElementById("cmtInput"); const text=ta.value.trim(); if(!text)return;
-  (d.comments=d.comments||[]).push({author:"You",ts:Date.now(),text});
+  let who=null; try{who=localStorage.getItem("asb-name");}catch(e){}
+  if(!who){ who=((prompt("Your name (shown on your comments):","")||"").trim())||"PM"; try{localStorage.setItem("asb-name",who);}catch(e){} }
+  (d.comments=d.comments||[]).push({author:who,ts:Date.now(),text});
   ta.value=""; save(); renderComments(); render(); ta.focus();
 }
 document.getElementById("cmtClose").onclick=closeDetail;
