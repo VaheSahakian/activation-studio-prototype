@@ -530,6 +530,7 @@ const CANDIDATES={
   cand("Lifecycle","Personalize the win-back push by the lapsed user's favorite tool, since the generic version already recovered 15,161 subscribers.","If we personalize win-back by the lapsed user's favorite tool, then reactivations will go up vs the generic push.","15.1K last run","above generic (est.)",60000,"Med",1,"Next step from the shipped win-back campaign — this time with a holdout",{title:"Your {tool} missed you",body:"Everything you made is still here.",cta:"(push tap)",link:"per favorite tool (verified per tool)",verified:true,audience:"Lapsed paid subscribers, 30-90d + "+STD,goal:"reactivation ≤7d, holdout on"}),
   cand("Lifecycle","Re-run win-back WITH a holdout control, since the first run was absolute-only and true incremental is unknown.","If we re-run win-back with a holdout control, then we can finally measure whether reactivations actually go up.","no control last run","measurable lift",60000,"High",1,"No control → no lift claim; this makes win-back auditable",null),
   cand("Lifecycle","Show lapsed exporters their own last creation category, since their history is the strongest personal hook we hold.","If we show lapsed exporters their own last creation, then reactivations will go up vs generic copy.","15.1K last run","above generic (est.)",60000,"Low",2,"Own-content hooks outperform generic in edit-abandoned journeys",null),
+  cand("Lifecycle","Send a win-back email showing lapsed users their own recent work, since email reaches lapsed users who have no push token.","If we email lapsed subscribers their own recent creations, then reactivations will go up among push-unreachable users.","15.1K last run","above generic (est.)",90000,"Med",2,"Email is the only channel for lapsed users without device tokens",{channel:"email",title:"Everything you made is still here",body:"Your projects are waiting. Pick up where you left off.",cta:"Open Picsart",link:"(email CTA → app / web)",verified:false,audience:"Lapsed paid subscribers, 30-90d, email-consented",goal:"reactivation ≤7d, holdout on"}),
 ],
 };
 
@@ -939,10 +940,17 @@ copyScrim.onclick=e=>{ if(e.target===copyScrim){ copyScrim.classList.remove("ope
 
 // ---- segment view: full rule stack by campaign type ----
 function isModalSpec(sp){ return !!(sp && sp.cta && sp.cta!=="(push tap)"); }
+function specChannel(sp){ if(sp&&sp.channel) return sp.channel; return isModalSpec(sp)?"modal":"push"; }
 function segmentRules(d){
-  const sp=d.spec||{}; const rules=[];
+  const sp=d.spec||{}; const rules=[]; const ch=specChannel(sp);
   (sp.audience||"").split(/\s*\+\s*|;\s*/).forEach(x=>{ x=x.trim(); if(x) rules.push(["WHO",x]); });
-  if(isModalSpec(sp)){
+  if(ch==="email"){
+    rules.push(["INCLUDE","Segment: Nov1425_Email_Settings_on…"]);
+    if(/holdout/i.test(sp.goal||"")) rules.push(["CONTROL","Holdout control group ON"]);
+    if(sp.goal) rules.push(["TESTING","Goal: "+sp.goal]);
+    return rules;
+  }
+  if(ch==="modal"){
     rules.push(["INCLUDE","Modal-capable devices segment"]);
     rules.push(["EXCLUDE","Country exclusion list"]);
     rules.push(["PROPERTY","do_not_sell — not equals: true, True (both cases)"]);
@@ -988,7 +996,7 @@ function openDetail(id){
       (sp.audience?`<tr><td>Audience</td><td>${esc(sp.audience)}${cp(sp.audience)} <button class="copybtn" id="segToggle">show segment</button></td></tr>`:"")+
       (sp.goal?`<tr><td>Goal</td><td>${esc(sp.goal)}${cp(sp.goal)}</td></tr>`:"")+
       `</table>`+
-      (sp.audience?`<div class="segview" id="segView" hidden><b>${isModalSpec(sp)?"Modal segment — full rule stack":"Push segment — full rule stack"}</b>`+
+      (sp.audience?`<div class="segview" id="segView" hidden><b>${specChannel(sp)==="modal"?"Modal segment — full rule stack":specChannel(sp)==="email"?"Email segment — full rule stack":"Push segment — full rule stack"}</b>`+
         segmentRules(d).map(r=>`<div class="segrule"><span class="segtag ${SEGTAG_CLS[r[0]]}">${r[0]}</span><span>${esc(r[1])}</span></div>`).join("")+
         `</div>`:"")+
       `</div>`;
