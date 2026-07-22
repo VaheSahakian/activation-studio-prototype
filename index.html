@@ -245,7 +245,8 @@
   .ground b{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--accent);margin-bottom:4px}
   .ground.mock{background:var(--surface-3);color:var(--muted)}
   .ground.mock b{color:var(--muted)}
-  .clist{flex:1;overflow-y:auto;padding:16px 20px}
+  .cbody{flex:1;overflow-y:auto;min-height:0}
+  .clist{padding:16px 20px}
   .comment{margin-bottom:15px}
   .comment .meta{font-size:11px;color:var(--muted);margin-bottom:4px}
   .comment .meta b{color:var(--ink)}
@@ -312,6 +313,10 @@
   .segtag.ctl{background:var(--winner);color:var(--winnerT)}
   .segtag.test{background:var(--analysis);color:var(--analysisT)}
   .segtag.note{background:var(--surface-3);color:var(--faint)}
+  .segfull{display:block;width:100%;margin-top:10px;border:1px dashed var(--line-strong);background:transparent;
+    color:var(--muted);border-radius:8px;padding:7px;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit}
+  .segfull:hover{border-color:var(--accent);color:var(--accent)}
+  .segview{margin-top:8px;border-top:0;padding-top:2px}
 </style>
 </head>
 <body>
@@ -378,8 +383,10 @@
     <div class="cm" id="cmtMetric"></div>
     <div id="cmtHyp"></div>
   </div>
-  <div id="cmtGround"></div>
-  <div class="clist" id="cmtList"></div>
+  <div class="cbody">
+    <div id="cmtGround"></div>
+    <div class="clist" id="cmtList"></div>
+  </div>
   <div class="cfoot">
     <textarea id="cmtInput" placeholder="Add a comment…"></textarea>
     <div class="r"><button class="primary" id="cmtAdd">Comment</button></div>
@@ -994,10 +1001,10 @@ function openDetail(id){
       (sp.body?`<tr><td>Body</td><td>${esc(sp.body)}${cp(sp.body,1)}</td></tr>`:"")+
       (sp.cta&&sp.cta!=="(push tap)"?`<tr><td>CTA</td><td>${esc(sp.cta)}${cp(sp.cta,1)}</td></tr>`:"")+
       (sp.link?`<tr><td>Opens</td><td class="mono">${esc(sp.link)} ${vb}${cp(sp.link)}</td></tr>`:"")+
-      (sp.audience?`<tr><td>Audience</td><td>${esc(sp.audience)}${cp(sp.audience)} <button class="copybtn" id="segToggle">show segment</button></td></tr>`:"")+
+      (sp.audience?`<tr><td>Audience</td><td>${esc(sp.audience)}${cp(sp.audience)}</td></tr>`:"")+
       (sp.goal?`<tr><td>Goal</td><td>${esc(sp.goal)}${cp(sp.goal)}</td></tr>`:"")+
       `</table>`+
-      (sp.audience?`<div class="segview" id="segView" hidden><b>${specChannel(sp)==="modal"?"Modal segment — full rule stack":specChannel(sp)==="email"?"Email segment — full rule stack":"Push segment — full rule stack"}</b>`+
+      (sp.audience?`<button class="segfull" id="segToggle">Show full launch segment ▾</button><div class="segview" id="segView" hidden><b>${specChannel(sp)==="modal"?"Modal segment — full rule stack":specChannel(sp)==="email"?"Email segment — full rule stack":"Push segment — full rule stack"}</b>`+
         segmentRules(d).map(r=>`<div class="segrule"><span class="segtag ${SEGTAG_CLS[r[0]]}">${r[0]}</span><span>${esc(r[1])}</span></div>`).join("")+
         `</div>`:"")+
       `</div>`;
@@ -1011,7 +1018,7 @@ function openDetail(id){
   if(st) st.onclick=()=>{
     const sv=g.querySelector("#segView");
     sv.hidden=!sv.hidden;
-    st.textContent=sv.hidden?"show segment":"hide segment";
+    st.textContent=sv.hidden?"Show full launch segment ▾":"Hide launch segment ▴";
   };
   g.querySelectorAll(".copybtn").forEach(b=>{ if(b.id==="segToggle")return; b.onclick=()=>{
     if(b.dataset.loc){ openCopyChoice(b.dataset.copy); return; }
