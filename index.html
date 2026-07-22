@@ -4,6 +4,11 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Activation Studio — Experiment Backlog</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23C209C1'/%3E%3Cpath d='M32 12l4.6 15.4L52 32l-15.4 4.6L32 52l-4.6-15.4L12 32l15.4-4.6z' fill='white'/%3E%3C/svg%3E">
+<meta name="description" content="Data-grounded experiment ideas, tracked from hypothesis to verdict. Picsart lifecycle prototype.">
+<meta property="og:title" content="Activation Studio — Experiment Backlog">
+<meta property="og:description" content="Data-grounded experiment ideas, tracked from hypothesis to verdict. Picsart lifecycle prototype.">
+<meta property="og:type" content="website">
 <style>
   :root{
     --bg:#f5f4f8; --surface:#ffffff; --surface-2:#faf9fc; --surface-3:#f3f1f7;
@@ -708,7 +713,7 @@ function render(){
         if(key==="status"){
           const old=d.status, nv=el.value;
           if(DECIDED.includes(nv) && !(d.control && d.lift && d.result)){
-            alert("Can't mark \""+nv+"\" without a Control, a measured Result and a Lift.\n\nRule: no control → no lift claim. Fill those on the Pipeline tab first.");
+            toast("Locked: \""+nv+"\" needs a Control, a measured Result and a Lift first — no control, no lift claim.");
             el.value=old; return;
           }
           d.status=nv;
@@ -936,6 +941,11 @@ function addComment(){
   (d.comments=d.comments||[]).push({author:who,ts:Date.now(),text});
   ta.value=""; save(); renderComments(); render(); ta.focus();
 }
+document.addEventListener("keydown",e=>{
+  if(e.key!=="Escape")return;
+  if(scrim.classList.contains("open")) scrim.classList.remove("open");
+  else if(cmtDrawer.classList.contains("open")) closeDetail();
+});
 document.getElementById("cmtClose").onclick=closeDetail;
 cmtScrim.onclick=closeDetail;
 document.getElementById("cmtAdd").onclick=addComment;
