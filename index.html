@@ -951,7 +951,11 @@ function segmentRules(d){
     if(/holdout/i.test(sp.goal||"")) rules.push(["CONTROL","Holdout control group ON"]);
     if(sp.goal) rules.push(["TESTING","Goal: "+sp.goal]);
   } else {
-    rules.push(["NOTE","Push launch stack (reachability, exclusions, privacy flags) — final checklist pending"]);
+    rules.push(["PROPERTY","do_not_sell — not equals: true, True"]);
+    rules.push(["PROPERTY","has_guideline_violation — not equals: true, True"]);
+    rules.push(["EXCLUDE","Segment: Dec0925_Exclude_Countries…"]);
+    rules.push(["INCLUDE","Segment: Reachability_Has device token…"]);
+    if(/holdout/i.test(sp.goal||"")) rules.push(["CONTROL","Holdout control group ON"]);
     if(sp.goal) rules.push(["TESTING","Goal: "+sp.goal]);
   }
   return rules;
@@ -984,7 +988,7 @@ function openDetail(id){
       (sp.audience?`<tr><td>Audience</td><td>${esc(sp.audience)}${cp(sp.audience)} <button class="copybtn" id="segToggle">show segment</button></td></tr>`:"")+
       (sp.goal?`<tr><td>Goal</td><td>${esc(sp.goal)}${cp(sp.goal)}</td></tr>`:"")+
       `</table>`+
-      (sp.audience?`<div class="segview" id="segView" hidden><b>${isModalSpec(sp)?"Modal segment — full rule stack":"Push segment — cohort rules"}</b>`+
+      (sp.audience?`<div class="segview" id="segView" hidden><b>${isModalSpec(sp)?"Modal segment — full rule stack":"Push segment — full rule stack"}</b>`+
         segmentRules(d).map(r=>`<div class="segrule"><span class="segtag ${SEGTAG_CLS[r[0]]}">${r[0]}</span><span>${esc(r[1])}</span></div>`).join("")+
         `</div>`:"")+
       `</div>`;
