@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Activation Studio — Experiment Backlog</title>
+<title>Experiment Studio — Lifecycle & Product A/B</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23C209C1'/%3E%3Cpath d='M32 12l4.6 15.4L52 32l-15.4 4.6L32 52l-4.6-15.4L12 32l15.4-4.6z' fill='white'/%3E%3C/svg%3E">
 <meta name="description" content="Data-grounded experiment ideas, tracked from hypothesis to verdict. Picsart lifecycle prototype.">
-<meta property="og:title" content="Activation Studio — Experiment Backlog">
+<meta property="og:title" content="Experiment Studio — Lifecycle & Product A/B">
 <meta property="og:description" content="Data-grounded experiment ideas, tracked from hypothesis to verdict. Picsart lifecycle prototype.">
 <meta property="og:type" content="website">
 <style>
@@ -317,13 +317,21 @@
     color:var(--muted);border-radius:8px;padding:7px;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit}
   .segfull:hover{border-color:var(--accent);color:var(--accent)}
   .segview{margin-top:8px;border-top:0;padding-top:2px}
+  .typegrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:6px}
+  .tcard{border:1px solid var(--line);border-radius:14px;background:var(--surface);padding:16px 15px;text-align:left;cursor:pointer;font:inherit;color:var(--ink);display:flex;flex-direction:column;gap:6px}
+  .tcard:hover{border-color:var(--accent);background:var(--accent-weak)}
+  .tcard .ti{font-size:22px}
+  .tcard b{font-size:13.5px}
+  .tcard span:last-child{font-size:11.5px;color:var(--muted);line-height:1.45}
+  .backlink{border:0;background:none;color:var(--accent);font:inherit;font-size:11.5px;font-weight:600;cursor:pointer;padding:0;margin-right:4px}
+  .ticon{margin-right:6px;font-size:12px}
 </style>
 </head>
 <body>
 <script>try{var _t=localStorage.getItem("asb-theme");if(_t)document.documentElement.setAttribute("data-theme",_t);}catch(e){}</script>
 <header class="top">
   <div class="logo">✦</div>
-  <div class="t"><h1>Activation Studio</h1><p>Lifecycle growth · ideas grounded in internal data, tracked to a verdict</p></div>
+  <div class="t"><h1>Experiment Studio</h1><p>Lifecycle campaigns & product A/B tests · grounded in internal data, tracked to a verdict</p></div>
   <div class="spacer"></div>
   <button class="iconbtn" id="resetBtn" title="Reset demo data"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 1-15.5 6.2"/><path d="M3 12a9 9 0 0 1 15.5-6.2"/><path d="M18.5 2.5v3.6h-3.6"/><path d="M5.5 21.5v-3.6h3.6"/></svg></button>
   <button class="iconbtn" id="themeToggle" title="Toggle light / dark"></button>
@@ -340,6 +348,7 @@
   <button class="ghost" id="addBtn">+ Add idea</button>
   <button class="ghost" id="csvBtn" title="Download the current view as CSV">⬇ CSV</button>
   <div class="divider"></div>
+  <select class="filt" id="typeFilter"></select>
   <select class="filt" id="statusFilter"></select>
   <select class="filt" id="areaFilter"></select>
   <select class="filt" id="metricFilter"></select>
@@ -359,9 +368,19 @@
 <div class="scrim" id="scrim">
   <div class="modal">
     <div id="genPick">
-      <h3>Which metric should we improve?</h3>
-      <p>Pick a target metric. The agent studies internal data <em>for that metric</em> and proposes hypotheses grounded in it.</p>
-      <div id="metricGroups"></div>
+      <div id="typeStep">
+        <h3>What are you planning?</h3>
+        <p>Two kinds of experiments live here — pick one.</p>
+        <div class="typegrid">
+          <button class="tcard" data-t="Lifecycle"><span class="ti">🚀</span><b>Lifecycle campaign</b><span>Push, in-app modal or email via CleverTap — copy, deep link, audience, launch segment.</span></button>
+          <button class="tcard" data-t="Product"><span class="ti">🧪</span><b>Product A/B test</b><span>An experiment inside Picsart surfaces — paywall, pricing, checkout, onboarding UI.</span></button>
+        </div>
+      </div>
+      <div id="metricStep" hidden>
+        <h3>Which metric should we improve?</h3>
+        <p><button class="backlink" id="typeBack">← change type</button> Pick a target metric. The agent studies internal data <em>for that metric</em> and proposes hypotheses grounded in it.</p>
+        <div id="metricGroups"></div>
+      </div>
       <div class="modal-actions">
         <button id="genCancel">Cancel</button>
         <button class="primary" id="genGo" disabled>Generate ideas</button>
@@ -406,7 +425,7 @@
 </div>
 <div class="toast" id="toast"></div>
 <script>
-const SEED_VERSION="v8-2026-07-22";
+const SEED_VERSION="v9-2026-07-28";
 const STATUSES=["Backlog","Picked","Running","Stopped","Analysis","Winner","Lost"];
 const PIPELINE_STATUSES=STATUSES.filter(s=>s!=="Backlog");
 const DECIDED=["Winner","Lost"];
@@ -441,10 +460,16 @@ const PIPELINE_COLS=["desc","area","metric","baseline","result","lift","control"
 
 const CONF_F={High:1,Med:0.65,Low:0.35};
 function scoreOf(d){
-  const reach=+d.reach||0, eff=+d.effort||0, cf=CONF_F[d.conf]||0;
-  if(!reach||!eff||!cf) return null;
+  const eff=+d.effort||0, cf=CONF_F[d.conf]||0;
+  if(!eff||!cf) return null;
+  if(typeOf(d)==="Product"){
+    const rev=+d.revProj||0; if(!rev) return null;
+    return Math.round(rev*cf/eff);
+  }
+  const reach=+d.reach||0; if(!reach) return null;
   return Math.max(1,Math.round(reach*cf/eff/1000));
 }
+const scoreLabel=d=> typeOf(d)==="Product" ? "$"+scoreOf(d).toLocaleString() : scoreOf(d).toLocaleString();
 
 // day helper for seeded dates
 const D=s=>new Date(s+"T12:00:00").getTime();
@@ -501,7 +526,17 @@ const METRIC_OPTS=[
   {area:"Monetization",name:"First credit use",baseline:"12.9% of exporters use credits"},
   {area:"Monetization",name:"Free→trial rate",baseline:"96% never start a trial"},
   {area:"Reactivation",name:"Winback rate",baseline:"15.1K recovered in the last run"},
+  {area:"Monetization",name:"Trial→Paid CVR",baseline:"now 6.1% (sample)",t:"Product"},
+  {area:"Monetization",name:"Paywall CVR",baseline:"now 3.4% (sample)",t:"Product"},
+  {area:"Monetization",name:"ARPU",baseline:"now $1.82 (sample)",t:"Product"},
+  {area:"Monetization",name:"Checkout completion",baseline:"now 64% (sample)",t:"Product"},
+  {area:"Retention",name:"Subscription retention",baseline:"now 88.0% (sample)",t:"Product"},
 ];
+const SAMPLE_EV="Sample from the monetization workstream — replace with real baselines before leadership reads it";
+function pcand(theme,desc,hyp,base,target,revProj,conf,effort,surface,variants,allocation,primary,guardrails){
+  return {theme,desc,hypothesis:hyp,baseline:base,target,reach:"",revProj,conf,effort,evidence:SAMPLE_EV,xtype:"Product",
+    spec:{ptype:true,surface,variants,allocation,primary,guardrails}};
+}
 function cand(theme,desc,hyp,base,target,reach,conf,effort,evidence,spec){
   return {theme,desc,hypothesis:hyp,baseline:base,target,reach,conf,effort,evidence,spec};
 }
@@ -564,7 +599,8 @@ const CANDIDATES={
 
 // ---------------- state ----------------
 let DATA, nextId, tab="backlog", sortKey="score", sortDir=-1;
-let statusFilter="", areaFilter="", metricFilter="", themeFilter="", q="";
+let statusFilter="", areaFilter="", metricFilter="", themeFilter="", typeFilter="", q="";
+const typeOf=d=>d.xtype||"Lifecycle";
 let lastDeleted=null;
 
 function save(){
@@ -587,6 +623,7 @@ const fmtDay=ts=>{ if(!ts)return "—"; const d=new Date(ts); return MONTHS[d.ge
 const inTab=d=> tab==="backlog" ? d.status==="Backlog" : d.status!=="Backlog";
 function matches(d){
   if(!inTab(d)) return false;
+  if(typeFilter&&typeOf(d)!==typeFilter) return false;
   if(statusFilter&&d.status!==statusFilter) return false;
   if(areaFilter&&d.area!==areaFilter) return false;
   if(metricFilter&&d.metric!==metricFilter) return false;
@@ -648,6 +685,7 @@ function rowData(){
 function renderChips(){
   const wrap=document.getElementById("chips");
   const parts=[];
+  if(typeFilter)parts.push(["type",typeFilter+" only"]);
   if(metricFilter)parts.push(["metric",metricFilter]);
   if(areaFilter)parts.push(["area",areaFilter]);
   if(themeFilter)parts.push(["theme",themeFilter]);
@@ -658,6 +696,7 @@ function renderChips(){
   wrap.style.display=parts.length?"":"none";
   wrap.querySelectorAll("button").forEach(b=>b.onclick=()=>{
     const f=b.dataset.f;
+    if(f==="all"||f==="type")typeFilter="";
     if(f==="all"||f==="metric")metricFilter="";
     if(f==="all"||f==="area")areaFilter="";
     if(f==="all"||f==="theme")themeFilter="";
@@ -674,7 +713,9 @@ function render(){
   document.getElementById("tabPipeline").classList.toggle("active",tab==="pipeline");
 
   const data=rowData(), CS=cols();
-  const _sc=data.map(scoreOf).filter(v=>v!=null); const maxScore=_sc.length?Math.max(..._sc):0;
+  const _sl=data.filter(d=>typeOf(d)!=="Product").map(scoreOf).filter(v=>v!=null);
+  const _sp=data.filter(d=>typeOf(d)==="Product").map(scoreOf).filter(v=>v!=null);
+  const maxScoreL=_sl.length?Math.max(..._sl):0, maxScoreP=_sp.length?Math.max(..._sp):0;
   const t=document.getElementById("sheet"), empty=document.getElementById("empty");
   if(!data.length){
     t.innerHTML=""; empty.style.display="";
@@ -707,8 +748,11 @@ function render(){
           return `<td class="${c.cls}"><select class="conf" data-k="${k}"><option value="" ${!d[k]?"selected":""}>—</option>${c.opts.map(o=>`<option ${o===d[k]?"selected":""}>${o}</option>`).join("")}</select></td>`;
         }
         if(c.type==="computed"){
-          const s=scoreOf(d), pct=(s!=null&&maxScore)?Math.max(8,Math.round(s/maxScore*100)):0;
-          return `<td class="${c.cls}" title="reach × confidence ÷ effort — an estimate, not a forecast"><div class="scorewrap">${s==null?`<span class="sv none">—</span>`:`<span class="sv">${s.toLocaleString()}</span><span class="meter"><i style="width:${pct}%"></i></span>`}</div></td>`;
+          const s=scoreOf(d);
+          const mx= typeOf(d)==="Product" ? maxScoreP : maxScoreL;
+          const pct=(s!=null&&mx)?Math.max(8,Math.round(s/mx*100)):0;
+          const tip= typeOf(d)==="Product" ? "$ projection × confidence ÷ effort — an estimate, not a forecast" : "reach × confidence ÷ effort — an estimate, not a forecast";
+          return `<td class="${c.cls}" title="${tip}"><div class="scorewrap">${s==null?`<span class="sv none">—</span>`:`<span class="sv">${scoreLabel(d)}</span><span class="meter"><i style="width:${pct}%"></i></span>`}</div></td>`;
         }
         if(c.type==="reachfmt"){
           const v=(d.reach===""||d.reach==null)?"":(+d.reach).toLocaleString("en-US");
@@ -724,7 +768,8 @@ function render(){
         if(c.type==="textarea"){
           const lbl=d.spec?"📋 Hypothesis, copy & deep link":((d.comments||[]).length?"💬 Hypothesis & notes ("+d.comments.length+")":"＋ Hypothesis & notes");
           const basis=d.evidence?`<div class="databasis" title="The data this hypothesis stands on">📊 ${esc(d.evidence)}</div>`:"";
-          return `<td class="${c.cls}"><textarea class="cell" rows="1" data-k="${k}">${d[k]??""}</textarea>${basis}<button class="speclink" data-open>${lbl}</button></td>`;
+          const ticon= typeOf(d)==="Product" ? '<span class="ticon" title="Product A/B test">🧪</span>' : "";
+          return `<td class="${c.cls}">${ticon}<textarea class="cell" rows="1" data-k="${k}" style="${ticon?"display:inline-block;width:calc(100% - 24px)":""}">${d[k]??""}</textarea>${basis}<button class="speclink" data-open>${lbl}</button></td>`;
         }
         const ty=c.type==="number"?"number":"text";
         return `<td class="${c.cls}"><input class="cell" type="${ty}" data-k="${k}" value="${esc(d[k])}"></td>`;
@@ -791,6 +836,8 @@ function render(){
 }
 
 function updateFilters(){
+  const tf2=document.getElementById("typeFilter");
+  tf2.innerHTML=`<option value="">All types</option><option ${typeFilter==="Lifecycle"?"selected":""}>Lifecycle</option><option ${typeFilter==="Product"?"selected":""}>Product</option>`;
   const sf=document.getElementById("statusFilter");
   if(tab==="backlog"){ sf.style.display="none"; statusFilter=""; }
   else{ sf.style.display=""; sf.innerHTML=`<option value="">All statuses</option>`+PIPELINE_STATUSES.map(s=>`<option ${s===statusFilter?"selected":""}>${s}</option>`).join(""); }
@@ -808,7 +855,7 @@ function updateSummary(){
     s.innerHTML=`<span class="stat"><b>${b.length}</b> idea${b.length===1?"":"s"}</span>`+
       (reach>0?`<span class="stat"><b>${rTxt}</b>/mo est. reach</span>`:"");
   }else{
-    const p=DATA.filter(d=>d.status!=="Backlog");
+    const p=DATA.filter(d=>d.status!=="Backlog"&&(!typeFilter||typeOf(d)===typeFilter));
     const running=p.filter(d=>d.status==="Running").length;
     const decided=p.filter(d=>DECIDED.includes(d.status));
     const wins=decided.filter(d=>d.status==="Winner").length;
@@ -825,6 +872,7 @@ function updateHint(){
 
 document.getElementById("tabBacklog").onclick=()=>{tab="backlog";sortKey="score";sortDir=-1;render();};
 document.getElementById("tabPipeline").onclick=()=>{tab="pipeline";sortKey=null;render();};
+document.getElementById("typeFilter").onchange=e=>{typeFilter=e.target.value;render();};
 document.getElementById("statusFilter").onchange=e=>{statusFilter=e.target.value;render();};
 document.getElementById("areaFilter").onchange=e=>{areaFilter=e.target.value;render();};
 document.getElementById("metricFilter").onchange=e=>{metricFilter=e.target.value;render();};
@@ -869,7 +917,28 @@ themeToggle.onclick=()=>{ const nv=curTheme()==="dark"?"light":"dark"; document.
 syncThemeIcon();
 
 // ---- generate: dedupe against everything already in the bank ----
-let genMetric=null;
+CANDIDATES["Trial→Paid CVR"]=[
+  pcand("Pricing","Shorten the free trial from 14 to 7 days for high-intent editors.","If we shorten the trial to 7 days for high-intent editors, then Trial→Paid CVR will go up from 6.1% toward ≈7.3% (sample est.).","6.1% (sample)","≈7.3% (est.)",260000,"Med",2,"Trial flow","Control: 14-day trial · Treatment: 7-day trial","50/50, high-intent editors only","Trial→Paid CVR","Trial starts; W1 activation"),
+  pcand("Paywall","Auto-apply a 20% first-month discount at the trial-expiry paywall.","If we auto-apply a 20% first-month discount at trial expiry, then Trial→Paid CVR will go up from 6.1% toward ≈7.0% (sample est.).","6.1% (sample)","≈7.0% (est.)",175000,"Med",1,"Trial-expiry paywall","Control: standard expiry · Treatment: 20% first-month offer","50/50, expiring trials","Trial→Paid CVR","Refund rate; ARPU"),
+];
+CANDIDATES["Paywall CVR"]=[
+  pcand("Pricing","Show the annual plan first instead of monthly-default on the AI-tools paywall.","If we show the annual plan first on the AI-tools paywall, then paywall CVR will go up from 3.4% toward ≈4.0% (sample est.).","3.4% (sample)","≈4.0% (est.)",320000,"High",1,"AI-tools paywall","Control: monthly-first · Treatment: annual-first","50/50, all paywall views","Paywall CVR","Refund rate; plan mix"),
+  pcand("Paywall","Trigger the paywall right after a successful AI result instead of on tool-open.","If we move the paywall to right after a successful AI result, then paywall CVR will go up from 3.4% toward ≈4.2% (sample est.).","3.4% (sample)","≈4.2% (est.)",340000,"Med",2,"Paywall trigger","Control: on tool-open · Treatment: after AI result","50/50, AI-tool sessions","Paywall CVR","Tool completion rate"),
+  pcand("Paywall","Add social proof to the AI-tools paywall.","If we add social proof to the paywall, then paywall CVR will go up from 3.4% toward ≈3.8% (sample est.).","3.4% (sample)","≈3.8% (est.)",180000,"Low",1,"AI-tools paywall","Control: current · Treatment: social-proof strip","50/50, all paywall views","Paywall CVR","—"),
+];
+CANDIDATES["ARPU"]=[
+  pcand("Pricing","Add a mid-tier plan between free and Pro.","If we add a mid-tier plan under the Pro price, then blended ARPU will go up from $1.82 toward ≈$1.98 (sample est.).","$1.82 (sample)","≈$1.98 (est.)",455000,"Med",3,"Pricing page","Control: 2 tiers · Treatment: 3 tiers with mid-tier","50/50, pricing page views","ARPU","Pro-plan mix; churn"),
+  pcand("Upsell","Bundle the AI-Avatar pack into Pro instead of à-la-carte.","If we bundle the Avatar pack into Pro, then ARPU will go up from $1.82 toward ≈$1.95 (sample est.).","$1.82 (sample)","≈$1.95 (est.)",205000,"Med",2,"Pro plan packaging","Control: à-la-carte pack · Treatment: bundled into Pro","50/50, Pro upgrade views","ARPU","Pack revenue cannibalization"),
+];
+CANDIDATES["Checkout completion"]=[
+  pcand("Checkout","Add Apple Pay / Google Pay to mobile checkout.","If we add Apple Pay / Google Pay to mobile checkout, then completion will go up from 64% toward ≈71% (sample est.).","64% (sample)","≈71% (est.)",140000,"High",2,"Mobile checkout","Control: card entry · Treatment: wallet buttons first","50/50, mobile checkouts","Checkout completion","Refund rate"),
+  pcand("Checkout","Collapse checkout to a single step.","If we collapse checkout to one step, then completion will go up from 64% toward ≈72% (sample est.).","64% (sample)","≈72% (est.)",170000,"Med",3,"Checkout flow","Control: multi-step · Treatment: single step","50/50, all checkouts","Checkout completion","Payment errors"),
+];
+CANDIDATES["Subscription retention"]=[
+  pcand("Lifecycle","Add a pause-instead-of-cancel option in the cancel flow.","If we offer pause instead of cancel, then subscription retention will go up from 88.0% toward ≈89.0% (sample est.).","88.0% (sample)","≈89.0% (est.)",125000,"High",1,"Cancel flow","Control: cancel only · Treatment: pause option first","50/50, cancel-flow entries","Subscription retention","Reactivation rate; support tickets"),
+];
+
+let genType=null, genMetric=null;
 const scrim=document.getElementById("scrim");
 const genPick=document.getElementById("genPick");
 const genRun=document.getElementById("genRun");
@@ -879,12 +948,25 @@ function freshFor(metric){
   const have=new Set(DATA.flatMap(d=>[d.hypothesis,d.desc]));
   return (CANDIDATES[metric]||[]).filter(c=>!have.has(c.hypothesis));
 }
+function showTypeStep(){
+  document.getElementById("typeStep").hidden=false;
+  document.getElementById("metricStep").hidden=true;
+  genMetric=null; genGo.disabled=true; genGo.textContent="Generate ideas";
+}
 function openGen(){
-  genMetric=null;
+  genType=null; genMetric=null;
   genPick.style.display=""; genRun.style.display="none";
-  genGo.disabled=true; genGo.textContent="Generate ideas";
+  showTypeStep();
+  scrim.classList.add("open");
+}
+document.querySelectorAll(".tcard").forEach(tc=>tc.onclick=()=>{ genType=tc.dataset.t; buildMetricStep(); });
+document.getElementById("typeBack").onclick=showTypeStep;
+function buildMetricStep(){
+  document.getElementById("typeStep").hidden=true;
+  document.getElementById("metricStep").hidden=false;
+  genMetric=null; genGo.disabled=true; genGo.textContent="Generate ideas";
   const byArea={};
-  METRIC_OPTS.forEach(m=>{(byArea[m.area]=byArea[m.area]||[]).push(m);});
+  METRIC_OPTS.filter(m=>(m.t||"Lifecycle")===genType).forEach(m=>{(byArea[m.area]=byArea[m.area]||[]).push(m);});
   document.getElementById("metricGroups").innerHTML=Object.keys(byArea).map(a=>
     `<div class="areagroup"><p class="al" style="color:${cssv("--ar-"+a+"T")}">${a}</p><div class="metricgrid">`+
     byArea[a].map(m=>{
@@ -896,7 +978,6 @@ function openGen(){
     ch.classList.add("sel"); genMetric=ch.dataset.m;
     genGo.disabled=false; genGo.textContent=`Generate for ${genMetric.length>26?genMetric.slice(0,24)+"…":genMetric}`;
   });
-  scrim.classList.add("open");
 }
 function runGen(){
   genPick.style.display="none"; genRun.style.display="";
@@ -921,7 +1002,7 @@ function runGen(){
       clearInterval(iv);
       const area=(METRIC_OPTS.find(m=>m.name===genMetric)||{}).area||"";
       fresh.forEach(c=>DATA.unshift({
-        ...c,area,metric:genMetric,id:nextId++,status:"Backlog",owner:"",
+        ...c,area,metric:genMetric,xtype:c.xtype||genType||"Lifecycle",id:nextId++,status:"Backlog",owner:"",
         control:"",result:"",lift:"",convWindow:"",campaign:"",created:Date.now(),comments:[]
       }));
       scrim.classList.remove("open");
@@ -970,7 +1051,16 @@ copyScrim.onclick=e=>{ if(e.target===copyScrim){ copyScrim.classList.remove("ope
 function isModalSpec(sp){ return !!(sp && sp.cta && sp.cta!=="(push tap)"); }
 function specChannel(sp){ if(sp&&sp.channel) return sp.channel; return isModalSpec(sp)?"modal":"push"; }
 function segmentRules(d){
-  const sp=d.spec||{}; const rules=[]; const ch=specChannel(sp);
+  const sp=d.spec||{}; const rules=[];
+  if(sp.ptype){
+    if(sp.allocation) rules.push(["SPLIT",sp.allocation]);
+    if(sp.primary) rules.push(["TESTING","Primary metric: "+sp.primary]);
+    if(sp.guardrails&&sp.guardrails!=="—") rules.push(["PROPERTY","Guardrail metrics: "+sp.guardrails]);
+    rules.push(["CONTROL","50/50 A/B split — omit only if this ships as a straight rollout"]);
+    rules.push(["NOTE","Runtime: run to significance on the primary metric before any verdict"]);
+    return rules;
+  }
+  const ch=specChannel(sp);
   (sp.audience||"").split(/\s*\+\s*|;\s*/).forEach(x=>{ x=x.trim(); if(x) rules.push(["WHO",x]); });
   if(ch==="email"){
     rules.push(["INCLUDE","Segment: Nov1425_Email_Settings_on…"]);
@@ -1007,13 +1097,25 @@ const fmtTime=ts=>new Date(ts).toLocaleString([], {month:"short",day:"numeric",h
 function openDetail(id){
   const d=DATA.find(x=>x.id===id); if(!d)return;
   cmtId=id;
-  document.getElementById("cmtMetric").textContent=(d.area?d.area+" · ":"")+(d.metric||"Untitled experiment");
+  document.getElementById("cmtMetric").textContent=typeOf(d)+" · "+(d.area?d.area+" · ":"")+(d.metric||"Untitled experiment");
   document.getElementById("cmtHyp").textContent=d.desc||d.hypothesis||"(untitled idea)";
   const g=document.getElementById("cmtGround");
   let html="";
   if(d.hypothesis) html+=`<div class="ground"><b>Hypothesis</b>${esc(d.hypothesis)}</div>`;
   if(d.evidence) html+=`<div class="specbox"><b>Data basis</b>${esc(d.evidence)}</div>`;
-  if(d.spec){
+  if(d.spec&&d.spec.ptype){
+    const sp=d.spec;
+    html+=`<div class="specbox"><b>Experiment spec</b><table class="spect">`+
+      (sp.surface?`<tr><td>Surface</td><td>${esc(sp.surface)}</td></tr>`:"")+
+      (sp.variants?`<tr><td>Variants</td><td>${esc(sp.variants)}</td></tr>`:"")+
+      (sp.allocation?`<tr><td>Allocation</td><td>${esc(sp.allocation)}</td></tr>`:"")+
+      (sp.primary?`<tr><td>Primary</td><td>${esc(sp.primary)}</td></tr>`:"")+
+      (sp.guardrails&&sp.guardrails!=="—"?`<tr><td>Guardrails</td><td>${esc(sp.guardrails)}</td></tr>`:"")+
+      `</table>`+
+      `<button class="segfull" id="segToggle">Show experiment setup ▾</button><div class="segview" id="segView" hidden><b>Product A/B — setup checklist</b>`+
+        segmentRules(d).map(r=>`<div class="segrule"><span class="segtag ${SEGTAG_CLS[r[0]]}">${r[0]}</span><span>${esc(r[1])}</span></div>`).join("")+
+      `</div></div>`;
+  } else if(d.spec){
     const sp=d.spec;
     const vb=sp.link?`<span class="vbadge ${sp.verified?"ok":"warn"}">${sp.verified?"✓ click-tested":"not click-tested yet"}</span>`:"";
     const cp=(v,loc)=>` <button class="copybtn" data-copy="${esc(v)}"${loc?' data-loc="1"':''}>copy</button>`;
@@ -1039,7 +1141,8 @@ function openDetail(id){
   if(st) st.onclick=()=>{
     const sv=g.querySelector("#segView");
     sv.hidden=!sv.hidden;
-    st.textContent=sv.hidden?"Show full launch segment ▾":"Hide launch segment ▴";
+    const isP=(DATA.find(x=>x.id===cmtId)||{}).spec?.ptype;
+    st.textContent=sv.hidden?(isP?"Show experiment setup ▾":"Show full launch segment ▾"):(isP?"Hide experiment setup ▴":"Hide launch segment ▴");
   };
   g.querySelectorAll(".copybtn").forEach(b=>{ if(b.id==="segToggle")return; b.onclick=()=>{
     if(b.dataset.loc){ openCopyChoice(b.dataset.copy); return; }
