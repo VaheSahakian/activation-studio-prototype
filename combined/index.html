@@ -1,0 +1,1188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Experiment Studio — Lifecycle & Product A/B</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23C209C1'/%3E%3Cpath d='M32 12l4.6 15.4L52 32l-15.4 4.6L32 52l-4.6-15.4L12 32l15.4-4.6z' fill='white'/%3E%3C/svg%3E">
+<meta name="description" content="Data-grounded experiment ideas, tracked from hypothesis to verdict. Picsart lifecycle prototype.">
+<meta property="og:title" content="Experiment Studio — Lifecycle & Product A/B">
+<meta property="og:description" content="Data-grounded experiment ideas, tracked from hypothesis to verdict. Picsart lifecycle prototype.">
+<meta property="og:type" content="website">
+<style>
+  :root{
+    --bg:#f5f4f8; --surface:#ffffff; --surface-2:#faf9fc; --surface-3:#f3f1f7;
+    --ink:#1a1622; --muted:#6d6779; --faint:#9d97a9;
+    --line:#eceaf0; --line-strong:#dedbe6;
+    --accent:#c209c1; --accent-2:#7b1fe0; --accent-weak:#fbe9fb;
+    --ring:rgba(194,9,193,.28);
+    --shadow-sm:0 1px 2px rgba(26,22,34,.06);
+    --shadow:0 1px 2px rgba(26,22,34,.04), 0 12px 32px rgba(26,22,34,.08);
+    /* status */
+    --backlog:#eef0f3;   --backlogT:#5a6472;
+    --picked:#e6efff;    --pickedT:#1d4ed8;
+    --running:#fff2d6;   --runningT:#b45309;
+    --stopped:#ecebf0;   --stoppedT:#79808e;
+    --analysis:#f1e9ff;  --analysisT:#7c3aed;
+    --winner:#e5f7ec;    --winnerT:#15803d;
+    --lost:#fdecec;      --lostT:#c0322f;
+    /* area */
+    --ar-Activation:#dff2f5;   --ar-ActivationT:#0e7490;
+    --ar-Monetization:#fbeecb; --ar-MonetizationT:#8a5a06;
+    --ar-Retention:#e5f7ec;    --ar-RetentionT:#15803d;
+    --ar-Reactivation:#f1e9ff; --ar-ReactivationT:#7c3aed;
+    /* theme */
+    --th-Pricing:#fbeecb;    --th-PricingT:#8a5a06;
+    --th-Onboarding:#e2ecff; --th-OnboardingT:#1e4fa3;
+    --th-Lifecycle:#e5f7ec;  --th-LifecycleT:#15803d;
+    --th-Paywall:#f1e9ff;    --th-PaywallT:#7c3aed;
+    --th-Checkout:#ffe4ec;   --th-CheckoutT:#a3123f;
+    --th-Upsell:#dff3f3;     --th-UpsellT:#0f6d6d;
+    /* semantic */
+    --good-ink:#15803d; --bad-ink:#c0322f;
+  }
+  @media (prefers-color-scheme: dark){ :root{
+    --bg:#131019; --surface:#1c1826; --surface-2:#221d2e; --surface-3:#282234;
+    --ink:#f2eff7; --muted:#a79fb6; --faint:#726b81;
+    --line:#2b2637; --line-strong:#39334a;
+    --accent:#ec5cea; --accent-2:#a877ff; --accent-weak:#3a1240;
+    --ring:rgba(236,92,234,.32);
+    --shadow-sm:0 1px 2px rgba(0,0,0,.5);
+    --shadow:0 2px 4px rgba(0,0,0,.4), 0 14px 36px rgba(0,0,0,.55);
+    --backlog:#2b2737;   --backlogT:#b3acca;
+    --picked:#1a2a48;    --pickedT:#8fb4ff;
+    --running:#3a2c12;   --runningT:#f0b45f;
+    --stopped:#2a2636;   --stoppedT:#9a94a8;
+    --analysis:#2a1f40;  --analysisT:#c6a5ff;
+    --winner:#16301f;    --winnerT:#66d78f;
+    --lost:#3a1a1c;      --lostT:#f38b8b;
+    --ar-Activation:#123640;   --ar-ActivationT:#5cc6dd;
+    --ar-Monetization:#3a2c12; --ar-MonetizationT:#e6b45f;
+    --ar-Retention:#16301f;    --ar-RetentionT:#66d78f;
+    --ar-Reactivation:#2a1f40; --ar-ReactivationT:#c6a5ff;
+    --th-Pricing:#3a2c12;    --th-PricingT:#e6b45f;
+    --th-Onboarding:#182a44; --th-OnboardingT:#8fb4ff;
+    --th-Lifecycle:#16301f;  --th-LifecycleT:#66d78f;
+    --th-Paywall:#2a1f40;    --th-PaywallT:#c6a5ff;
+    --th-Checkout:#3a1a24;   --th-CheckoutT:#f58bad;
+    --th-Upsell:#12302f;     --th-UpsellT:#5fcaca;
+    --good-ink:#66d78f; --bad-ink:#f38b8b;
+  }}
+  :root[data-theme="light"]{
+    --bg:#f5f4f8; --surface:#ffffff; --surface-2:#faf9fc; --surface-3:#f3f1f7;
+    --ink:#1a1622; --muted:#6d6779; --faint:#9d97a9; --line:#eceaf0; --line-strong:#dedbe6;
+    --accent:#c209c1; --accent-2:#7b1fe0; --accent-weak:#fbe9fb; --ring:rgba(194,9,193,.28);
+    --shadow-sm:0 1px 2px rgba(26,22,34,.06); --shadow:0 1px 2px rgba(26,22,34,.04),0 12px 32px rgba(26,22,34,.08);
+    --backlog:#eef0f3;--backlogT:#5a6472;--picked:#e6efff;--pickedT:#1d4ed8;--running:#fff2d6;--runningT:#b45309;
+    --stopped:#ecebf0;--stoppedT:#79808e;--analysis:#f1e9ff;--analysisT:#7c3aed;--winner:#e5f7ec;--winnerT:#15803d;--lost:#fdecec;--lostT:#c0322f;
+    --ar-Activation:#dff2f5;--ar-ActivationT:#0e7490;--ar-Monetization:#fbeecb;--ar-MonetizationT:#8a5a06;
+    --ar-Retention:#e5f7ec;--ar-RetentionT:#15803d;--ar-Reactivation:#f1e9ff;--ar-ReactivationT:#7c3aed;
+    --th-Pricing:#fbeecb;--th-PricingT:#8a5a06;--th-Onboarding:#e2ecff;--th-OnboardingT:#1e4fa3;--th-Lifecycle:#e5f7ec;--th-LifecycleT:#15803d;
+    --th-Paywall:#f1e9ff;--th-PaywallT:#7c3aed;--th-Checkout:#ffe4ec;--th-CheckoutT:#a3123f;--th-Upsell:#dff3f3;--th-UpsellT:#0f6d6d;
+    --good-ink:#15803d;--bad-ink:#c0322f;
+  }
+  :root[data-theme="dark"]{
+    --bg:#131019; --surface:#1c1826; --surface-2:#221d2e; --surface-3:#282234;
+    --ink:#f2eff7; --muted:#a79fb6; --faint:#726b81; --line:#2b2637; --line-strong:#39334a;
+    --accent:#ec5cea; --accent-2:#a877ff; --accent-weak:#3a1240; --ring:rgba(236,92,234,.32);
+    --shadow-sm:0 1px 2px rgba(0,0,0,.5); --shadow:0 2px 4px rgba(0,0,0,.4),0 14px 36px rgba(0,0,0,.55);
+    --backlog:#2b2737;--backlogT:#b3acca;--picked:#1a2a48;--pickedT:#8fb4ff;--running:#3a2c12;--runningT:#f0b45f;
+    --stopped:#2a2636;--stoppedT:#9a94a8;--analysis:#2a1f40;--analysisT:#c6a5ff;--winner:#16301f;--winnerT:#66d78f;--lost:#3a1a1c;--lostT:#f38b8b;
+    --ar-Activation:#123640;--ar-ActivationT:#5cc6dd;--ar-Monetization:#3a2c12;--ar-MonetizationT:#e6b45f;
+    --ar-Retention:#16301f;--ar-RetentionT:#66d78f;--ar-Reactivation:#2a1f40;--ar-ReactivationT:#c6a5ff;
+    --th-Pricing:#3a2c12;--th-PricingT:#e6b45f;--th-Onboarding:#182a44;--th-OnboardingT:#8fb4ff;--th-Lifecycle:#16301f;--th-LifecycleT:#66d78f;
+    --th-Paywall:#2a1f40;--th-PaywallT:#c6a5ff;--th-Checkout:#3a1a24;--th-CheckoutT:#f58bad;--th-Upsell:#12302f;--th-UpsellT:#5fcaca;
+    --good-ink:#66d78f;--bad-ink:#f38b8b;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:13px/1.5 -apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+  header.top{display:flex;align-items:center;gap:13px;padding:15px 22px 13px}
+  .logo{width:31px;height:31px;border-radius:9px;background:linear-gradient(135deg,var(--accent),var(--accent-2));
+    color:#fff;display:grid;place-items:center;font-size:15px;box-shadow:0 5px 16px var(--ring)}
+  header .t h1{font-size:16px;margin:0;letter-spacing:-.2px;font-weight:700}
+  header .t p{margin:1px 0 0;color:var(--muted);font-size:11.5px}
+  .spacer{margin-left:auto}
+  .iconbtn{border:1px solid var(--line);background:var(--surface);border-radius:9px;width:34px;height:34px;
+    padding:0;display:grid;place-items:center;color:var(--muted);cursor:pointer}
+  .iconbtn:hover{background:var(--surface-2);color:var(--ink)}
+  .iconbtn svg{display:block}
+  .kbadge{font-size:11px;color:var(--muted);border:1px solid var(--line);background:var(--surface);padding:0 12px;border-radius:9px;height:34px;display:inline-flex;align-items:center}
+
+  .controlbar{display:flex;align-items:center;gap:10px;padding:4px 22px 14px;flex-wrap:wrap}
+  .tabs{display:inline-flex;gap:3px;background:var(--surface-3);border:1px solid var(--line);border-radius:11px;padding:3px}
+  .tabs button{border:0;background:transparent;color:var(--muted);padding:6px 15px;border-radius:8px;font:inherit;font-weight:600;cursor:pointer}
+  .tabs button.active{background:var(--surface);color:var(--ink);box-shadow:var(--shadow-sm)}
+  .tabs .n{margin-left:7px;font-size:11px;background:var(--surface-3);color:var(--muted);border-radius:999px;padding:1px 7px}
+  .tabs button.active .n{background:var(--accent-weak);color:var(--accent)}
+  .divider{width:1px;height:26px;background:var(--line);margin:0 2px}
+  button{font:inherit;cursor:pointer;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:8px 13px}
+  button:hover{background:var(--surface-2)}
+  button.primary{background:linear-gradient(135deg,var(--accent),var(--accent-2));border:0;color:#fff;font-weight:600;box-shadow:0 5px 16px var(--ring)}
+  button.primary:hover{filter:brightness(1.06)}
+  button.ghost{border-color:var(--line)}
+  select.filt{border:1px solid var(--line);border-radius:10px;padding:8px 11px;background:var(--surface);color:var(--ink);font:inherit;cursor:pointer}
+  select.filt:hover{border-color:var(--line-strong)}
+  .summary{margin-left:auto;display:flex;gap:8px;align-items:center}
+  .stat{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 11px;font-size:12px;line-height:1.3;color:var(--muted);white-space:nowrap;display:inline-block}
+  .stat b{color:var(--ink);font-weight:700;font-variant-numeric:tabular-nums}
+  .stat .dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:5px;vertical-align:1px}
+
+  .sheetwrap{overflow:auto;margin:0 18px;height:calc(100vh - 190px);
+    background:var(--surface);border:1px solid var(--line);border-radius:15px;box-shadow:var(--shadow)}
+  table{border-collapse:separate;border-spacing:0;background:transparent;font-size:13px;width:max-content;min-width:100%}
+  th,td{padding:0;vertical-align:middle;border-bottom:1px solid var(--line)}
+  thead th{position:sticky;top:0;z-index:5;background:var(--surface);color:var(--faint);font-weight:600;
+    padding:11px 12px;text-align:left;white-space:nowrap;cursor:pointer;user-select:none;
+    font-size:10.5px;letter-spacing:.6px;text-transform:uppercase;border-bottom:1px solid var(--line-strong)}
+  thead th:hover{color:var(--muted)}
+  thead th .ar{color:var(--accent);font-size:9px;margin-left:4px}
+  thead th.thnum{text-align:right}
+  th.rownum,td.rownum{position:sticky;left:0;z-index:4;width:52px;min-width:52px;text-align:center;
+    border-right:1px solid var(--line);font-variant-numeric:tabular-nums}
+  thead th.rownum{z-index:6;background:var(--surface)}
+  td.rownum{background:var(--surface);color:var(--faint);font-weight:500;cursor:grab}
+  td.rownum:active{cursor:grabbing}
+  .grip{display:none;color:var(--line-strong);font-size:11px;line-height:1;letter-spacing:1px}
+  tr:hover .grip{display:block}
+  .rn{padding:6px 0}
+  .rowtools{display:none;justify-content:center;margin-top:2px}
+  tr:hover .rowtools{display:flex}
+  .rowtools button{padding:0 6px;font-size:11px;line-height:17px;border:1px solid var(--line);background:var(--surface);border-radius:5px;cursor:pointer;color:var(--faint)}
+  .rowtools button:hover{background:var(--lost);border-color:transparent;color:var(--lostT)}
+  tr.dragging td{opacity:.4}
+  tr.dropbefore td{box-shadow:inset 0 2px 0 0 var(--accent)}
+  tr.dropafter td{box-shadow:inset 0 -2px 0 0 var(--accent)}
+  tbody tr:hover td{background:var(--surface-2)}
+  tbody tr:hover td.rownum{background:var(--surface-2)}
+
+  td .cell{width:100%;border:0;background:transparent;font:inherit;color:inherit;padding:9px 12px;outline:none;resize:none;border-radius:8px}
+  td .cell::placeholder{color:var(--faint)}
+  td .cell:focus{background:var(--accent-weak);box-shadow:inset 0 0 0 1.5px var(--accent)}
+  td.num .cell{text-align:right;font-variant-numeric:tabular-nums}
+  td.hyp{min-width:340px;max-width:440px}
+  td.hyp .cell{display:block;white-space:normal;line-height:1.4;min-height:38px;overflow:hidden}
+  .clip{display:inline-flex;align-items:center;gap:4px;margin:0 12px 9px;font-size:10px;font-weight:600;letter-spacing:.2px;
+    color:var(--faint);background:var(--surface-3);border-radius:6px;padding:2px 8px;cursor:default}
+  .clip:hover{color:var(--muted)}
+  td.metric{min-width:150px;font-weight:500}
+  td.owner{min-width:90px}
+  td.camp{min-width:118px}
+  td.camp .cell{color:var(--muted);font-variant-numeric:tabular-nums;font-size:12px}
+
+  td.area,td.theme,td.status{padding:6px 10px}
+  .chip{border:0;border-radius:999px;padding:5px 12px 5px 22px;font:inherit;font-size:11.5px;font-weight:600;
+    cursor:pointer;appearance:none;-webkit-appearance:none;background-repeat:no-repeat;letter-spacing:.1px;max-width:100%}
+  .chip:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+  .chip.empty{padding-left:13px;color:var(--faint);background:var(--surface-3)!important}
+  select.conf{border:0;background:transparent;font:inherit;color:inherit;padding:8px 10px;cursor:pointer;border-radius:8px}
+  select.conf:focus-visible{outline:2px solid var(--accent)}
+
+  td.score .scorewrap{display:flex;flex-direction:column;align-items:flex-end;gap:5px;padding:8px 12px}
+  .sv{font-weight:700;font-variant-numeric:tabular-nums;font-size:12.5px}
+  .sv.none{color:var(--faint);font-weight:500}
+  .meter{width:66px;height:4px;border-radius:999px;background:var(--line-strong);overflow:hidden}
+  .meter i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),var(--accent-2));border-radius:999px}
+
+  td.lift{position:relative}
+  td.lift .trend{position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:9px}
+  td.lift.up .cell,td.lift.up .trend{color:var(--good-ink);font-weight:700}
+  td.lift.down .cell,td.lift.down .trend{color:var(--bad-ink);font-weight:700}
+  td.lift.up .cell,td.lift.down .cell{padding-left:24px}
+
+  .empty{padding:56px 20px;text-align:center;color:var(--muted)}
+  .empty .big{font-size:15px;color:var(--ink);font-weight:600;margin-bottom:5px}
+  .hint{padding:11px 22px;color:var(--faint);font-size:11.5px}
+
+  /* modal */
+  .scrim{position:fixed;inset:0;background:rgba(15,10,22,.5);backdrop-filter:blur(3px);display:none;place-items:center;z-index:50;padding:20px}
+  .scrim.open{display:grid}
+  .modal{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:24px;width:540px;max-width:100%;
+    max-height:90vh;overflow:auto;box-shadow:var(--shadow)}
+  .modal h3{margin:0 0 5px;font-size:17px;letter-spacing:-.2px}
+  .modal p{margin:0 0 16px;color:var(--muted);font-size:12.5px;line-height:1.5}
+  .areagroup{margin-bottom:14px}
+  .areagroup>.al{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;margin:0 0 7px;display:flex;align-items:center;gap:6px}
+  .areagroup>.al::before{content:"";width:8px;height:8px;border-radius:50%;background:currentColor}
+  .metricgrid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+  .mchip{border:1px solid var(--line);border-radius:12px;padding:11px 12px;cursor:pointer;background:var(--surface);text-align:left;position:relative;transition:.12s}
+  .mchip:hover{background:var(--surface-2);border-color:var(--line-strong)}
+  .mchip.sel{border-color:var(--accent);background:var(--accent-weak);box-shadow:inset 0 0 0 1px var(--accent)}
+  .mchip .mn{font-weight:600;font-size:12.5px;padding-right:58px;line-height:1.3}
+  .mchip .mb{color:var(--muted);font-size:11px;margin-top:3px;font-variant-numeric:tabular-nums}
+  .mchip .badge{position:absolute;top:10px;right:10px;font-size:9px;font-weight:700;border-radius:6px;padding:2px 7px;text-transform:uppercase;letter-spacing:.4px}
+  .badge.live{background:var(--winner);color:var(--winnerT)}
+  .badge.mock{background:var(--surface-3);color:var(--muted)}
+  .modal-actions{display:flex;justify-content:flex-end;gap:9px;margin-top:18px}
+  button.primary:disabled{opacity:.45;cursor:not-allowed;filter:none}
+  .genmetric{display:inline-block;background:var(--accent-weak);color:var(--accent);border-radius:7px;padding:1px 9px;font-weight:700}
+  .genlog{list-style:none;padding:0;margin:0}
+  .genlog li{padding:8px 0;color:var(--muted);display:flex;gap:10px;align-items:center;font-size:13px}
+  .genlog li.done{color:var(--ink)}
+  .genlog li .tick{width:18px;height:18px;border-radius:50%;border:1.5px solid var(--line-strong);display:inline-grid;place-items:center;font-size:11px;color:var(--winnerT);flex:none}
+  .genlog li.done .tick{border-color:var(--winnerT);background:var(--winner)}
+
+  /* detail + comments drawer */
+  td.cmt{width:52px;min-width:52px;text-align:center;padding:0}
+  .cmtbtn{border:1px solid transparent;background:transparent;cursor:pointer;padding:5px 9px;color:var(--faint);font:inherit;border-radius:8px}
+  .cmtbtn:hover{background:var(--surface-3);color:var(--ink)}
+  .cmtbtn.has{color:var(--accent);font-weight:600}
+  .cscrim{position:fixed;inset:0;background:rgba(15,10,22,.4);display:none;z-index:60}
+  .cscrim.open{display:block}
+  .cdrawer{position:fixed;top:0;right:0;height:100%;width:420px;max-width:94vw;background:var(--surface);
+    border-left:1px solid var(--line);transform:translateX(100%);transition:transform .22s ease;z-index:70;display:flex;flex-direction:column;box-shadow:var(--shadow)}
+  .cdrawer.open{transform:none}
+  .cdrawer .ch{padding:18px 20px 16px;border-bottom:1px solid var(--line);position:relative}
+  .cdrawer .ch .cm{font-size:10.5px;color:var(--accent);font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+  .cdrawer .ch #cmtHyp{margin-top:7px;font-size:14.5px;line-height:1.45;padding-right:26px}
+  .cdrawer .ch .cx{position:absolute;top:14px;right:16px;border:0;background:transparent;font-size:22px;color:var(--faint);cursor:pointer;line-height:1;padding:0}
+  .cdrawer .ch .cx:hover{color:var(--ink)}
+  .ground{margin:14px 20px 0;background:var(--accent-weak);border-radius:11px;padding:11px 13px;font-size:12px;line-height:1.5;color:var(--ink)}
+  .ground b{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--accent);margin-bottom:4px}
+  .ground.mock{background:var(--surface-3);color:var(--muted)}
+  .ground.mock b{color:var(--muted)}
+  .cbody{flex:1;overflow-y:auto;min-height:0}
+  .clist{padding:16px 20px}
+  .comment{margin-bottom:15px}
+  .comment .meta{font-size:11px;color:var(--muted);margin-bottom:4px}
+  .comment .meta b{color:var(--ink)}
+  .comment .txt{background:var(--surface-2);border:1px solid var(--line);border-radius:10px;padding:9px 11px;white-space:pre-wrap;line-height:1.45}
+  .cempty{color:var(--faint);text-align:center;padding:34px 0;line-height:1.6}
+  .cfoot{border-top:1px solid var(--line);padding:13px 16px}
+  .cfoot textarea{width:100%;border:1px solid var(--line);border-radius:10px;padding:9px 11px;font:inherit;color:var(--ink);background:var(--surface-2);resize:vertical;min-height:58px;outline:none}
+  .cfoot textarea:focus{border-color:var(--accent);background:var(--surface)}
+  .cfoot .r{display:flex;justify-content:flex-end;margin-top:9px}
+  input.search{
+    -webkit-appearance:none;appearance:none;
+    border:1px solid var(--line);border-radius:10px;font:inherit;color:var(--ink);
+    padding:8px 12px 8px 31px;min-width:200px;outline:none;
+    background-color:var(--surface);
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='13' height='13' viewBox='0 0 24 24' fill='none' stroke='%239d97a9' stroke-width='2.4' stroke-linecap='round'><circle cx='11' cy='11' r='7'/><path d='M21 21l-4.3-4.3'/></svg>");
+    background-repeat:no-repeat;background-position:11px center;
+  }
+  input.search::placeholder{color:var(--faint)}
+  input.search:hover{border-color:var(--line-strong)}
+  input.search:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--ring)}
+  input.search::-webkit-search-cancel-button{-webkit-appearance:none}
+  .chipsrow{display:flex;gap:8px;flex-wrap:wrap;padding:0 22px 10px}
+  .fchip{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:600;color:var(--accent);
+    background:var(--accent-weak);border-radius:999px;padding:4px 11px}
+  .fchip button{border:0;background:none;color:inherit;padding:0;font-size:11px;font-weight:700;cursor:pointer}
+  .toast{position:fixed;left:50%;bottom:26px;transform:translate(-50%,14px);background:var(--ink);color:var(--bg);
+    border-radius:11px;padding:10px 16px;font-size:12.5px;opacity:0;pointer-events:none;transition:.2s;z-index:90;box-shadow:var(--shadow)}
+  .toast.show{opacity:1;transform:translate(-50%,0);pointer-events:auto}
+  .toast button{border:0;background:none;color:var(--accent);font-weight:700;cursor:pointer;margin-left:8px;padding:0}
+  .specbox{margin:14px 20px 0;background:var(--surface-2);border:1px solid var(--line);border-radius:11px;padding:11px 13px;font-size:12px;line-height:1.5}
+  .specbox b{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--accent);margin-bottom:6px}
+  .specbox.mockspec{color:var(--muted)}
+  .specbox.mockspec b{color:var(--muted)}
+  .spect{border-collapse:collapse;width:100%}
+  .spect td{border:0;padding:3px 0;vertical-align:top;font-size:12px}
+  .spect td:first-child{color:var(--faint);width:72px;font-size:10.5px;text-transform:uppercase;letter-spacing:.4px;padding-top:5px}
+  .spect .mono{font-family:ui-monospace,"SF Mono",Menlo,monospace;font-size:11px;word-break:break-all}
+  .vbadge{font-size:9.5px;font-weight:700;border-radius:6px;padding:1px 6px;white-space:nowrap}
+  .vbadge.ok{background:var(--winner);color:var(--winnerT)}
+  .vbadge.warn{background:var(--running);color:var(--runningT)}
+  @media (max-width:760px){
+    header.top,.controlbar{padding-left:12px;padding-right:12px}
+    .sheetwrap{margin:0 8px}
+    .summary{margin-left:0}
+  }
+  .speclink{display:inline-flex;align-items:center;gap:4px;margin:0 12px 9px;font-size:10.5px;font-weight:600;
+    color:var(--accent);background:var(--accent-weak);border:0;border-radius:6px;padding:3px 9px;cursor:pointer}
+  .speclink:hover{filter:brightness(1.05)}
+  .databasis{margin:0 12px 7px;font-size:11px;line-height:1.45;color:var(--muted);
+    border-left:2px solid var(--accent);padding:2px 0 2px 9px}
+  .copybtn{border:1px solid var(--line);background:var(--surface);border-radius:6px;font-size:10px;
+    padding:1px 7px;color:var(--muted);cursor:pointer;margin-left:6px;vertical-align:1px;white-space:nowrap}
+  .copybtn:hover{border-color:var(--accent);color:var(--accent)}
+  .scrim.copychoice{z-index:85}
+  .segview{margin-top:10px;border-top:1px dashed var(--line-strong);padding-top:9px}
+  .segview>b{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--accent);margin-bottom:6px}
+  .segrule{display:flex;gap:8px;align-items:flex-start;margin:4px 0;font-size:11.5px;line-height:1.45}
+  .segtag{flex:none;font-size:9px;font-weight:700;letter-spacing:.4px;border-radius:5px;padding:2px 6px;min-width:56px;text-align:center;margin-top:1px}
+  .segtag.who{background:var(--accent-weak);color:var(--accent)}
+  .segtag.inc{background:var(--picked);color:var(--pickedT)}
+  .segtag.exc{background:var(--lost);color:var(--lostT)}
+  .segtag.prop{background:var(--surface-3);color:var(--muted)}
+  .segtag.trig{background:var(--running);color:var(--runningT)}
+  .segtag.ctl{background:var(--winner);color:var(--winnerT)}
+  .segtag.test{background:var(--analysis);color:var(--analysisT)}
+  .segtag.note{background:var(--surface-3);color:var(--faint)}
+  .segfull{display:block;width:100%;margin-top:10px;border:1px dashed var(--line-strong);background:transparent;
+    color:var(--muted);border-radius:8px;padding:7px;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit}
+  .segfull:hover{border-color:var(--accent);color:var(--accent)}
+  .segview{margin-top:8px;border-top:0;padding-top:2px}
+  .typegrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:6px}
+  .tcard{border:1px solid var(--line);border-radius:14px;background:var(--surface);padding:16px 15px;text-align:left;cursor:pointer;font:inherit;color:var(--ink);display:flex;flex-direction:column;gap:6px}
+  .tcard:hover{border-color:var(--accent);background:var(--accent-weak)}
+  .tcard .ti{font-size:22px}
+  .tcard b{font-size:13.5px}
+  .tcard span:last-child{font-size:11.5px;color:var(--muted);line-height:1.45}
+  .backlink{border:0;background:none;color:var(--accent);font:inherit;font-size:11.5px;font-weight:600;cursor:pointer;padding:0;margin-right:4px}
+  .ticon{margin-right:6px;font-size:12px}
+</style>
+</head>
+<body>
+<script>try{var _t=localStorage.getItem("asb-theme");if(_t)document.documentElement.setAttribute("data-theme",_t);}catch(e){}</script>
+<header class="top">
+  <div class="logo">✦</div>
+  <div class="t"><h1>Experiment Studio</h1><p>Lifecycle campaigns & product A/B tests · grounded in internal data, tracked to a verdict</p></div>
+  <div class="spacer"></div>
+  <button class="iconbtn" id="resetBtn" title="Reset demo data"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 1-15.5 6.2"/><path d="M3 12a9 9 0 0 1 15.5-6.2"/><path d="M18.5 2.5v3.6h-3.6"/><path d="M5.5 21.5v-3.6h3.6"/></svg></button>
+  <button class="iconbtn" id="themeToggle" title="Toggle light / dark"></button>
+  <span class="kbadge">Prototype · data Jul 22</span>
+</header>
+
+<div class="controlbar">
+  <div class="tabs">
+    <button id="tabBacklog" class="active">Backlog <span class="n" id="cntBacklog">0</span></button>
+    <button id="tabPipeline">Pipeline <span class="n" id="cntPipeline">0</span></button>
+  </div>
+  <div class="divider"></div>
+  <button class="primary" id="genBtn">✨ Generate ideas</button>
+  <button class="ghost" id="addBtn">+ Add idea</button>
+  <button class="ghost" id="csvBtn" title="Download the current view as CSV">⬇ CSV</button>
+  <div class="divider"></div>
+  <select class="filt" id="typeFilter"></select>
+  <select class="filt" id="statusFilter"></select>
+  <select class="filt" id="areaFilter"></select>
+  <select class="filt" id="metricFilter"></select>
+  <select class="filt" id="themeFilter"></select>
+  <input class="filt search" id="q" type="search" placeholder="Search ideas…">
+  <div class="summary" id="summary"></div>
+</div>
+<div class="chipsrow" id="chips" style="display:none"></div>
+
+<div class="sheetwrap">
+  <table id="sheet"></table>
+  <div class="empty" id="empty" style="display:none"></div>
+</div>
+<div class="hint" id="hint"></div>
+
+<!-- generate modal -->
+<div class="scrim" id="scrim">
+  <div class="modal">
+    <div id="genPick">
+      <div id="typeStep">
+        <h3>What are you planning?</h3>
+        <p>Two kinds of experiments live here — pick one.</p>
+        <div class="typegrid">
+          <button class="tcard" data-t="Lifecycle"><span class="ti">🚀</span><b>Lifecycle campaign</b><span>Push, in-app modal or email via CleverTap — copy, deep link, audience, launch segment.</span></button>
+          <button class="tcard" data-t="Product"><span class="ti">🧪</span><b>Product A/B test</b><span>An experiment inside Picsart surfaces — paywall, pricing, checkout, onboarding UI.</span></button>
+        </div>
+      </div>
+      <div id="metricStep" hidden>
+        <h3>Which metric should we improve?</h3>
+        <p><button class="backlink" id="typeBack">← change type</button> Pick a target metric. The agent studies internal data <em>for that metric</em> and proposes hypotheses grounded in it.</p>
+        <div id="metricGroups"></div>
+      </div>
+      <div class="modal-actions">
+        <button id="genCancel">Cancel</button>
+        <button class="primary" id="genGo" disabled>Generate ideas</button>
+      </div>
+    </div>
+    <div id="genRun" style="display:none">
+      <h3 id="genRunTitle">Generating ideas</h3>
+      <p id="genRunSub">Reading internal data, then proposing hypotheses grounded in it.</p>
+      <ul class="genlog" id="genlog"></ul>
+    </div>
+  </div>
+</div>
+
+<!-- detail + comments drawer -->
+<div class="cscrim" id="cmtScrim"></div>
+<aside class="cdrawer" id="cmtDrawer">
+  <div class="ch">
+    <button class="cx" id="cmtClose">×</button>
+    <div class="cm" id="cmtMetric"></div>
+    <div id="cmtHyp"></div>
+  </div>
+  <div class="cbody">
+    <div id="cmtGround"></div>
+    <div class="clist" id="cmtList"></div>
+  </div>
+  <div class="cfoot">
+    <textarea id="cmtInput" placeholder="Add a comment…"></textarea>
+    <div class="r"><button class="primary" id="cmtAdd">Comment</button></div>
+  </div>
+</aside>
+
+<div class="scrim copychoice" id="copyScrim">
+  <div class="modal" style="width:380px">
+    <h3>Copy which version?</h3>
+    <p id="locNote"></p>
+    <div style="display:flex;flex-direction:column;gap:9px">
+      <button class="primary" id="copyEn">English only</button>
+      <button id="copyLiquid">Localized · 19-language Liquid</button>
+      <button class="ghost" id="copyCancel">Cancel</button>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+const SEED_VERSION="v9-2026-07-28";
+const STATUSES=["Backlog","Picked","Running","Stopped","Analysis","Winner","Lost"];
+const PIPELINE_STATUSES=STATUSES.filter(s=>s!=="Backlog");
+const DECIDED=["Winner","Lost"];
+const STYLE={Backlog:["--backlog","--backlogT"],Picked:["--picked","--pickedT"],Running:["--running","--runningT"],
+  Stopped:["--stopped","--stoppedT"],Analysis:["--analysis","--analysisT"],Winner:["--winner","--winnerT"],Lost:["--lost","--lostT"]};
+const AREAS=["Activation","Monetization","Retention","Reactivation"];
+const THEMES=["Onboarding","Lifecycle","Pricing","Paywall","Upsell","Checkout"];
+
+const COL={
+  desc:{label:"Idea",cls:"hyp",type:"textarea"},
+  area:{label:"Area",cls:"area",type:"area"},
+  theme:{label:"Theme",cls:"theme",type:"theme"},
+  metric:{label:"Target metric",cls:"metric",type:"text"},
+  baseline:{label:"Baseline (est.)",cls:"num",type:"text"},
+  target:{label:"Goal (est.)",cls:"num",type:"text"},
+  conf:{label:"Confidence",cls:"conf",type:"select",opts:["High","Med","Low"]},
+  reach:{label:"Reach /mo (est.)",cls:"num",type:"reachfmt"},
+  effort:{label:"Effort 1-5",cls:"num",type:"number"},
+  score:{label:"Priority (est.)",cls:"num score",type:"computed"},
+  added:{label:"Added",cls:"num",type:"date"},
+  owner:{label:"Owner",cls:"owner",type:"text"},
+  status:{label:"Status",cls:"status",type:"status"},
+  control:{label:"Control",cls:"num",type:"text"},
+  result:{label:"Result",cls:"num",type:"text"},
+  lift:{label:"Lift vs control",cls:"num lift",type:"lift"},
+  convWindow:{label:"Window",cls:"num",type:"text"},
+  campaign:{label:"Launched",cls:"camp",type:"text"},
+  comments:{label:"Notes",cls:"cmt",type:"comments"},
+};
+const BACKLOG_COLS=["desc","area","theme","metric","baseline","target","conf","reach","effort","score","added","owner","status","comments"];
+const PIPELINE_COLS=["desc","area","metric","baseline","result","lift","control","convWindow","campaign","owner","status","comments"];
+
+const CONF_F={High:1,Med:0.65,Low:0.35};
+function scoreOf(d){
+  const eff=+d.effort||0, cf=CONF_F[d.conf]||0;
+  if(!eff||!cf) return null;
+  if(typeOf(d)==="Product"){
+    const rev=+d.revProj||0; if(!rev) return null;
+    return Math.round(rev*cf/eff);
+  }
+  const reach=+d.reach||0; if(!reach) return null;
+  return Math.max(1,Math.round(reach*cf/eff/1000));
+}
+const scoreLabel=d=> typeOf(d)==="Product" ? "$"+scoreOf(d).toLocaleString() : scoreOf(d).toLocaleString();
+
+// day helper for seeded dates
+const D=s=>new Date(s+"T12:00:00").getTime();
+
+// ---- Pipeline seed: real shipped campaigns & journeys (from the lifecycle portfolio sheet) ----
+const SEED=[
+  {id:1,area:"Activation",theme:"Onboarding",metric:"Tool adoption (first use)",desc:"Remove Background in-app modal: instant, obvious payoff makes it the strongest tool-to-format fit — flagship modal, scaling to full base + Android.",hypothesis:"If we show non-users a Remove Background modal, then first-time Remove BG use will go up.",baseline:"2.5% control",result:"14.31%",lift:"+472.4%",control:"holdout",convWindow:"7d",campaign:"Jun 19",owner:"Vahe",status:"Winner",created:D("2026-06-19"),reach:52820,effort:1,conf:"High",target:"",evidence:"7-day A/B read vs holdout: 14.31% vs 2.5%, 3,423 vs 707 applied (~2,800 incremental)",comments:[{author:"Vahe",ts:D("2026-07-12"),text:"Best result to date. Cloning this structure to Retouch as wave 2."}]},
+  {id:2,area:"Activation",theme:"Onboarding",metric:"Tool adoption (first use)",desc:"AI Enhance modal with video creative: the modal massively shifts which tool users touch; activation moves more modestly on an already-high baseline.",hypothesis:"If we run the AI Enhance modal with a video creative, then AI Enhance completions will go up sharply and overall exports will rise modestly.",baseline:"0.51% control",result:"7.59%",lift:"+1388%",control:"holdout",convWindow:"7d",campaign:"Jun 30",owner:"Vahe",status:"Winner",created:D("2026-06-30"),reach:2463753,effort:1,conf:"High",target:"",evidence:"Dual goals: tool completions +1388% (84,269 vs 7,787 raw), export +9.14% — graduated to always-on"},
+  {id:3,area:"Activation",theme:"Onboarding",metric:"Tool adoption (first use)",desc:"AI Enhance modal on Android: format beats copy — the modal dwarfs every push we ran.",hypothesis:"If we run the AI Enhance modal on Android, then AI Enhance first use will go up.",baseline:"0.45% control",result:"1.86%",lift:"+313%",control:"holdout",convWindow:"1d",campaign:"Jun 16",owner:"Vahe",status:"Winner",created:D("2026-06-16"),reach:304642,effort:1,conf:"High",target:"",evidence:"1-day read: 85.53% CTR, 1.86% vs 0.45% control — made the modal our default activation format"},
+  {id:4,area:"Activation",theme:"Onboarding",metric:"Tool adoption (first use)",desc:"Effects modal at full base (no registration filter): the format survives broad, less-engaged audiences.",hypothesis:"If we show the Effects modal to the full base (no registration filter), then Effects first use will go up even among less-engaged users.",baseline:"5.1% control",result:"9.52%",lift:"+86.67%",control:"50/50",convWindow:"1d",campaign:"Jun 25",owner:"Vahe",status:"Winner",created:D("2026-06-25"),reach:34619,effort:1,conf:"High",target:"",evidence:"Original beats Variant B on rate AND raw count (2,120 vs 1,782)"},
+  {id:5,area:"Activation",theme:"Onboarding",metric:"Tool adoption (first use)",desc:"Text modal at full base: lift compresses on the broad audience but stays clearly positive at volume.",hypothesis:"If we show the Text modal to the full base, then Text tool use will go up — less than on engaged audiences, but at far higher volume.",baseline:"3.65% control",result:"5.25%",lift:"+43.84%",control:"holdout",convWindow:"7d",campaign:"Jun 24",owner:"Vahe",status:"Running",created:D("2026-06-24"),reach:143172,effort:1,conf:"Med",target:"",evidence:"1-day read on 143K viewed / 317K control; 7-day read pending"},
+  {id:6,area:"Activation",theme:"Onboarding",metric:"Tool adoption (first use)",desc:"Beautify modal at full base: weakest modal of the wave — mid-tier hook on a broad audience; testing a stronger hook.",hypothesis:"If we show the Beautify modal to the full base, then Beautify tries will go up.",baseline:"2.65% control",result:"3.58%",lift:"+35.09%",control:"holdout",convWindow:"6d",campaign:"Jun 25",owner:"Vahe",status:"Analysis",created:D("2026-06-25"),reach:789849,effort:1,conf:"Med",target:"",evidence:"Rate win only — campaign cap held viewers below the 2M control; lift the cap for raw-count parity"},
+  {id:7,area:"Activation",theme:"Lifecycle",metric:"Editor→export completion",desc:"Editor-abandonment rescue modal: cohort already exports at ~75% with no modal, so headroom is structurally small.",hypothesis:"If we show a rescue modal to editor abandoners, then their export completion will go up.",baseline:"74.76%",result:"78.93%",lift:"+5.6%",control:"50/50",convWindow:"5d",campaign:"Jul 1",owner:"Vahe",status:"Analysis",created:D("2026-07-01"),reach:308565,effort:2,conf:"Med",target:"",evidence:"Gap narrowing as natural exports accrue: +8.8% (2d) → +6.6% (3d) → +5.6% (6d) — keep/kill at day 7",comments:[{author:"Vahe",ts:D("2026-07-10"),text:"If flat at day 7: retarget to highest-abandonment sessions only, where headroom is larger."}]},
+  {id:8,area:"Activation",theme:"Lifecycle",metric:"Editor→export completion",desc:"5-tool edit recovery journey: tool-specific copy beat generic by +68% in the copy test — scaled to the 5 highest-volume abandoned tools.",hypothesis:"If we send tool-specific recovery copy instead of generic, then taps and recovered exports will go up.",baseline:"generic copy",result:"",lift:"",control:"50/50",convWindow:"7d",campaign:"May 21",owner:"Vahe",status:"Running",created:D("2026-05-21"),reach:0,effort:2,conf:"High",target:"",evidence:"Copy-test wins: AI Enhance +68%, Remove BG +42% taps vs generic — reaching millions, 7-day read pending"},
+  {id:9,area:"Activation",theme:"Onboarding",metric:"Video activation",desc:"Declared-intent video push: first campaign ever to target an onboarding answer — declared video editors who never opened the video editor.",hypothesis:"If we push declared-video users who never opened the video editor, then video exports will go up.",baseline:"39.4% video d1",result:"",lift:"",control:"holdout",convWindow:"7d",campaign:"Jul 8",owner:"Vahe",status:"Running",created:D("2026-07-08"),reach:186487,effort:1,conf:"Med",target:"",evidence:"Video is a top-2 declared intent (~1.6M/mo) with the worst install-day activation of any big intent (39.4% vs 46.2% selfie)",spec:{title:"That clip in your camera roll? 🎬",body:"One edit and it's ready to post.",cta:"(push tap)",link:"picsart://editor?directory=videos&chooser-media-type=1",verified:false,audience:"Picked Video editing at signup (last 30d) + never opened the video editor + std. filters",goal:"video_export_finish ≤7d, holdout on"}},
+  {id:10,area:"Activation",theme:"Onboarding",metric:"Video activation",desc:"Declared-intent video modal: same cohort and message as the push — a clean push-vs-modal format comparison.",hypothesis:"If we show the same message as a modal instead of a push, then video exports will go up more than via push.",baseline:"1.71% control",result:"1.59%",lift:"-7.02%",control:"holdout",convWindow:"7d",campaign:"Jul 9",owner:"Vahe",status:"Stopped",created:D("2026-07-09"),reach:11652,effort:1,conf:"Med",target:"",evidence:"6-day A/B: FLAT (65 vs 113 converters, within noise) despite a record 63.74% CTR — video is a heavy multi-session action. Compare vs the push sibling before any verdict; photo-modal thesis unaffected",spec:{title:"That clip in your camera roll? 🎬",body:"One edit and it's ready to post.",cta:"Pick a clip",link:"Android: picsart://editor?directory=videos · iOS: picsart://video-editor",verified:false,audience:"Same saved segment as the video push; triggers my_network_open OR create_flow_open + std. filters",goal:"video_export_finish + object_export ≤7d, holdout on"}},
+  {id:11,area:"Retention",theme:"Lifecycle",metric:"2nd export in 7 days (2ED7)",desc:"Late Bloomers push (day 8–60, exactly one tool used): a passive reminder lifts 2nd-tool adoption; delivery caps the ceiling.",hypothesis:"If we remind one-tool users (day 8–60) of a second tool, then 2nd-tool adoption will go up.",baseline:"0.51% control",result:"0.71%",lift:"+39.22%",control:"holdout",convWindow:"7d",campaign:"Jun 30",owner:"Vahe",status:"Winner",created:D("2026-06-30"),reach:186395,effort:1,conf:"High",target:"",evidence:"Held from +46% (2d) to +39% (7d); only 15% delivered — fix delivery for ~6x headroom, then weekly drip"},
+  {id:12,area:"Activation",theme:"Lifecycle",metric:"Tool adoption (first use)",desc:"Remove Background unused-tool push: the only push in the 5-tool wave to beat control on BOTH rate and raw count.",hypothesis:"If we push Remove BG to users who never tried it, then Remove BG applies will go up.",baseline:"0.18% control",result:"0.2%",lift:"+11.11%",control:"50/50",convWindow:"9d",campaign:"Jun 16",owner:"Vahe",status:"Winner",created:D("2026-06-16"),reach:6009242,effort:1,conf:"High",target:"",evidence:"11,786 vs 11,720 conversions — genuine, if small; pairs with the Remove BG modal"},
+  {id:13,area:"Activation",theme:"Lifecycle",metric:"Tool adoption (first use)",desc:"Effects unused-tool push: best curiosity (top CTR of the wave) but it does not convert to activation via push.",hypothesis:"If we push Effects to users who never tried it, then effect applies will go up.",baseline:"0.29% control",result:"0.3%",lift:"+3.45%",control:"50/50",convWindow:"9d",campaign:"Jun 16",owner:"Vahe",status:"Lost",created:D("2026-06-16"),reach:4459628,effort:1,conf:"High",target:"",evidence:"Control had MORE raw conversions (13,639 vs 13,290) — Effects routed through the modal instead"},
+  {id:14,area:"Activation",theme:"Lifecycle",metric:"Tool adoption (first use)",desc:"AI Enhance unused-tool push: highest rate lift of the wave but near-zero absolute movement on the hardest goal.",hypothesis:"If we push AI Enhance to users who never tried it, then AI Enhance completions will go up.",baseline:"0.08% control",result:"0.09%",lift:"+12.5%",control:"50/50",convWindow:"9d",campaign:"Jun 16",owner:"Vahe",status:"Lost",created:D("2026-06-16"),reach:7539940,effort:1,conf:"High",target:"",evidence:"Raw counts tied (6,669 vs 6,688) — AI Enhance belongs in the modal; push kept as cheap reminder"},
+  {id:15,area:"Activation",theme:"Lifecycle",metric:"Tool adoption (first use)",desc:"AI Enhance journey via in-app message: largest absolute driver, but ran without a control group.",hypothesis:"If we route editor users through an AI Enhance in-app journey, then AI Enhance completions will go up.",baseline:"",result:"159K completions",lift:"",control:"",convWindow:"30d",campaign:"May 28",owner:"Vahe",status:"Stopped",created:D("2026-05-28"),reach:2723547,effort:2,conf:"Low",target:"",evidence:"No control → no lift claim. Stopped and rebuilt properly as the A/B modal program",comments:[{author:"Vahe",ts:D("2026-07-01"),text:"This is why the guardrail exists — great volume, unprovable lift."}]},
+  {id:16,area:"Reactivation",theme:"Lifecycle",metric:"Winback rate",desc:"Win-back push for lapsed paid subscribers works as a passive reminder, not a tap-driver.",hypothesis:"If we send a win-back push to lapsed paid subscribers, then reactivations will go up.",baseline:"",result:"15,161 back in 7d",lift:"",control:"",convWindow:"7d",campaign:"May 14",owner:"Vahe",status:"Stopped",created:D("2026-05-14"),reach:0,effort:1,conf:"High",target:"",evidence:"Absolute read only (no holdout) — next version adds a control and personalizes by favorite tool"},
+  {id:17,area:"Activation",theme:"Lifecycle",metric:"2nd export in 7 days (2ED7)",desc:"New-user 2nd-edit push: first fully AI-built push; strongest per-user lift of its wave, held back by delivery.",hypothesis:"If we push new users toward a second edit, then early repeat edits will go up.",baseline:"",result:"strongest per-user lift",lift:"",control:"",convWindow:"7d",campaign:"May 15",owner:"Vahe",status:"Stopped",created:D("2026-05-15"),reach:120000,effort:1,conf:"Med",target:"",evidence:"Absolute read only — 60% delivered; fix delivery, then scale"},
+  {id:18,area:"Activation",theme:"Lifecycle",metric:"Editor→export completion",desc:"Edit recovery copy test: tool-specific AI Enhance copy vs generic.",hypothesis:"If we name the abandoned tool in recovery copy, then taps will go up.",baseline:"generic copy",result:"+68% taps",lift:"+68%",control:"copy split",convWindow:"",campaign:"May 8",owner:"Vahe",status:"Winner",created:D("2026-05-08"),reach:0,effort:1,conf:"High",target:"",evidence:"Founding personalization win — rolled into the 5-tool journey"},
+  {id:19,area:"Activation",theme:"Lifecycle",metric:"Editor→export completion",desc:"Edit recovery copy test: tool-specific Remove Background copy vs generic.",hypothesis:"If we name Remove Background in recovery copy, then taps will go up.",baseline:"generic copy",result:"+42% taps",lift:"+42%",control:"copy split",convWindow:"",campaign:"May 18",owner:"Vahe",status:"Winner",created:D("2026-05-18"),reach:0,effort:1,conf:"High",target:"",evidence:"Repeated the personalization win on a second tool — folded into the 5-tool journey"},
+  {id:20,area:"Activation",theme:"Lifecycle",metric:"Tool adoption (first use)",desc:"AI Enhance adoption push: largest reach of the adoption wave.",hypothesis:"If we broadcast AI Enhance to non-users, then tool opens will go up.",baseline:"",result:"1.28M sent",lift:"",control:"",convWindow:"",campaign:"May 29",owner:"Vahe",status:"Stopped",created:D("2026-05-29"),reach:1284234,effort:1,conf:"Med",target:"",evidence:"No control — absolute only; AI Enhance confirmed as our top hook"},
+  {id:21,area:"Activation",theme:"Lifecycle",metric:"Tool adoption (first use)",desc:"Remove Background adoption push: very large send, overlapping audiences.",hypothesis:"If we broadcast Remove BG to non-users, then tool opens will go up.",baseline:"",result:"1.24M sent",lift:"",control:"",convWindow:"",campaign:"May 30",owner:"Vahe",status:"Stopped",created:D("2026-05-30"),reach:1240703,effort:1,conf:"Med",target:"",evidence:"No control — absolute only; audience overlapped two other Remove BG sends"},
+  {id:22,area:"Activation",theme:"Lifecycle",metric:"Tool adoption (first use)",desc:"Effects adoption push: best click rate of the set on the smallest audience.",hypothesis:"If we broadcast Effects to non-users, then tool opens will go up.",baseline:"",result:"0.55% CTR",lift:"",control:"",convWindow:"",campaign:"May 31",owner:"Vahe",status:"Stopped",created:D("2026-05-31"),reach:692242,effort:1,conf:"Med",target:"",evidence:"No control — absolute only; best CTR of the adoption wave"},
+  {id:23,area:"Activation",theme:"Lifecycle",metric:"Tool adoption (first use)",desc:"Beautify adoption push: mid-tier hook, less aspirational than the AI tools.",hypothesis:"If we broadcast Beautify to non-users, then tool opens will go up.",baseline:"",result:"1.0M sent",lift:"",control:"",convWindow:"",campaign:"Jun 1",owner:"Vahe",status:"Stopped",created:D("2026-06-01"),reach:1001854,effort:1,conf:"Low",target:"",evidence:"No control — absolute only; deprioritized"},
+  {id:24,area:"Activation",theme:"Lifecycle",metric:"Tool adoption (first use)",desc:"Text adoption push: weakest hook of the five.",hypothesis:"If we broadcast the Text tool to non-users, then tool opens will go up.",baseline:"",result:"weakest return",lift:"",control:"",convWindow:"",campaign:"Jun 2",owner:"Vahe",status:"Stopped",created:D("2026-06-02"),reach:1002585,effort:1,conf:"Low",target:"",evidence:"No control — absolute only; stopped, the 5-tool journey covers it"},
+  {id:25,area:"Activation",theme:"Onboarding",metric:"Day-1 export rate",desc:"New-user activation push for users who open the app but never edit.",hypothesis:"If we push app-openers who never edited into the editor, then editor opens will go up.",baseline:"",result:"2.42% opened editor",lift:"",control:"",convWindow:"7d",campaign:"Jun 10",owner:"Vahe",status:"Stopped",created:D("2026-06-10"),reach:135000,effort:1,conf:"Med",target:"",evidence:"Template works; only 32% delivered — new-user delivery is the blocker"},
+  {id:26,area:"Monetization",theme:"Upsell",metric:"First credit use",desc:"Unused-credits push toward the AI Image editor.",hypothesis:"If we remind credit holders of their unused credits, then credit use will go up.",baseline:"",result:"9,093 conv (5.61%)",lift:"",control:"",convWindow:"1d",campaign:"Jun 11",owner:"Vahe",status:"Stopped",created:D("2026-06-11"),reach:162407,effort:1,conf:"Low",target:"",evidence:"No control — audience already primed to convert; add a holdout before re-running"},
+  {id:27,area:"Activation",theme:"Lifecycle",metric:"Tool adoption (first use)",desc:"Beautify unused-tool push: marginal lift, control won on raw count.",hypothesis:"If we push Beautify to users who never tried it, then tries will go up.",baseline:"0.17% control",result:"0.18%",lift:"+5.88%",control:"50/50",convWindow:"9d",campaign:"Jun 16",owner:"Vahe",status:"Lost",created:D("2026-06-16"),reach:5801287,effort:1,conf:"High",target:"",evidence:"Rate-only, control had more raw conversions — push barely moves Beautify"},
+  {id:28,area:"Activation",theme:"Lifecycle",metric:"Tool adoption (first use)",desc:"Text unused-tool push: looked strongest on paper only because its goal was softer.",hypothesis:"If we push the Text tool to users who never tried it, then text inserts will go up.",baseline:"0.44% control",result:"0.47%",lift:"+6.82%",control:"50/50",convWindow:"9d",campaign:"Jun 16",owner:"Vahe",status:"Analysis",created:D("2026-06-16"),reach:6399025,effort:1,conf:"Med",target:"",evidence:"Softer open-goal inflates it — re-measure on a like-for-like apply goal before any verdict"},
+  {id:29,area:"Activation",theme:"Onboarding",metric:"Tool adoption (first use)",desc:"AI Image (text-to-image) modal: format works, campaign cap is the constraint.",hypothesis:"If we show a text-to-image modal, then first generations will go up.",baseline:"1.79% control",result:"4.11%",lift:"+129.61%",control:"holdout",convWindow:"7d",campaign:"Jun 18",owner:"Vahe",status:"Running",created:D("2026-06-18"),reach:1509,effort:1,conf:"Med",target:"",evidence:"Strong per-user lift on tiny capped reach — lift the cap and re-run"},
+  {id:31,area:"Activation",theme:"Onboarding",metric:"Tool adoption (first use)",desc:"Declared-intent photo touch-ups push: biggest lane by volume, marginal on push.",hypothesis:"If we push declared touch-up users toward Retouch, then tool applies will go up.",baseline:"0.94% control",result:"0.99%",lift:"+5.32%",control:"holdout",convWindow:"6d",campaign:"Jul 14",owner:"Vahe",status:"Lost",created:D("2026-07-14"),reach:270646,effort:1,conf:"High",target:"",evidence:"Rate-only; mostly view-through — route this lane through the Retouch modal instead"},
+  {id:32,area:"Activation",theme:"Onboarding",metric:"Tool adoption (first use)",desc:"Declared-intent selfie push: weakest of the four lanes.",hypothesis:"If we push declared selfie users toward Beautify, then tool applies will go up.",baseline:"0.86% control",result:"0.88%",lift:"+2.33%",control:"holdout",convWindow:"5d",campaign:"Jul 15",owner:"Vahe",status:"Lost",created:D("2026-07-15"),reach:141557,effort:1,conf:"High",target:"",evidence:"Family verdict after 4 lanes: modals for tool activation, push only as reminder"},
+  {id:33,area:"Activation",theme:"Onboarding",metric:"Tool adoption (first use)",desc:"Declared-intent social-content push: validated directionally, tiny absolute.",hypothesis:"If we push declared social creators toward templates, then template tries will go up.",baseline:"0.03% control",result:"0.05%",lift:"+66.67%",control:"holdout",convWindow:"4d",campaign:"Jul 16",owner:"Vahe",status:"Winner",created:D("2026-07-16"),reach:117769,effort:1,conf:"High",target:"",evidence:"Beats control on rate AND raw count (62 vs 42) — the Templates modal is the real play"},
+  {id:34,area:"Activation",theme:"Onboarding",metric:"Tool adoption (first use)",desc:"Declared-intent product-shots push: genuine win on the hardest cohort.",hypothesis:"If we push declared product-shot sellers toward Remove BG, then applies will go up.",baseline:"0.64% control",result:"0.73%",lift:"+14.06%",control:"holdout",convWindow:"3d",campaign:"Jul 17",owner:"Vahe",status:"Winner",created:D("2026-07-17"),reach:49616,effort:1,conf:"High",target:"",evidence:"Beats control on both rate and count on the worst-follow-through cohort; 71% Android — the modal reaches who push can't"},
+  {id:35,area:"Activation",theme:"Onboarding",metric:"Tool adoption (first use)",desc:"AI Replace modal for credit-eligible never-users: the pro-tool recipe.",hypothesis:"If we introduce a low-adoption pro tool via modal, then first applies will go up sharply.",baseline:"0.19% control",result:"10.75%",lift:"+5557.89% (3d)",control:"holdout",convWindow:"3d",campaign:"Jul 17",owner:"Vahe",status:"Running",created:D("2026-07-17"),reach:89002,effort:1,conf:"High",target:"",evidence:"Near-zero control baseline makes the modal transformative — headroom rule confirmed; 7-day read to settle"},
+  {id:36,area:"Activation",theme:"Onboarding",metric:"Tool adoption (first use)",desc:"Remove tool modal for credit-eligible never-users: recipe, second data point.",hypothesis:"If we introduce the pro Remove tool via modal, then first applies will go up sharply.",baseline:"0.96% control",result:"11.2%",lift:"+1066.67% (1d)",control:"holdout",convWindow:"1d",campaign:"Jul 19",owner:"Vahe",status:"Running",created:D("2026-07-19"),reach:2163,effort:1,conf:"Med",target:"",evidence:"Day-one read on our most-used pro tool — expect settling over the window"},
+  {id:37,area:"Activation",theme:"Lifecycle",metric:"Template adoption (web)",desc:"Picsart Flow round-up email, 3 templates, one persona.",hypothesis:"If we email a curated Flow template round-up, then template adoption will go up.",baseline:"~11.7% open baseline",result:"12.82% open · 9.64% CTR",lift:"",control:"",convWindow:"",campaign:"Jul 15",owner:"Vahe",status:"Stopped",created:D("2026-07-15"),reach:47633,effort:1,conf:"Med",target:"",evidence:"97.9% delivered; web conversion NOT instrumented and no control — engagement read only",spec:{channel:"email",title:"3 templates your shop will love",body:"Product shots, UGC and fashion — pick one and make it yours.",cta:"Browse the templates",link:"(email CTA → Picsart Flows web)",verified:false,audience:"E-com persona, email-consented, ≤1 round-up per 2 weeks",goal:"web template adoption — pending web instrumentation"}},
+  {id:38,area:"Activation",theme:"Onboarding",metric:"Tool adoption (first use)",desc:"AI Expand modal: low-usage × high-usefulness pick from the credit scan.",hypothesis:"If we introduce an underused pro tool via modal, then first opens will go up sharply.",baseline:"0.18% control",result:"9.73%",lift:"+5305.56% (½d)",control:"holdout",convWindow:"1d",campaign:"Jul 21",owner:"Vahe",status:"Running",created:D("2026-07-21"),reach:14499,effort:1,conf:"Med",target:"",evidence:"Half-day read, beats control on rate AND count — recipe generalizes; queue: AI Background, HD Portrait, AI Logo, AI Avatar"},
+];
+
+// ---- generation pool: ~35 ideas across 9 metrics, all estimates from internal data ----
+const METRIC_OPTS=[
+  {area:"Activation",name:"Day-1 export rate",baseline:"now ~19% est."},
+  {area:"Activation",name:"Editor→export completion",baseline:"now 51.9% — our #1 leak"},
+  {area:"Activation",name:"W1 activation (export or generation)",baseline:"now ~32% est."},
+  {area:"Activation",name:"Video activation",baseline:"now 39.4% — worst big intent"},
+  {area:"Activation",name:"Tool adoption (first use)",baseline:"modal wave running"},
+  {area:"Retention",name:"2nd export in 7 days (2ED7)",baseline:"the retention north star"},
+  {area:"Monetization",name:"First credit use",baseline:"12.9% of exporters use credits"},
+  {area:"Monetization",name:"Free→trial rate",baseline:"96% never start a trial"},
+  {area:"Reactivation",name:"Winback rate",baseline:"15.1K recovered in the last run"},
+  {area:"Monetization",name:"Trial→Paid CVR",baseline:"now 6.1% (sample)",t:"Product"},
+  {area:"Monetization",name:"Paywall CVR",baseline:"now 3.4% (sample)",t:"Product"},
+  {area:"Monetization",name:"ARPU",baseline:"now $1.82 (sample)",t:"Product"},
+  {area:"Monetization",name:"Checkout completion",baseline:"now 64% (sample)",t:"Product"},
+  {area:"Retention",name:"Subscription retention",baseline:"now 88.0% (sample)",t:"Product"},
+];
+const SAMPLE_EV="Sample from the monetization workstream — replace with real baselines before leadership reads it";
+function pcand(theme,desc,hyp,base,target,revProj,conf,effort,surface,variants,allocation,primary,guardrails){
+  return {theme,desc,hypothesis:hyp,baseline:base,target,reach:"",revProj,conf,effort,evidence:SAMPLE_EV,xtype:"Product",
+    spec:{ptype:true,surface,variants,allocation,primary,guardrails}};
+}
+function cand(theme,desc,hyp,base,target,reach,conf,effort,evidence,spec){
+  return {theme,desc,hypothesis:hyp,baseline:base,target,reach,conf,effort,evidence,spec};
+}
+const STD="std. push filters (reachable, country-exclude, do_not_sell/guideline both cases)";
+const CANDIDATES={
+"Day-1 export rate":[
+  cand("Lifecycle","Push registered users who never opened the editor straight into Effects, since this top-of-funnel cohort has no live coverage and Effects delivers the promise in one tap.","If we push the ~2.1M/mo registered users who never open the editor straight into Effects, then day-1 exports will go up from ~19% toward ≈22% (est. +3pp ≈ 60K extra first edits/mo).","~19% est.","≈22% est.",2100000,"Med",1,"Uncovered W0 cohort; editor→export cliff 51.9% (internal funnel, Jun 2026)",{title:"Not sure where to start? ✨",body:"Your first stunning edit is one tap away.",cta:"(push tap)",link:"picsart://editor?component=effects",verified:true,audience:"Registered, D0-7, never editor_open + "+STD,goal:"object_export ≤7d, holdout on"}),
+  cand("Onboarding","Send declared-selfie users a day-1 Retouch push, since declared intent + a verified in-tool link is our strongest first-edit pattern.","If we send the ~500K/mo declared-selfie users a day-1 Retouch push, then their day-1 exports will go up from 46.2% toward ≈49% (est. +3pp ≈ 15K/mo) — but note the selfie push lane read only +2.33%, so expectations belong at the low end.","46.2% selfie d1","≈49% est.",500000,"Med",1,"Selfie is the best-activating big intent (46.2% vs 39.4% video)",{title:"Faces first",body:"Fix the light in one tap.",cta:"(push tap)",link:"picsart://editor?component=beautify",verified:true,audience:"Picked selfie editing at signup (30d), no export + "+STD,goal:"object_export ≤7d, holdout on"}),
+  cand("Onboarding","Pre-select a camera-roll photo in the first-edit flow, since ~40% of push-tap sessions die at the photo chooser before any edit starts.","If we pre-select a camera-roll photo for the ~2M/mo push-tap sessions that die at the chooser (~40% drop), then the drop will go down toward ~30% (est.), recovering ≈200K sessions/mo.","~40% chooser drop","cut the drop (est.)",2000000,"Med",4,"First-valuable-edit drop-off analysis — product change, needs eng",{title:"(product change — no push copy)",body:"",cta:"",link:"",verified:false,audience:"All push-tap sessions landing in the editor",goal:"object_export same-session"}),
+  cand("Onboarding","Give new users an image-to-video first render, since it lands in-tool and produces a shareable result on the first try.","If we offer the ~1.6M/mo photo-access new users an image-to-video first render, then day-1 exports will go up from ~19% toward ≈21% (est. +2pp ≈ 32K/mo).","~19% est.","≈21% est.",1600000,"Med",2,"Miniapp deep links land in-tool and skip the chooser entirely",{title:"Your first video in 60 seconds",body:"Turn a photo into a moving moment.",cta:"(push tap)",link:"picsart://apps?experience=default&mapp=com.picsart.edit.image-to-video",verified:true,audience:"Registered D0-7, no export, photo access granted + "+STD,goal:"object_export ≤7d, holdout on"}),
+],
+"Editor→export completion":[
+  cand("Lifecycle","Show a 'resume your project' modal that deep-links to Recent Projects for users who opened the editor in the last 48h without exporting.","If we deep-link the ~1.4M/mo editor abandoners back into their recent project, then editor→export completion will go up from 51.9% toward ≈54% (est. +2pp ≈ 28K exports/mo).","51.9%","≈54% est.",1400000,"Med",2,"Current rescue modal loses the session at the chooser; Recent Projects card restores it",{title:"Your edit is waiting",body:"Pick up right where you left off.",cta:"Resume",link:"picsart://create_flow…card_id=save_projects",verified:false,audience:"editor_open last 48h, no object_export, modal-capable devices",goal:"object_export ≤5d, holdout on"}),
+  cand("Lifecycle","Retarget the rescue modal to only the highest-abandonment sessions, since the broad cohort already exports at ~75% and blended lift keeps narrowing.","If we retarget the rescue modal from the broad ~75%-baseline cohort to only the highest-abandonment sessions (est. ~30K/mo), then measurable lift will go up from the +5.6%-and-narrowing blend to a readable per-segment number.","74.8% broad","real incremental (est.)",100000,"Med",1,"Editor-abandonment rescue read: +8.8% → +6.6% → +5.6% narrowing trend",null),
+  cand("Onboarding","Route new Android users to AI/prompt tools that skip the photo chooser, since Android exports at 31.9% vs Apple 46.5% on install day.","If we route the ~1.2M/mo new Android users to chooser-free AI tools, then Android install-day exports will go up from 31.9% toward Apple's 46.5% benchmark (est. +3–5pp ≈ 36–60K exports/mo).","31.9% Android","close the gap (est.)",1200000,"Med",3,"Install-day export gap by platform (internal funnel, Jul 2026)",{title:"Type it. See it.",body:"Describe an image and watch it appear.",cta:"(push tap)",link:"t2i miniapp (in-tool, no chooser)",verified:true,audience:"Android, D0-7, no export + "+STD,goal:"object_export ≤7d, holdout on"}),
+  cand("Lifecycle","Expand tool-specific abandoned-edit copy to the next 5 tools, since named-tool copy beat generic by +68% and +42% in the copy tests.","If we expand named-tool recovery copy to 5 more tools (~800K/mo abandoners), then recovery taps will go up est. +20–40% — the proven precedents are +68% (AI Enhance) and +42% (Remove BG).","generic copy","+tool-specific (est.)",800000,"High",2,"Copy-test precedent: AI Enhance +68%, Remove BG +42% taps vs generic",{title:"Your {tool} edit misses you",body:"Pick up where you left off in {tool}.",cta:"(push tap)",link:"picsart://editor?component={tool}",verified:true,audience:"{tool}_open last 48h, no export + "+STD,goal:"object_export ≤7d, holdout on"}),
+],
+"W1 activation (export or generation)":[
+  cand("Onboarding","Show a contextual onboarding modal on first editor open inviting the first export, using the canonical modal template.","If we show the ~1.5M/mo first-editor-open users an onboarding modal, then W1 activation will go up from ~32% toward ≈35% (est. +3pp; the modal precedent is +9.14% export lift at 2.46M viewers).","~32% est.","≈35% est.",1500000,"High",2,"The modal format is our proven activation lever (+9.14% export lift at 2.46M scale)",{title:"One tap. A better photo.",body:"Enhance sharpens any photo, free.",cta:"Try AI Enhance",link:"picsart://editor?component=ai_enhance",verified:true,audience:"First editor_open, W1, no export yet",goal:"object_export OR generation ≤7d, holdout on"}),
+  cand("Lifecycle","Send a day-3 'come back for edit #1' push to W1 users who registered with a declared intent but never activated, routed to their declared tool.","If we send the ~900K/mo non-activated declared-intent users a day-3 reminder, then W1 activation will go up from ~32% toward ≈34% (est. +2pp ≈ 18K/mo; declared-lane push reads ran +2.33% to +66.67%).","~32% est.","≈34% est.",900000,"Med",1,"Declared-intent targeting is live and reading (video pair, Jul 2026)",{title:"Your {intent} idea is still here",body:"One tap picks up where you signed up.",cta:"(push tap)",link:"per declared intent (verified per tool)",verified:true,audience:"W1, declared intent at signup, no activation + "+STD,goal:"object_export ≤7d, holdout on"}),
+  cand("Onboarding","Route each new user to a predicted first tool from the content-intelligence model instead of a generic home feed.","If we route ~2M/mo new users to a model-predicted first tool, then W1 activation will go up from ~32% toward ≈36% (est. +4pp ≈ 80K/mo — model-dependent, the biggest single swing on this list).","~32% est.","≈36% est.",2000000,"Low",4,"Tool-prediction onboarding is on the roadmap; needs model + eng",null),
+  cand("Onboarding","Test a swipe-to-find-your-vibe onboarding step that turns intent declaration into the first edit itself.","If we turn intent declaration into a swipe-to-find-your-vibe first edit for ~2M/mo new users, then W1 activation will go up est. +2–3pp (product-led, no CRM precedent to anchor on).","~32% est.","≈35% est.",2000000,"Low",5,"Onboarding roadmap bet — highest effort, product-led",null),
+],
+"Video activation":[
+  cand("Lifecycle","Recover video-editor abandoners with a finish-your-video push, since ~2.6M users a month open the video editor and never export.","If we push the ~2.6M/mo video-editor abandoners to finish their video, then video exports will go up from 39.4% toward ≈42% (est. +2.6pp; the declared-video push read +10.34%, almost all view-through).","39.4% video d1","≈42% est.",2600000,"Med",1,"Video editor open→export gap ~2.6M/mo (internal events)",{title:"Your video is waiting",body:"Finish your first video. It takes about a minute.",cta:"(push tap)",link:"universal video-editor link",verified:false,audience:"video_editor_open, no video_export_finish, 48h + "+STD,goal:"video_export_finish ≤7d, holdout on"}),
+  cand("Onboarding","Start declared-video users from a video template instead of a blank editor, since templates remove the first-step decision.","If we start the ~1.6M/mo declared-video users from a template instead of a blank editor, then video exports will go up from 39.4% toward ≈42% (est.; the video modal's flat read says the blocker is the heavy action, so removing the first decision is the lever to test).","39.4% video d1","≈42% est.",1600000,"Med",2,"Declared video intent ~1.6M/mo with worst big-intent activation",{title:"Start with a template",body:"Pick one. Drop your clip in. Done.",cta:"Browse templates",link:"video templates entry (pending tap-test)",verified:false,audience:"Declared video intent, no video export + "+STD,goal:"video_export_finish ≤7d, holdout on"}),
+  cand("Lifecycle","Use rich-media push with a moving preview for the video cohort, since motion previews the payoff better than text.","If we add a moving rich-media preview to video pushes (~1.6M/mo cohort), then push CTR will go up est. +10–20% rel. from the current 0.6% band — a tap-side fix for a lane that is 99% view-through today.","39.4% video d1","≈41% est.",1600000,"Low",2,"Rich-media slot exists in the standard push spec; untested for video",null),
+  cand("Onboarding","If the declared-video pair wins, roll the same push+modal playbook to business, selfie and photo touch-up intents.","If we roll the declared-intent playbook to the remaining lanes (~3M/mo combined), then per-intent activation will go up in line with the validated reads: Social +66.67%, Product shots +14.06% (both genuine), Touch-ups +5.32% and Selfie +2.33% (rate-only).","varies by intent","per-intent (est.)",3000000,"Med",2,"The running video pair is the template; rollout decision at its 7-day read",null),
+],
+"Tool adoption (first use)":[
+  cand("Onboarding","Clone the Remove Background modal structure to Retouch as wave 2, since the modal format wins at every tier and Retouch is the next unsaturated tool.","If we clone the Remove BG modal structure (+472% lift) to Retouch at full base (~1M/mo est. reach), then Retouch first use will go up inside the modal band — +35% floor (Beautify) to +472% ceiling (Remove BG), est.","wave-2 queue","modal-tier lift (est.)",1000000,"High",1,"Modal wave results: +35% to +472% across five tools",{title:"One tap. Flawless skin.",body:"Retouch smooths and brightens, free.",cta:"Try Retouch",link:"picsart://editor?component=beautify",verified:true,audience:"Registered, never used Retouch, modal-capable devices",goal:"tool apply ≤7d, holdout on"}),
+  cand("Onboarding","Show e-commerce sellers a product-shots Remove Background modal, since Remove BG is our proven #1 modal and product shots are the worst declared-intent follow-through (3.0%).","If we show e-com sellers a product-shots Remove BG modal, then follow-through will go up from 3.0% toward ≈5% (est.) — the push already read +14.06% genuine, and the cohort is 71% Android, which only the modal reaches.","3.0% follow-through","≈5% est.",300000,"High",1,"Declared-intent follow-through analysis (product shots worst of all intents)",{title:"Clean product photos in one tap",body:"White background. Ready to list.",cta:"Try it",link:"picsart://editor?component=remove_background (iOS) · remove_bg (Android)",verified:false,audience:"Declared business/product intent, never used Remove BG",goal:"remove_bg apply ≤7d, holdout on"}),
+  cand("Onboarding","Run a Templates modal for users who never started from a template, since templates shortcut the blank-canvas problem.","If we run a Templates modal for template-never users (~1.5M/mo est.), then template starts will go up est. +40–90% — the Social push validated the intent at +66.67%, and full-base modal precedents run +43.84% to +86.67%.","untested","modal-tier lift (est.)",1500000,"Med",1,"Approved in the modal build queue; same canonical template",null),
+  cand("Lifecycle","Show a push-opt-in modal to unreachable users, since most new Android users can't receive any push we send.","If we show a push-opt-in modal to the ~1.9M/mo unreachable new Android users, then opt-ins will go up est. 5–10% (≈100–190K newly reachable/mo) — a multiplier on every later push in this list.","low Android reach","raise reachability (est.)",1900000,"High",1,"New Android users are mostly push-unreachable — every push idea is capped by this",{title:"Don't miss your edit ideas",body:"Get one good tip a week. No spam.",cta:"Turn on notifications",link:"(system opt-in prompt)",verified:false,audience:"Push-unreachable, D0-14, active in app",goal:"push opt-in rate, holdout on"}),
+],
+"2nd export in 7 days (2ED7)":[
+  cand("Lifecycle","Nudge one-export users that the second edit is faster, since a second export within 7 days is the strongest retention predictor we track.","If we tell the ~800K/mo one-export users the second edit is faster, then 2nd exports within 7 days will go up est. +30–40% rel. — the Late Bloomers precedent read +39.22% on the same behavior.","1 export, then silence","2nd export ≤7d (est.)",800000,"Med",1,"2ED7 is the program's north-star retention metric",{title:"That edit was no fluke",body:"Your next one takes half the time. Pick a photo.",cta:"(push tap)",link:"picsart://editor?component=effects",verified:true,audience:"Exactly 1 object_export, 2-7d ago, no 2nd + "+STD,goal:"count(object_export) ≥2 within 7d, holdout on"}),
+  cand("Lifecycle","Offer a weekend sticker project to one-export users, since activated users respond to novelty and Sticker is verified and unsaturated.","If we offer the ~800K/mo one-export users a weekend sticker project, then 2nd exports within 7 days will go up est. in the +39% Late-Bloomers band — Sticker is verified and unsaturated in the last 30d of sends.","1 export","2nd export ≤7d (est.)",800000,"Med",1,"Sticker unsaturated in recent sends; verified in-tool link",{title:"Turn any photo into a sticker",body:"Weekend project: sticker your camera roll.",cta:"(push tap)",link:"picsart://editor?component=sticker",verified:true,audience:"1 export, weekend send, no 2nd export + "+STD,goal:"count(object_export) ≥2 within 7d, holdout on"}),
+  cand("Lifecycle","Pull one-export users back with AI Replace, since high-curiosity AI tools re-engage at the highest rate.","If we pull one-export users back with AI Replace (modal just read +5557.89% on never-users), then 2nd exports within 7 days will go up est. +10–15% rel. — push moves tools far less than modals (+3.45% to +12.5% band).","1 export","2nd export ≤7d (est.)",800000,"Low",1,"AI curiosity tools drive the strongest return taps in our sends",{title:"Swap anything in your photo",body:"Change the sky. Change the shirt. One prompt.",cta:"(push tap)",link:"picsart://editor?component=ai_replace",verified:true,audience:"1 export, 2-7d ago + "+STD,goal:"count(object_export) ≥2 within 7d, holdout on"}),
+  cand("Lifecycle","Offer a one-tap resize of their existing export for every platform, since reusing their own work is the lowest-effort second export.","If we offer the ~800K/mo one-export users a one-tap resize of their own work, then 2nd exports within 7 days will go up est. +5–10% rel. — Crop sits in the top-3 export tools (42.2% combined share).","1 export","2nd export ≤7d (est.)",800000,"Med",1,"Second-use-of-own-content is the fastest possible second win",{title:"Make it fit every feed",body:"One tap resizes your edit for every platform.",cta:"(push tap)",link:"picsart://editor?component=crop",verified:false,audience:"1 export, 2-7d ago + "+STD,goal:"count(object_export) ≥2 within 7d, holdout on"}),
+],
+"First credit use":[
+  cand("Upsell","Point free-credit holders at text-to-image, since T2I is the lowest-friction first generation and skips the photo chooser entirely.","If we point the ~3.5M free-credit holders with zero spend (~117K/day inflow) at text-to-image, then first credit use will go up from 12.9% of exporters toward ≈15% (est. +2pp).","12.9% of exporters","first spend (est.)",3500000,"Med",1,"Free-credit holders who never spent a credit are a warm, large cohort",{title:"5 free credits, zero pressure",body:"Type a few words. Watch Picsart paint them.",cta:"(push tap)",link:"t2i miniapp",verified:true,audience:"Has free credits, zero credit spend + "+STD,goal:"first credit request ≤7d, holdout on"}),
+  cand("Upsell","Run a 'credits 101' education modal for users who received credits but never spent one, since not understanding credits is a known activation barrier.","If we run a credits-101 education modal for the ~1M credit holders who never spent, then first credit use will go up est. +1–2pp — the barrier is comprehension, not intent.","12.9% of exporters","first spend (est.)",1000000,"Low",2,"Credits-101 is an onboarding roadmap bet; canonical modal template applies",null),
+  cand("Upsell","Nudge exporters who never touched a generative tool toward one cheap-credit AI edit, since 1-credit tools fit inside the free-credit cap.","If we nudge the ~2M/mo exporters with zero AI usage toward a 1-credit edit, then first credit use will go up est. +2pp (≈40K first spends/mo) — several strong tools cost exactly 1 credit.","12.9% of exporters","first spend (est.)",2000000,"Med",2,"Per-tool credit costs range 1-50; several strong tools cost 1 credit",null),
+  cand("Upsell","Bridge free AI Enhance completions into a first credit spend, since Enhance is free and its completers just proved AI intent.","If we bridge the ~400K/mo free AI Enhance completers into a 1-credit follow-on, then first credit use will go up est. 5–8% of them (≈20–30K spends/mo) — they just proved AI intent at zero cost.","12.9% of exporters","first spend (est.)",400000,"Med",1,"AI Enhance is credit-exempt — its completers are the warmest credit prospects",{title:"You just enhanced it",body:"Now swap the background. 1 credit.",cta:"Try it",link:"picsart://editor?component=ai_replace",verified:true,audience:"ai_enhance completed ≤24h, zero credit spend",goal:"first credit request ≤7d, holdout on"}),
+],
+"Free→trial rate":[
+  cand("Paywall","Offer the trial right after a first export succeeds, since that is the peak-trust moment and 96% of users never start a trial.","If we offer the trial at the ~1.5M/mo first-export moments instead of cold, then trial starts will go up est. +0.5–1pp (≈7–15K/mo) — 96% of users currently never start one.","96% never trial","more trial starts (est.)",1500000,"Med",2,"Post-success timing beats tool-open paywalls in our modal data",null),
+  cand("Onboarding","Route trial-enabled users into premium tool previews during onboarding, since trial state already splits the routing logic.","If we route trial-enabled users into premium tool previews during onboarding (~900K/mo est.), then trial starts will go up est. +0.3–0.5pp — the routing split by trial state already exists in the flow.","96% never trial","more trial starts (est.)",900000,"Med",3,"Free-vs-paid onboarding routing by trial state exists in the flow today",null),
+  cand("Pricing","Build an Android-specific trial entry, since Android starts trials at roughly one-fifth the Apple rate.","If we build an Android-specific trial entry for the ~1.2M/mo new Android users, then Android trial starts will go up est. 2–3× — Android currently trials at roughly one-fifth the Apple rate.","~5x platform gap","narrow the gap (est.)",1200000,"Low",3,"Trial gap by platform (internal funnel, Jul 2026)",null),
+],
+"Winback rate":[
+  cand("Lifecycle","Personalize the win-back push by the lapsed user's favorite tool, since the generic version already recovered 15,161 subscribers.","If we personalize win-back by favorite tool for the ~60K/mo lapsed cohort, then reactivations will go up est. 20–60% over the generic 15,161-in-7-days baseline — named-tool copy read +42–68% in our copy tests.","15.1K last run","above generic (est.)",60000,"Med",1,"Next step from the shipped win-back campaign — this time with a holdout",{title:"Your {tool} missed you",body:"Everything you made is still here.",cta:"(push tap)",link:"per favorite tool (verified per tool)",verified:true,audience:"Lapsed paid subscribers, 30-90d + "+STD,goal:"reactivation ≤7d, holdout on"}),
+  cand("Lifecycle","Re-run win-back WITH a holdout control, since the first run was absolute-only and true incremental is unknown.","If we re-run win-back with a 50% holdout on the ~60K/mo lapsed cohort, then we can measure true incremental for the first time — the 15,161 recovered last run is absolute-only and unprovable as lift.","no control last run","measurable lift",60000,"High",1,"No control → no lift claim; this makes win-back auditable",null),
+  cand("Lifecycle","Show lapsed exporters their own last creation category, since their history is the strongest personal hook we hold.","If we show the ~60K/mo lapsed exporters their own last creation, then reactivations will go up est. 10–30% over the 15.1K generic baseline — own-content is the strongest personal hook we hold.","15.1K last run","above generic (est.)",60000,"Low",2,"Own-content hooks outperform generic in edit-abandoned journeys",null),
+  cand("Lifecycle","Send a win-back email showing lapsed users their own recent work, since email reaches lapsed users who have no push token.","If we email the ~90K push-unreachable lapsed subscribers their own recent creations, then reactivations will go up by users push can't touch at all (est. 1–2K/run; email delivery precedent 97.9%, open 12.82%).","15.1K last run","above generic (est.)",90000,"Med",2,"Email is the only channel for lapsed users without device tokens",{channel:"email",title:"Everything you made is still here",body:"Your projects are waiting. Pick up where you left off.",cta:"Open Picsart",link:"(email CTA → app / web)",verified:false,audience:"Lapsed paid subscribers, 30-90d, email-consented",goal:"reactivation ≤7d, holdout on"}),
+],
+};
+
+// ---------------- state ----------------
+let DATA, nextId, tab="backlog", sortKey="score", sortDir=-1;
+let statusFilter="", areaFilter="", metricFilter="", themeFilter="", typeFilter="", q="";
+const typeOf=d=>d.xtype||"Lifecycle";
+let lastDeleted=null;
+
+function save(){
+  try{ localStorage.setItem("asb-state", JSON.stringify({v:SEED_VERSION, data:DATA, nextId})); }catch(e){}
+}
+function load(){
+  try{
+    const s=JSON.parse(localStorage.getItem("asb-state")||"null");
+    if(s && s.v===SEED_VERSION && Array.isArray(s.data)){ DATA=s.data; nextId=s.nextId||1000; return; }
+  }catch(e){}
+  DATA=JSON.parse(JSON.stringify(SEED)); nextId=100;
+}
+load();
+
+const cssv=v=>getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const esc=s=>(s??"").toString().replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/"/g,"&quot;");
+const autosize=ta=>{ ta.style.height="auto"; ta.style.height=ta.scrollHeight+"px"; };
+const MONTHS=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const fmtDay=ts=>{ if(!ts)return "—"; const d=new Date(ts); return MONTHS[d.getMonth()]+" "+d.getDate(); };
+const inTab=d=> tab==="backlog" ? d.status==="Backlog" : d.status!=="Backlog";
+function matches(d){
+  if(!inTab(d)) return false;
+  if(typeFilter&&typeOf(d)!==typeFilter) return false;
+  if(statusFilter&&d.status!==statusFilter) return false;
+  if(areaFilter&&d.area!==areaFilter) return false;
+  if(metricFilter&&d.metric!==metricFilter) return false;
+  if(themeFilter&&d.theme!==themeFilter) return false;
+  if(q){
+    const hay=[d.desc,d.hypothesis,d.metric,d.theme,d.area,d.owner,d.evidence,(d.spec||{}).title,(d.spec||{}).link].join(" ").toLowerCase();
+    if(hay.indexOf(q)===-1) return false;
+  }
+  return true;
+}
+const cols=()=> (tab==="backlog"?BACKLOG_COLS:PIPELINE_COLS);
+
+function toast(msg, undoFn){
+  const el=document.getElementById("toast");
+  el.innerHTML=esc(msg)+(undoFn?' <button id="undoBtn">Undo</button>':'');
+  el.classList.add("show");
+  if(undoFn) document.getElementById("undoBtn").onclick=()=>{ undoFn(); el.classList.remove("show"); };
+  clearTimeout(el._t); el._t=setTimeout(()=>el.classList.remove("show"), 6000);
+}
+
+function reorder(dragId,targetId,after){
+  if(dragId===targetId)return;
+  sortKey=null;
+  const vis=DATA.filter(matches);
+  const from=vis.findIndex(d=>d.id===dragId);
+  if(from<0)return;
+  const [item]=vis.splice(from,1);
+  let to=vis.findIndex(d=>d.id===targetId);
+  if(to<0)return;
+  vis.splice(after?to+1:to,0,item);
+  const slots=[]; DATA.forEach((d,i)=>{ if(matches(d)) slots.push(i); });
+  slots.forEach((slotIdx,k)=>{ DATA[slotIdx]=vis[k]; });
+  save(); render();
+}
+function delRow(id){
+  const idx=DATA.findIndex(d=>d.id===id); if(idx<0)return;
+  lastDeleted={row:DATA[idx], idx};
+  DATA.splice(idx,1); save(); render();
+  toast("Idea deleted.", ()=>{ DATA.splice(lastDeleted.idx,0,lastDeleted.row); lastDeleted=null; save(); render(); });
+}
+
+function rowData(){
+  let r=DATA.filter(matches);
+  if(sortKey){
+    r=r.slice().sort((a,b)=>{
+      let x,y;
+      if(sortKey==="score"){ x=scoreOf(a); y=scoreOf(b); x=x==null?-Infinity:x; y=y==null?-Infinity:y; return (x-y)*sortDir; }
+      if(sortKey==="added"){ return ((a.created||0)-(b.created||0))*sortDir; }
+      x=a[sortKey]; y=b[sortKey];
+      const nx=parseFloat(x), ny=parseFloat(y);
+      if(!isNaN(nx)&&!isNaN(ny)) return (nx-ny)*sortDir;
+      x=(""+(x||"")).toLowerCase(); y=(""+(y||"")).toLowerCase();
+      return (x<y?-1:x>y?1:0)*sortDir;
+    });
+  }
+  return r;
+}
+
+function renderChips(){
+  const wrap=document.getElementById("chips");
+  const parts=[];
+  if(typeFilter)parts.push(["type",typeFilter+" only"]);
+  if(metricFilter)parts.push(["metric",metricFilter]);
+  if(areaFilter)parts.push(["area",areaFilter]);
+  if(themeFilter)parts.push(["theme",themeFilter]);
+  if(statusFilter)parts.push(["status",statusFilter]);
+  if(q)parts.push(["search","“"+q+"”"]);
+  wrap.innerHTML=parts.map(p=>`<span class="fchip">Showing: ${esc(p[1])} <button data-f="${p[0]}">✕</button></span>`).join("")
+    +(parts.length>1?'<span class="fchip"><button data-f="all">Clear all</button></span>':'');
+  wrap.style.display=parts.length?"":"none";
+  wrap.querySelectorAll("button").forEach(b=>b.onclick=()=>{
+    const f=b.dataset.f;
+    if(f==="all"||f==="type")typeFilter="";
+    if(f==="all"||f==="metric")metricFilter="";
+    if(f==="all"||f==="area")areaFilter="";
+    if(f==="all"||f==="theme")themeFilter="";
+    if(f==="all"||f==="status")statusFilter="";
+    if(f==="all"||f==="search"){q="";document.getElementById("q").value="";}
+    render();
+  });
+}
+
+function render(){
+  document.getElementById("cntBacklog").textContent=DATA.filter(d=>d.status==="Backlog").length;
+  document.getElementById("cntPipeline").textContent=DATA.filter(d=>d.status!=="Backlog").length;
+  document.getElementById("tabBacklog").classList.toggle("active",tab==="backlog");
+  document.getElementById("tabPipeline").classList.toggle("active",tab==="pipeline");
+
+  const data=rowData(), CS=cols();
+  const _sl=data.filter(d=>typeOf(d)!=="Product").map(scoreOf).filter(v=>v!=null);
+  const _sp=data.filter(d=>typeOf(d)==="Product").map(scoreOf).filter(v=>v!=null);
+  const maxScoreL=_sl.length?Math.max(..._sl):0, maxScoreP=_sp.length?Math.max(..._sp):0;
+  const t=document.getElementById("sheet"), empty=document.getElementById("empty");
+  if(!data.length){
+    t.innerHTML=""; empty.style.display="";
+    empty.innerHTML= tab==="backlog"
+      ? `<div class="big">No ideas yet</div>Click <b>Generate ideas</b> to pull hypotheses for a metric, or <b>Add idea</b> to write one.`
+      : `<div class="big">Pipeline is empty</div>Set a backlog idea's status to <b>Picked</b> to move it here.`;
+  } else {
+    empty.style.display="none";
+    let html="<thead><tr><th class='rownum'>#</th>"+CS.map(k=>
+      `<th data-k="${k}" class="${(COL[k].cls||"").indexOf("num")>-1?"thnum":""}">${COL[k].label}${sortKey===k?`<span class='ar'>${sortDir>0?"▲":"▼"}</span>`:""}</th>`).join("")+"</tr></thead><tbody>";
+    data.forEach((d,i)=>{
+      html+=`<tr data-id="${d.id}"><td class="rownum"><div class="rn"><span class="grip">⠿</span><span class="idx">${i+1}</span></div><div class="rowtools"><button data-act="del" title="Delete">✕</button></div></td>`+CS.map(k=>{
+        const c=COL[k];
+        if(c.type==="status"){
+          const bg=cssv(STYLE[d.status][0]),fg=cssv(STYLE[d.status][1]);
+          return `<td class="status"><select class="st chip" data-k="status" style="color:${fg};background-color:${bg};background-image:radial-gradient(circle at 11px 50%, ${fg} 0 3px, transparent 3.6px)">${STATUSES.map(s=>`<option ${s===d.status?"selected":""}>${s}</option>`).join("")}</select></td>`;
+        }
+        if(c.type==="comments"){
+          const n=(d.comments||[]).length;
+          const hasSpec=!!d.spec;
+          return `<td class="cmt"><button class="cmtbtn ${n||hasSpec?"has":""}" title="Spec, evidence & notes">${hasSpec?"📋":"💬"}${n?" "+n:""}</button></td>`;
+        }
+        if(c.type==="area"||c.type==="theme"){
+          const pre=c.type==="area"?"--ar-":"--th-", cls=c.type==="area"?"arsel":"tm", opts=c.type==="area"?AREAS:THEMES;
+          const has=!!d[k], bg=has?cssv(pre+d[k]):"",fg=has?cssv(pre+d[k]+"T"):"";
+          const style=has?`color:${fg};background-color:${bg};background-image:radial-gradient(circle at 11px 50%, ${fg} 0 3px, transparent 3.6px)`:"";
+          return `<td class="${c.cls}"><select class="${cls} chip ${has?"":"empty"}" data-k="${k}" style="${style}"><option value="" ${!has?"selected":""}>—</option>${opts.map(s=>`<option ${s===d[k]?"selected":""}>${s}</option>`).join("")}</select></td>`;
+        }
+        if(c.type==="select"){
+          return `<td class="${c.cls}"><select class="conf" data-k="${k}"><option value="" ${!d[k]?"selected":""}>—</option>${c.opts.map(o=>`<option ${o===d[k]?"selected":""}>${o}</option>`).join("")}</select></td>`;
+        }
+        if(c.type==="computed"){
+          const s=scoreOf(d);
+          const mx= typeOf(d)==="Product" ? maxScoreP : maxScoreL;
+          const pct=(s!=null&&mx)?Math.max(8,Math.round(s/mx*100)):0;
+          const tip= typeOf(d)==="Product" ? "$ projection × confidence ÷ effort — an estimate, not a forecast" : "reach × confidence ÷ effort — an estimate, not a forecast";
+          return `<td class="${c.cls}" title="${tip}"><div class="scorewrap">${s==null?`<span class="sv none">—</span>`:`<span class="sv">${scoreLabel(d)}</span><span class="meter"><i style="width:${pct}%"></i></span>`}</div></td>`;
+        }
+        if(c.type==="reachfmt"){
+          const v=(d.reach===""||d.reach==null)?"":(+d.reach).toLocaleString("en-US");
+          return `<td class="${c.cls}"><input class="cell" type="text" inputmode="numeric" data-k="reach" value="${v}"></td>`;
+        }
+        if(c.type==="date"){
+          return `<td class="${c.cls}"><span class="cell" style="display:block">${fmtDay(d.created)}</span></td>`;
+        }
+        if(c.type==="lift"){
+          const v=d.lift||"", dir=/^\+/.test(v)?"up":/^-/.test(v)?"down":"";
+          return `<td class="${c.cls} ${dir}"><span class="trend">${dir==="up"?"▲":dir==="down"?"▼":""}</span><input class="cell" type="text" data-k="lift" value="${esc(v)}"></td>`;
+        }
+        if(c.type==="textarea"){
+          const lbl=d.spec?"📋 Hypothesis, copy & deep link":((d.comments||[]).length?"💬 Hypothesis & notes ("+d.comments.length+")":"＋ Hypothesis & notes");
+          const basis=d.evidence?`<div class="databasis" title="The data this hypothesis stands on">📊 ${esc(d.evidence)}</div>`:"";
+          const ticon= typeOf(d)==="Product" ? '<span class="ticon" title="Product A/B test">🧪</span>' : "";
+          return `<td class="${c.cls}">${ticon}<textarea class="cell" rows="1" data-k="${k}" style="${ticon?"display:inline-block;width:calc(100% - 24px)":""}">${d[k]??""}</textarea>${basis}<button class="speclink" data-open>${lbl}</button></td>`;
+        }
+        const ty=c.type==="number"?"number":"text";
+        return `<td class="${c.cls}"><input class="cell" type="${ty}" data-k="${k}" value="${esc(d[k])}"></td>`;
+      }).join("")+"</tr>";
+    });
+    html+="</tbody>";
+    t.innerHTML=html;
+    t.querySelectorAll("td.hyp textarea").forEach(autosize);
+    t.querySelectorAll("thead th[data-k]").forEach(th=>th.onclick=()=>{
+      const k=th.dataset.k; if(sortKey===k)sortDir*=-1;else{sortKey=k;sortDir=(k==="score"||k==="reach"||k==="added")?-1:1;} render();
+    });
+    t.querySelectorAll(".rowtools button[data-act='del']").forEach(b=>b.onclick=e=>{ e.stopPropagation(); delRow(+b.closest("tr").dataset.id); });
+    t.querySelectorAll(".cmtbtn").forEach(b=>b.onclick=e=>{ e.stopPropagation(); openDetail(+b.closest("tr").dataset.id); });
+    t.querySelectorAll(".speclink").forEach(b=>b.onclick=e=>{ e.stopPropagation(); openDetail(+b.closest("tr").dataset.id); });
+    let dragId=null;
+    const clearDrop=()=>t.querySelectorAll("tr").forEach(r=>r.classList.remove("dropbefore","dropafter"));
+    t.querySelectorAll("tbody tr").forEach(tr=>{
+      const rn=tr.querySelector("td.rownum");
+      rn.setAttribute("draggable","true");
+      rn.addEventListener("dragstart",e=>{dragId=+tr.dataset.id;tr.classList.add("dragging");e.dataTransfer.effectAllowed="move";e.dataTransfer.setData("text/plain",dragId);});
+      rn.addEventListener("dragend",()=>{tr.classList.remove("dragging");clearDrop();dragId=null;});
+      tr.addEventListener("dragover",e=>{
+        if(dragId==null)return; e.preventDefault();
+        const rect=tr.getBoundingClientRect(), after=(e.clientY-rect.top)>rect.height/2;
+        clearDrop(); tr.classList.add(after?"dropafter":"dropbefore");
+      });
+      tr.addEventListener("drop",e=>{
+        if(dragId==null)return; e.preventDefault();
+        const rect=tr.getBoundingClientRect(), after=(e.clientY-rect.top)>rect.height/2;
+        reorder(dragId,+tr.dataset.id,after);
+      });
+    });
+    t.querySelectorAll("[data-k]").forEach(el=>{
+      if(el.tagName==="TH")return;
+      const id=+el.closest("tr").dataset.id, key=el.dataset.k;
+      const ev=el.tagName==="SELECT"?"change":"input";
+      el.addEventListener(ev,()=>{
+        const d=DATA.find(x=>x.id===id); if(!d)return;
+        if(key==="status"){
+          const old=d.status, nv=el.value;
+          if(DECIDED.includes(nv) && !(d.control && d.lift && d.result)){
+            toast("Locked: \""+nv+"\" needs a Control, a measured Result and a Lift first — no control, no lift claim.");
+            el.value=old; return;
+          }
+          d.status=nv;
+          if(nv==="Running" && !d.convWindow) d.convWindow="7d";
+          save(); render(); return;
+        }
+        if(key==="reach"){
+          const digits=el.value.replace(/[^0-9]/g,"");
+          d.reach=digits===""?"":+digits;
+          if(!el._blurWired){ el._blurWired=true; el.addEventListener("blur",()=>render()); }
+          save(); updateSummary(); return;
+        }
+        d[key]=el.tagName==="INPUT"&&el.type==="number"?(el.value===""?"":+el.value):el.value;
+        if(el.tagName==="TEXTAREA") autosize(el);
+        save();
+        if(["conf","effort","reach","lift"].includes(key)) render();
+        else updateSummary();
+      });
+    });
+  }
+  updateFilters(); updateSummary(); updateHint(); renderChips();
+}
+
+function updateFilters(){
+  const tf2=document.getElementById("typeFilter");
+  tf2.innerHTML=`<option value="">All types</option><option ${typeFilter==="Lifecycle"?"selected":""}>Lifecycle</option><option ${typeFilter==="Product"?"selected":""}>Product</option>`;
+  const sf=document.getElementById("statusFilter");
+  if(tab==="backlog"){ sf.style.display="none"; statusFilter=""; }
+  else{ sf.style.display=""; sf.innerHTML=`<option value="">All statuses</option>`+PIPELINE_STATUSES.map(s=>`<option ${s===statusFilter?"selected":""}>${s}</option>`).join(""); }
+  document.getElementById("areaFilter").innerHTML=`<option value="">All areas</option>`+AREAS.map(a=>`<option ${a===areaFilter?"selected":""}>${a}</option>`).join("");
+  const ms=[...new Set(DATA.map(d=>d.metric))].filter(Boolean);
+  document.getElementById("metricFilter").innerHTML=`<option value="">All metrics</option>`+ms.map(m=>`<option ${m===metricFilter?"selected":""}>${m}</option>`).join("");
+  document.getElementById("themeFilter").innerHTML=`<option value="">All themes</option>`+THEMES.map(t=>`<option ${t===themeFilter?"selected":""}>${t}</option>`).join("");
+}
+function updateSummary(){
+  const s=document.getElementById("summary");
+  if(tab==="backlog"){
+    const b=DATA.filter(d=>d.status==="Backlog");
+    const reach=b.reduce((a,d)=>a+(+d.reach||0),0);
+    const rTxt=reach>=1e6?(reach/1e6).toFixed(1)+"M":Math.round(reach/1e3)+"K";
+    s.innerHTML=`<span class="stat"><b>${b.length}</b> idea${b.length===1?"":"s"}</span>`+
+      (reach>0?`<span class="stat"><b>${rTxt}</b>/mo est. reach</span>`:"");
+  }else{
+    const p=DATA.filter(d=>d.status!=="Backlog"&&(!typeFilter||typeOf(d)===typeFilter));
+    const running=p.filter(d=>d.status==="Running").length;
+    const decided=p.filter(d=>DECIDED.includes(d.status));
+    const wins=decided.filter(d=>d.status==="Winner").length;
+    const wr=decided.length?Math.round(wins/decided.length*100):0;
+    s.innerHTML=`<span class="stat"><b>${p.length}</b> experiments</span><span class="stat"><span class="dot" style="background:${cssv("--runningT")}"></span><b>${running}</b> running</span><span class="stat"><span class="dot" style="background:${cssv("--winnerT")}"></span>win rate <b>${wr}%</b></span>`;
+  }
+}
+function updateHint(){
+  const base= tab==="backlog"
+    ? "Ranked by Priority (reach × confidence ÷ effort). Drag the row number to reorder; set Status to Picked to move an idea into the Pipeline."
+    : "A Winner or Lost verdict stays locked until Control, Result and Lift are filled — no control, no lift claim.";
+  document.getElementById("hint").textContent = base+" All backlog figures are estimates from internal data — nothing can be claimed up or down without an A/B test.";
+}
+
+document.getElementById("tabBacklog").onclick=()=>{tab="backlog";sortKey="score";sortDir=-1;render();};
+document.getElementById("tabPipeline").onclick=()=>{tab="pipeline";sortKey=null;render();};
+document.getElementById("typeFilter").onchange=e=>{typeFilter=e.target.value;render();};
+document.getElementById("statusFilter").onchange=e=>{statusFilter=e.target.value;render();};
+document.getElementById("areaFilter").onchange=e=>{areaFilter=e.target.value;render();};
+document.getElementById("metricFilter").onchange=e=>{metricFilter=e.target.value;render();};
+document.getElementById("themeFilter").onchange=e=>{themeFilter=e.target.value;render();};
+document.getElementById("q").addEventListener("input",e=>{q=e.target.value.trim().toLowerCase();render();});
+document.getElementById("addBtn").onclick=()=>{
+  DATA.unshift({id:nextId++,area:"",theme:"",metric:"",desc:"",hypothesis:"",baseline:"",target:"",conf:"",reach:"",effort:"",owner:"",status:"Backlog",control:"",result:"",lift:"",convWindow:"",campaign:"",evidence:"",created:Date.now(),comments:[]});
+  tab="backlog";sortKey=null;save();render();
+};
+document.getElementById("csvBtn").onclick=()=>{
+  const CS=cols().filter(k=>k!=="comments");
+  const head=["#"].concat(CS.map(k=>COL[k].label));
+  const body=rowData().map((d,i)=>[i+1].concat(CS.map(k=>{
+    if(k==="score"){const s=scoreOf(d);return s==null?"":s;}
+    if(k==="added")return d.created?new Date(d.created).toISOString().slice(0,10):"";
+    return d[k]??"";
+  })));
+  const csv="\uFEFF"+[head].concat(body).map(r=>r.map(v=>{
+    v=(""+v).replace(/"/g,'""');
+    return /[",\n]/.test(v)?'"'+v+'"':v;
+  }).join(",")).join("\n");
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"}));
+  a.download="activation-studio-"+tab+"-"+new Date().toISOString().slice(0,10)+".csv";
+  document.body.appendChild(a); a.click(); a.remove();
+  toast("CSV downloaded — "+body.length+" rows.");
+};
+document.getElementById("resetBtn").onclick=()=>{
+  if(confirm("Reset the demo? This clears every edit, comment and generated idea, and restores the original data.")){
+    localStorage.removeItem("asb-state"); location.reload();
+  }
+};
+
+// theme toggle (persisted)
+const themeToggle=document.getElementById("themeToggle");
+function curTheme(){ const a=document.documentElement.getAttribute("data-theme"); if(a)return a; return matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light"; }
+const SUN='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.4M12 19.1v2.4M2.5 12h2.4M19.1 12h2.4M5 5l1.7 1.7M17.3 17.3L19 19M19 5l-1.7 1.7M6.7 17.3L5 19"/></svg>';
+const MOON='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>';
+function syncThemeIcon(){ themeToggle.innerHTML=curTheme()==="dark"?SUN:MOON; }
+try{ const th=localStorage.getItem("asb-theme"); if(th) document.documentElement.setAttribute("data-theme",th); }catch(e){}
+themeToggle.onclick=()=>{ const nv=curTheme()==="dark"?"light":"dark"; document.documentElement.setAttribute("data-theme",nv); try{localStorage.setItem("asb-theme",nv);}catch(e){} syncThemeIcon(); render(); };
+syncThemeIcon();
+
+// ---- generate: dedupe against everything already in the bank ----
+CANDIDATES["Trial→Paid CVR"]=[
+  pcand("Pricing","Shorten the free trial from 14 to 7 days for high-intent editors.","If we shorten the trial to 7 days for high-intent editors, then Trial→Paid CVR will go up from 6.1% toward ≈7.3% (sample est.).","6.1% (sample)","≈7.3% (est.)",260000,"Med",2,"Trial flow","Control: 14-day trial · Treatment: 7-day trial","50/50, high-intent editors only","Trial→Paid CVR","Trial starts; W1 activation"),
+  pcand("Paywall","Auto-apply a 20% first-month discount at the trial-expiry paywall.","If we auto-apply a 20% first-month discount at trial expiry, then Trial→Paid CVR will go up from 6.1% toward ≈7.0% (sample est.).","6.1% (sample)","≈7.0% (est.)",175000,"Med",1,"Trial-expiry paywall","Control: standard expiry · Treatment: 20% first-month offer","50/50, expiring trials","Trial→Paid CVR","Refund rate; ARPU"),
+];
+CANDIDATES["Paywall CVR"]=[
+  pcand("Pricing","Show the annual plan first instead of monthly-default on the AI-tools paywall.","If we show the annual plan first on the AI-tools paywall, then paywall CVR will go up from 3.4% toward ≈4.0% (sample est.).","3.4% (sample)","≈4.0% (est.)",320000,"High",1,"AI-tools paywall","Control: monthly-first · Treatment: annual-first","50/50, all paywall views","Paywall CVR","Refund rate; plan mix"),
+  pcand("Paywall","Trigger the paywall right after a successful AI result instead of on tool-open.","If we move the paywall to right after a successful AI result, then paywall CVR will go up from 3.4% toward ≈4.2% (sample est.).","3.4% (sample)","≈4.2% (est.)",340000,"Med",2,"Paywall trigger","Control: on tool-open · Treatment: after AI result","50/50, AI-tool sessions","Paywall CVR","Tool completion rate"),
+  pcand("Paywall","Add social proof to the AI-tools paywall.","If we add social proof to the paywall, then paywall CVR will go up from 3.4% toward ≈3.8% (sample est.).","3.4% (sample)","≈3.8% (est.)",180000,"Low",1,"AI-tools paywall","Control: current · Treatment: social-proof strip","50/50, all paywall views","Paywall CVR","—"),
+];
+CANDIDATES["ARPU"]=[
+  pcand("Pricing","Add a mid-tier plan between free and Pro.","If we add a mid-tier plan under the Pro price, then blended ARPU will go up from $1.82 toward ≈$1.98 (sample est.).","$1.82 (sample)","≈$1.98 (est.)",455000,"Med",3,"Pricing page","Control: 2 tiers · Treatment: 3 tiers with mid-tier","50/50, pricing page views","ARPU","Pro-plan mix; churn"),
+  pcand("Upsell","Bundle the AI-Avatar pack into Pro instead of à-la-carte.","If we bundle the Avatar pack into Pro, then ARPU will go up from $1.82 toward ≈$1.95 (sample est.).","$1.82 (sample)","≈$1.95 (est.)",205000,"Med",2,"Pro plan packaging","Control: à-la-carte pack · Treatment: bundled into Pro","50/50, Pro upgrade views","ARPU","Pack revenue cannibalization"),
+];
+CANDIDATES["Checkout completion"]=[
+  pcand("Checkout","Add Apple Pay / Google Pay to mobile checkout.","If we add Apple Pay / Google Pay to mobile checkout, then completion will go up from 64% toward ≈71% (sample est.).","64% (sample)","≈71% (est.)",140000,"High",2,"Mobile checkout","Control: card entry · Treatment: wallet buttons first","50/50, mobile checkouts","Checkout completion","Refund rate"),
+  pcand("Checkout","Collapse checkout to a single step.","If we collapse checkout to one step, then completion will go up from 64% toward ≈72% (sample est.).","64% (sample)","≈72% (est.)",170000,"Med",3,"Checkout flow","Control: multi-step · Treatment: single step","50/50, all checkouts","Checkout completion","Payment errors"),
+];
+CANDIDATES["Subscription retention"]=[
+  pcand("Lifecycle","Add a pause-instead-of-cancel option in the cancel flow.","If we offer pause instead of cancel, then subscription retention will go up from 88.0% toward ≈89.0% (sample est.).","88.0% (sample)","≈89.0% (est.)",125000,"High",1,"Cancel flow","Control: cancel only · Treatment: pause option first","50/50, cancel-flow entries","Subscription retention","Reactivation rate; support tickets"),
+];
+
+let genType=null, genMetric=null;
+const scrim=document.getElementById("scrim");
+const genPick=document.getElementById("genPick");
+const genRun=document.getElementById("genRun");
+const genGo=document.getElementById("genGo");
+
+function freshFor(metric){
+  const have=new Set(DATA.flatMap(d=>[d.hypothesis,d.desc]));
+  return (CANDIDATES[metric]||[]).filter(c=>!have.has(c.hypothesis));
+}
+function showTypeStep(){
+  document.getElementById("typeStep").hidden=false;
+  document.getElementById("metricStep").hidden=true;
+  genMetric=null; genGo.disabled=true; genGo.textContent="Generate ideas";
+}
+function openGen(){
+  genType=null; genMetric=null;
+  genPick.style.display=""; genRun.style.display="none";
+  showTypeStep();
+  scrim.classList.add("open");
+}
+document.querySelectorAll(".tcard").forEach(tc=>tc.onclick=()=>{ genType=tc.dataset.t; buildMetricStep(); });
+document.getElementById("typeBack").onclick=showTypeStep;
+function buildMetricStep(){
+  document.getElementById("typeStep").hidden=true;
+  document.getElementById("metricStep").hidden=false;
+  genMetric=null; genGo.disabled=true; genGo.textContent="Generate ideas";
+  const byArea={};
+  METRIC_OPTS.filter(m=>(m.t||"Lifecycle")===genType).forEach(m=>{(byArea[m.area]=byArea[m.area]||[]).push(m);});
+  document.getElementById("metricGroups").innerHTML=Object.keys(byArea).map(a=>
+    `<div class="areagroup"><p class="al" style="color:${cssv("--ar-"+a+"T")}">${a}</p><div class="metricgrid">`+
+    byArea[a].map(m=>{
+      const left=freshFor(m.name).length;
+      return `<div class="mchip" data-m="${esc(m.name)}"><div class="mn">${m.name}</div><div class="mb">${m.baseline} · ${left?left+" fresh ideas":"bank covers this"}</div></div>`;
+    }).join("")+`</div></div>`).join("");
+  document.querySelectorAll("#metricGroups .mchip").forEach(ch=>ch.onclick=()=>{
+    document.querySelectorAll("#metricGroups .mchip").forEach(x=>x.classList.remove("sel"));
+    ch.classList.add("sel"); genMetric=ch.dataset.m;
+    genGo.disabled=false; genGo.textContent=`Generate for ${genMetric.length>26?genMetric.slice(0,24)+"…":genMetric}`;
+  });
+}
+function runGen(){
+  genPick.style.display="none"; genRun.style.display="";
+  document.getElementById("genRunTitle").innerHTML=`Generating ideas for <span class="genmetric">${genMetric}</span>`;
+  document.getElementById("genRunSub").textContent="Reading the funnel behind this metric, then proposing hypotheses grounded in it.";
+  const fresh=freshFor(genMetric).slice(0,3);
+  const steps=[
+    `Size the audiences behind ${genMetric}`,
+    `Pull the funnel baselines (trailing 30d)`,
+    `Draft hypotheses grounded in that data`,
+    `Check every cited number against the facts table`,
+    `Screen against the idea bank — no repeats`,
+    fresh.length ? `Add ${fresh.length} new idea${fresh.length>1?"s":""} to the backlog` : `Bank already covers this metric — nothing new to add`,
+  ];
+  const log=document.getElementById("genlog");
+  log.innerHTML=steps.map(s=>`<li data-step><span class="tick"></span>${s}</li>`).join("");
+  const els=[...log.querySelectorAll("[data-step]")];
+  let i=0;const iv=setInterval(()=>{
+    if(i>0){els[i-1].classList.add("done");els[i-1].querySelector(".tick").textContent="✓";}
+    if(i<els.length){els[i].style.color="var(--accent)";i++;}
+    else{
+      clearInterval(iv);
+      const area=(METRIC_OPTS.find(m=>m.name===genMetric)||{}).area||"";
+      fresh.forEach(c=>DATA.unshift({
+        ...c,area,metric:genMetric,xtype:c.xtype||genType||"Lifecycle",id:nextId++,status:"Backlog",owner:"",
+        control:"",result:"",lift:"",convWindow:"",campaign:"",created:Date.now(),comments:[]
+      }));
+      scrim.classList.remove("open");
+      tab="backlog"; sortKey="score"; sortDir=-1; metricFilter=genMetric; areaFilter="";
+      save(); render();
+      toast(fresh.length ? fresh.length+" new ideas added for "+genMetric : "The bank already covers "+genMetric+" — no repeats added.");
+    }
+  },480);
+}
+document.getElementById("genBtn").onclick=openGen;
+document.getElementById("genCancel").onclick=()=>scrim.classList.remove("open");
+scrim.onclick=e=>{ if(e.target===scrim) scrim.classList.remove("open"); };
+genGo.onclick=()=>{ if(genMetric) runGen(); };
+
+// ---- localized copy: canonical 19-language Liquid ----
+const LANGS=["ar","bn","de","en","es","fa","fr","hi","id","it","ja","ko","pl","pt","ru","th","tr","vi","zh"];
+const TR={
+"That clip in your camera roll? 🎬":{ar:"ذلك المقطع في معرض صورك؟ 🎬",bn:"আপনার গ্যালারির সেই ক্লিপটা? 🎬",de:"Der Clip in deiner Galerie? 🎬",es:"¿Ese clip en tu galería? 🎬",fa:"آن کلیپ توی گالری‌ات؟ 🎬",fr:"Ce clip dans ta galerie ? 🎬",hi:"आपकी गैलरी की वह क्लिप? 🎬",id:"Klip di galerimu itu? 🎬",it:"Quella clip nella tua galleria? 🎬",ja:"カメラロールのあの動画 🎬",ko:"갤러리 속 그 클립 🎬",pl:"Ten klip w twojej galerii? 🎬",pt:"Aquele clipe na sua galeria? 🎬",ru:"Тот клип в вашей галерее? 🎬",th:"คลิปในแกลเลอรีของคุณ? 🎬",tr:"Galerindeki o klip? 🎬",vi:"Đoạn clip trong thư viện của bạn? 🎬",zh:"相册里的那段视频？🎬"},
+"One edit and it's ready to post.":{ar:"تعديل واحد ويصبح جاهزًا للنشر.",bn:"একটা এডিট করলেই পোস্টের জন্য তৈরি।",de:"Ein Edit und er ist bereit zum Posten.",es:"Una edición y está listo para publicar.",fa:"یک ویرایش و آماده‌ی انتشار است.",fr:"Un montage et il est prêt à poster.",hi:"बस एक एडिट और पोस्ट के लिए तैयार।",id:"Sekali edit langsung siap diposting.",it:"Un edit ed è pronta da postare.",ja:"ひとつ編集すれば、投稿できます。",ko:"한 번만 편집하면 바로 올릴 수 있어요.",pl:"Jedna edycja i gotowy do publikacji.",pt:"Uma edição e está pronto para postar.",ru:"Одно редактирование — и он готов к публикации.",th:"แก้ไขครั้งเดียวก็พร้อมโพสต์.",tr:"Tek düzenlemeyle paylaşmaya hazır.",vi:"Chỉnh một lần là sẵn sàng đăng.",zh:"一次编辑，就能发布。"},
+"Pick a clip":{ar:"اختر مقطعًا",bn:"একটি ক্লিপ বাছুন",de:"Clip auswählen",es:"Elige un clip",fa:"یک کلیپ انتخاب کن",fr:"Choisis un clip",hi:"क्लिप चुनें",id:"Pilih klip",it:"Scegli una clip",ja:"クリップを選ぶ",ko:"클립 선택하기",pl:"Wybierz klip",pt:"Escolha um clipe",ru:"Выбрать клип",th:"เลือกคลิป",tr:"Klip seç",vi:"Chọn clip",zh:"选择片段"},
+};
+function toLiquid(en){
+  const tr=TR[en]||{};
+  return LANGS.map((l,i)=>(i?"{% elsif Profile.Language == '"+l+"' %}":"{% if Profile.Language == '"+l+"' %}")+(tr[l]||en)).join("")
+    +"{% else %}"+en+"{% endif %}";
+}
+let pendingCopy=null;
+const copyScrim=document.getElementById("copyScrim");
+function openCopyChoice(value){
+  pendingCopy=value;
+  document.getElementById("locNote").textContent = TR[value]
+    ? "This copy has real translations for all 19 languages."
+    : "Prototype note: the Liquid structure is canonical, but all 19 branches carry the English text — translations are generated at draft time.";
+  copyScrim.classList.add("open");
+}
+function doCopy(text,msg){
+  navigator.clipboard.writeText(text).then(()=>toast(msg)).catch(()=>toast("Copy failed — select the text manually."));
+  copyScrim.classList.remove("open"); pendingCopy=null;
+}
+document.getElementById("copyEn").onclick=()=>{ if(pendingCopy!=null) doCopy(pendingCopy,"English copy on the clipboard."); };
+document.getElementById("copyLiquid").onclick=()=>{ if(pendingCopy!=null) doCopy(toLiquid(pendingCopy),"19-language Liquid on the clipboard."); };
+document.getElementById("copyCancel").onclick=()=>{ copyScrim.classList.remove("open"); pendingCopy=null; };
+copyScrim.onclick=e=>{ if(e.target===copyScrim){ copyScrim.classList.remove("open"); pendingCopy=null; } };
+
+// ---- segment view: full rule stack by campaign type ----
+function isModalSpec(sp){ return !!(sp && sp.cta && sp.cta!=="(push tap)"); }
+function specChannel(sp){ if(sp&&sp.channel) return sp.channel; return isModalSpec(sp)?"modal":"push"; }
+function segmentRules(d){
+  const sp=d.spec||{}; const rules=[];
+  if(sp.ptype){
+    if(sp.allocation) rules.push(["SPLIT",sp.allocation]);
+    if(sp.primary) rules.push(["TESTING","Primary metric: "+sp.primary]);
+    if(sp.guardrails&&sp.guardrails!=="—") rules.push(["PROPERTY","Guardrail metrics: "+sp.guardrails]);
+    rules.push(["CONTROL","50/50 A/B split — omit only if this ships as a straight rollout"]);
+    rules.push(["NOTE","Runtime: run to significance on the primary metric before any verdict"]);
+    return rules;
+  }
+  const ch=specChannel(sp);
+  (sp.audience||"").split(/\s*\+\s*|;\s*/).forEach(x=>{ x=x.trim(); if(x) rules.push(["WHO",x]); });
+  if(ch==="email"){
+    rules.push(["INCLUDE","Segment: Nov1425_Email_Settings_on…"]);
+    if(/holdout/i.test(sp.goal||"")) rules.push(["CONTROL","Holdout 50% (A/B default) — omit the control group when not running a test"]);
+    if(sp.goal) rules.push(["TESTING","Goal: "+sp.goal]);
+    return rules;
+  }
+  if(ch==="modal"){
+    rules.push(["INCLUDE","Modal-capable devices segment"]);
+    rules.push(["EXCLUDE","Country exclusion list"]);
+    rules.push(["PROPERTY","do_not_sell — not equals: true, True (both cases)"]);
+    rules.push(["PROPERTY","has_guideline_violation — not equals: true, True (both cases)"]);
+    rules.push(["TRIGGER","Shows on in-app events per campaign (e.g. network open / create flow open)"]);
+    if(/holdout/i.test(sp.goal||"")) rules.push(["CONTROL","Holdout 50% (A/B default) — omit the control group when not running a test"]);
+    if(sp.goal) rules.push(["TESTING","Goal: "+sp.goal]);
+  } else {
+    rules.push(["PROPERTY","do_not_sell — not equals: true, True"]);
+    rules.push(["PROPERTY","has_guideline_violation — not equals: true, True"]);
+    rules.push(["EXCLUDE","Segment: Dec0925_Exclude_Countries…"]);
+    rules.push(["INCLUDE","Segment: Reachability_Has device token…"]);
+    rules.push(["SETTING","DND: no sends 10PM–9AM, every day (M T W T F S S)"]);
+    if(/holdout/i.test(sp.goal||"")) rules.push(["CONTROL","Holdout 50% (A/B default) — omit the control group when not running a test"]);
+    if(sp.goal) rules.push(["TESTING","Goal: "+sp.goal]);
+  }
+  return rules;
+}
+const SEGTAG_CLS={WHO:"who",INCLUDE:"inc",EXCLUDE:"exc",PROPERTY:"prop",TRIGGER:"trig",CONTROL:"ctl",TESTING:"test",NOTE:"note",SETTING:"prop"};
+
+// ---- detail drawer: execution spec + grounding + comments ----
+let cmtId=null;
+const cmtScrim=document.getElementById("cmtScrim");
+const cmtDrawer=document.getElementById("cmtDrawer");
+const fmtTime=ts=>new Date(ts).toLocaleString([], {month:"short",day:"numeric",hour:"2-digit",minute:"2-digit"});
+function openDetail(id){
+  const d=DATA.find(x=>x.id===id); if(!d)return;
+  cmtId=id;
+  document.getElementById("cmtMetric").textContent=typeOf(d)+" · "+(d.area?d.area+" · ":"")+(d.metric||"Untitled experiment");
+  document.getElementById("cmtHyp").textContent=d.desc||d.hypothesis||"(untitled idea)";
+  const g=document.getElementById("cmtGround");
+  let html="";
+  if(d.hypothesis) html+=`<div class="ground"><b>Hypothesis</b>${esc(d.hypothesis)}</div>`;
+  if(d.evidence) html+=`<div class="specbox"><b>Data basis</b>${esc(d.evidence)}</div>`;
+  if(d.spec&&d.spec.ptype){
+    const sp=d.spec;
+    html+=`<div class="specbox"><b>Experiment spec</b><table class="spect">`+
+      (sp.surface?`<tr><td>Surface</td><td>${esc(sp.surface)}</td></tr>`:"")+
+      (sp.variants?`<tr><td>Variants</td><td>${esc(sp.variants)}</td></tr>`:"")+
+      (sp.allocation?`<tr><td>Allocation</td><td>${esc(sp.allocation)}</td></tr>`:"")+
+      (sp.primary?`<tr><td>Primary</td><td>${esc(sp.primary)}</td></tr>`:"")+
+      (sp.guardrails&&sp.guardrails!=="—"?`<tr><td>Guardrails</td><td>${esc(sp.guardrails)}</td></tr>`:"")+
+      `</table>`+
+      `<button class="segfull" id="segToggle">Show experiment setup ▾</button><div class="segview" id="segView" hidden><b>Product A/B — setup checklist</b>`+
+        segmentRules(d).map(r=>`<div class="segrule"><span class="segtag ${SEGTAG_CLS[r[0]]}">${r[0]}</span><span>${esc(r[1])}</span></div>`).join("")+
+      `</div></div>`;
+  } else if(d.spec){
+    const sp=d.spec;
+    const vb=sp.link?`<span class="vbadge ${sp.verified?"ok":"warn"}">${sp.verified?"✓ click-tested":"not click-tested yet"}</span>`:"";
+    const cp=(v,loc)=>` <button class="copybtn" data-copy="${esc(v)}"${loc?' data-loc="1"':''}>copy</button>`;
+    html+=`<div class="specbox"><b>Execution spec</b><table class="spect">`+
+      (sp.title?`<tr><td>Title</td><td>${esc(sp.title)}${cp(sp.title,1)}</td></tr>`:"")+
+      (sp.body?`<tr><td>Body</td><td>${esc(sp.body)}${cp(sp.body,1)}</td></tr>`:"")+
+      (sp.cta&&sp.cta!=="(push tap)"?`<tr><td>CTA</td><td>${esc(sp.cta)}${cp(sp.cta,1)}</td></tr>`:"")+
+      (sp.link?`<tr><td>Opens</td><td class="mono">${esc(sp.link)} ${vb}${cp(sp.link)}</td></tr>`:"")+
+      (sp.audience?`<tr><td>Audience</td><td>${esc(sp.audience)}${cp(sp.audience)}</td></tr>`:"")+
+      (sp.goal?`<tr><td>Goal</td><td>${esc(sp.goal)}${cp(sp.goal)}</td></tr>`:"")+
+      `</table>`+
+      (sp.audience?`<button class="segfull" id="segToggle">Show full launch segment ▾</button><div class="segview" id="segView" hidden><b>${specChannel(sp)==="modal"?"Modal segment — full rule stack":specChannel(sp)==="email"?"Email segment — full rule stack":"Push segment — full rule stack"}</b>`+
+        segmentRules(d).map(r=>`<div class="segrule"><span class="segtag ${SEGTAG_CLS[r[0]]}">${r[0]}</span><span>${esc(r[1])}</span></div>`).join("")+
+        `</div>`:"")+
+      `</div>`;
+  } else if(d.status!=="Backlog"){
+    html+=`<div class="specbox mockspec"><b>Execution spec</b>The full setup for this one lives in CleverTap — copy, audience and goals were configured at launch.</div>`;
+  } else {
+    html+=`<div class="specbox mockspec"><b>Execution spec</b>No spec yet — this idea needs copy, a deep link and audience rules before it can be picked.</div>`;
+  }
+  g.innerHTML=html;
+  const st=g.querySelector("#segToggle");
+  if(st) st.onclick=()=>{
+    const sv=g.querySelector("#segView");
+    sv.hidden=!sv.hidden;
+    const isP=(DATA.find(x=>x.id===cmtId)||{}).spec?.ptype;
+    st.textContent=sv.hidden?(isP?"Show experiment setup ▾":"Show full launch segment ▾"):(isP?"Hide experiment setup ▴":"Hide launch segment ▴");
+  };
+  g.querySelectorAll(".copybtn").forEach(b=>{ if(b.id==="segToggle")return; b.onclick=()=>{
+    if(b.dataset.loc){ openCopyChoice(b.dataset.copy); return; }
+    navigator.clipboard.writeText(b.dataset.copy).then(()=>{
+      b.textContent="✓ copied"; setTimeout(()=>{b.textContent="copy";},1200);
+    }).catch(()=>{ b.textContent="select manually"; });
+  };});
+  renderComments();
+  document.getElementById("cmtInput").value="";
+  cmtScrim.classList.add("open"); cmtDrawer.classList.add("open");
+  setTimeout(()=>document.getElementById("cmtInput").focus(),160);
+}
+function renderComments(){
+  const d=DATA.find(x=>x.id===cmtId); const list=document.getElementById("cmtList");
+  const cs=(d&&d.comments)||[];
+  list.innerHTML= cs.length ? cs.map(c=>
+    `<div class="comment"><div class="meta"><b>${esc(c.author)}</b> · ${fmtTime(c.ts)}</div><div class="txt">${(c.text||"").replace(/</g,"&lt;")}</div></div>`).join("")
+    : `<div class="cempty">No comments yet.<br>Start the discussion below.</div>`;
+}
+function closeDetail(){cmtScrim.classList.remove("open");cmtDrawer.classList.remove("open");cmtId=null;}
+function addComment(){
+  const d=DATA.find(x=>x.id===cmtId); if(!d)return;
+  const ta=document.getElementById("cmtInput"); const text=ta.value.trim(); if(!text)return;
+  let who=null; try{who=localStorage.getItem("asb-name");}catch(e){}
+  if(!who){ who=((prompt("Your name (shown on your comments):","")||"").trim())||"PM"; try{localStorage.setItem("asb-name",who);}catch(e){} }
+  (d.comments=d.comments||[]).push({author:who,ts:Date.now(),text});
+  ta.value=""; save(); renderComments(); render(); ta.focus();
+}
+document.addEventListener("keydown",e=>{
+  if(e.key!=="Escape")return;
+  if(copyScrim.classList.contains("open")){ copyScrim.classList.remove("open"); pendingCopy=null; }
+  else if(scrim.classList.contains("open")) scrim.classList.remove("open");
+  else if(cmtDrawer.classList.contains("open")) closeDetail();
+});
+document.getElementById("cmtClose").onclick=closeDetail;
+cmtScrim.onclick=closeDetail;
+document.getElementById("cmtAdd").onclick=addComment;
+document.getElementById("cmtInput").addEventListener("keydown",e=>{ if(e.key==="Enter"&&(e.metaKey||e.ctrlKey))addComment(); });
+
+render();
+</script>
+</body>
+</html>
